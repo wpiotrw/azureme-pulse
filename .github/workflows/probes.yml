@@ -1,0 +1,52 @@
+name: Probes
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'probes/**'
+      - '.github/workflows/probes.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: probes
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load previous results from the data branch
+        run: |
+          mkdir -p out
+          if git fetch --depth=1 origin data 2>/dev/null; then
+            git show FETCH_HEAD:status.json > out/prev.json || echo '{}' > out/prev.json
+          else
+            echo '{}' > out/prev.json
+          fi
+
+      - name: Run probes
+        run: |
+          node --version
+          node probes/probe.mjs out/prev.json out/status.json
+
+      - name: Publish results to the data branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out
+          rm -f prev.json
+          git init -q -b data
+          git config user.name "azureme-pulse-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add status.json
+          git commit -q -m "probe $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
