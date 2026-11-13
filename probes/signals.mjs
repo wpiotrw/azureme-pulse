@@ -9,11 +9,11 @@ const EVERY_MIN = 14; // both sources change slowly; read them every third run
 const MAX_HIST = 96;
 
 const median = (a) => { if (!a.length) return 0; const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
-const fresh = (prev, now) => prev && prev.fetched && now - Date.parse(prev.fetched) < EVERY_MIN * 60000;
+const fresh = (prev, now) => prev && prev.ok && prev.fetched && now - Date.parse(prev.fetched) < EVERY_MIN * 60000;
 
-async function getJson(url, headers = {}) {
+async function getJson(url, headers = {}, timeoutMs = 25000) {
   const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 10000);
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
   try {
     const r = await fetch(url, { headers: { 'user-agent': UA, accept: 'application/json', ...headers }, signal: ctl.signal });
     const text = await r.text();
@@ -35,6 +35,7 @@ export function bgpState(cur, hist) {
 export async function readBgp(prev, now = Date.now(), get = getJson) {
   if (fresh(prev, now)) return prev;
   const out = { ok: false, source: 'RIPEstat', asn: ASN, fetched: new Date(now).toISOString(), hist: Array.isArray(prev?.hist) ? prev.hist.slice(-MAX_HIST) : [] };
+  const t0 = Date.now();
   try {
     const r = await get(`https://stat.ripe.net/data/routing-status/data.json?resource=AS${ASN}&sourceapp=azureme-pulse`);
     const d = r.body?.data;
@@ -48,7 +49,7 @@ export async function readBgp(prev, now = Date.now(), get = getJson) {
     out.hist = out.hist.slice(-MAX_HIST);
     out.ok = true;
   } catch (e) {
-    out.error = String(e.message || e).slice(0, 120);
+    out.error = `${String(e.message || e).slice(0, 120)} (${Date.now() - t0} ms)`;
     if (prev?.v4) { out.v4 = prev.v4; out.v6 = prev.v6; out.state = prev.state; out.staleSince = prev.staleSince || prev.fetched; }
   }
   return out;
