@@ -22,6 +22,30 @@ export function parseNext(raw) {
   return Number.isNaN(d) ? null : new Date(d).toISOString();
 }
 
+// Services listed in the "More info" part of a post as lines "- Service name: impact".
+// The list describes the scope of one issue; the entries are not separate issues.
+export function postServices(html) {
+  const lines = String(html || '')
+    .replace(/<\s*(br|\/div|\/p|\/li)\s*\/?>/gi, '\n')
+    .split('\n')
+    .map((l) => htmlToText(l, 2000));
+  const out = [];
+  const seen = new Set();
+  for (const l of lines) {
+    const m = /^[-•]\s*([A-Z][^:]{1,70}):\s+(.{10,})$/.exec(l);
+    if (!m || seen.has(m[1])) continue;
+    seen.add(m[1]);
+    out.push({ n: m[1].trim(), t: m[2].length > 320 ? `${m[2].slice(0, 319).trimEnd()}…` : m[2] });
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+
+// Identifiers of other issues mentioned in the text (for example EX1550543 inside MO1550821).
+export function postRefs(text, ownId = '') {
+  return [...new Set(String(text || '').match(/\b(?!MC)[A-Z]{2}\d{6,7}\b/g) || [])].filter((x) => x !== ownId).slice(0, 10);
+}
+
 const clip = (s, n) => (s && s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s || '');
 
 // Fields published for one post: short parts only, never the whole message.
@@ -48,7 +72,7 @@ export async function readPublicStatus(fetchImpl = fetch) {
   const out = { ok: false, fetched: new Date().toISOString(), error: '', m365: null, azure: null, consumer: [] };
   try {
     const [mac, az, cons] = await Promise.all([get('mac', fetchImpl), get('azure', fetchImpl).catch(() => null), get('m365Consumer', fetchImpl).catch(() => [])]);
-    const one = (p) => (p ? { title: clip(htmlToText(p.Title, 300), 300), status: String(p.Status || ''), authored: iso(p.AuthoredDateTime), updated: iso(p.LastUpdatedTime), ...slimPost(htmlToText(p.Message, 6000)) } : null);
+    const one = (p) => (p ? { title: clip(htmlToText(p.Title, 300), 300), status: String(p.Status || ''), authored: iso(p.AuthoredDateTime), updated: iso(p.LastUpdatedTime), ...slimPost(htmlToText(p.Message, 6000)), affected: postServices(p.Message), refs: postRefs(htmlToText(p.Message, 20000)) } : null);
     out.m365 = one(mac);
     out.azure = one(az);
     out.consumer = (Array.isArray(cons) ? cons : []).filter((c) => c.Status && c.Status !== 'Operational').slice(0, 10)
