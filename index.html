@@ -274,6 +274,25 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   .nd span{display:none}
   .stp{padding:20px 18px 2px}
 }
+.hist{padding:14px 16px;overflow-x:auto}
+.hi-r{display:grid;grid-template-columns:170px minmax(300px,1fr) 70px 70px;gap:12px;align-items:center;padding:6px 0;font-size:14px}
+.hi-r.h{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.hi-r .n{font-weight:600}
+.hi-c{display:grid;grid-template-columns:repeat(30,1fr);gap:3px}
+.hi-c i{height:22px;border-radius:3px;background:#18243a}
+.hi-c i.ok{background:var(--ok)}.hi-c i.warn{background:var(--warn)}.hi-c i.crit{background:var(--crit)}
+.hi-r .p{font-family:var(--f-mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:720px){.hi-r{grid-template-columns:minmax(0,1fr) 62px 62px;gap:4px 10px}.hi-r .hi-c{grid-column:1/-1;grid-row:2}.hi-r.h span:nth-child(2){display:none}}
+.mc{list-style:none;margin:0;padding:0}
+.mc li{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:4px 12px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13.5px;align-items:start}
+.mc li:last-child{border-bottom:0}
+.mc .i{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.mc small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.mc .chip{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted);white-space:nowrap}
+.mc .chip.major{color:var(--warn);border-color:var(--warn)}
+@media (max-width:720px){.mc li{grid-template-columns:minmax(0,1fr) auto}.mc .i{grid-column:1/-1}}
+.hc li .u{display:block;margin-top:6px;padding:8px 10px;border-left:2px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.5}
+.hc li .u b{color:var(--ink);font-weight:600}
 .sg{padding:0;overflow:hidden}
 .sg-r{border-bottom:1px solid var(--line)}
 .sg-r:last-child{border-bottom:0}
@@ -345,7 +364,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     <header><span class="real">DANE RZECZYWISTE</span><h2>Panel sygnalizacyjny sond</h2><p>Jedna kontrolka odpowiada jednemu sprawdzeniu. Każda usługa jest oceniana trzema niezależnymi metodami: odpowiedź publicznego punktu końcowego (HTTP), odczyt danych przez Microsoft Graph w tenancie testowym oraz stan deklarowany przez Microsoft w Service Health. Wiersz można rozwinąć, aby zobaczyć poszczególne sprawdzenia.</p></header>
     <p class="sg-sum" id="sg-sum" aria-live="polite"></p>
     <div class="card sg">
-      <div class="sg-g sg-h"><span>Usługa</span><span>Punkty końcowe (HTTP)</span><span>Odczyt przez Graph</span><span>Service Health</span><span style="justify-self:end">Ocena</span></div>
+      <div class="sg-g sg-h"><span>Usługa</span><span>Punkty końcowe (HTTP)</span><span>Odczyt przez Graph</span><span>Stan według Microsoft</span><span style="justify-self:end">Ocena</span></div>
       <div class="live-empty" id="sg-empty">Wczytywanie pomiarów…</div>
       <div id="sg-rows"></div>
     </div>
@@ -388,9 +407,18 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
       <div id="live-rows"></div>
     </div>
     <p class="note" id="live-note"></p>
+    <h3 class="sub">Dostępność dzienna sond (30 dni)</h3>
+    <p class="note" style="margin-top:4px">Jeden prostokąt to jedna doba (UTC), najnowsza po prawej. Zielony: co najmniej 99,9% poprawnych pomiarów, pomarańczowy: co najmniej 99%, czerwony: poniżej 99%, szary: brak pomiarów. Historia jest zbierana od dnia uruchomienia sond.</p>
+    <div class="card hist" style="margin-top:12px"><div class="hi-r h"><span>Usługa</span><span>Doby</span><span style="text-align:right">7 dni</span><span style="text-align:right">30 dni</span></div><div id="hist-rows"></div></div>
     <h3 class="sub">Stan usług według Microsoft (Service Health)</h3>
     <p class="note" style="margin-top:4px">Odczyt z Microsoft Graph w tenantach testowych, co około 5 minut. Pokazuje usługi w stanie innym niż dostępny oraz zgłoszenia otwarte lub zmienione w ostatnich 7 dniach.</p>
     <div class="reg" id="health-box" style="margin-top:12px"><div class="card live-empty">Brak odczytu Service Health.</div></div>
+    <h3 class="sub">Stan platformy Azure</h3>
+    <p class="note" style="margin-top:4px">Publiczny kanał stanu Azure (azure.status.microsoft), odczyt co około 5 minut. Kanał obejmuje wyłącznie zdarzenia o szerokim zasięgu; zdarzenia dotyczące pojedynczej subskrypcji są widoczne tylko w Azure Service Health w portalu.</p>
+    <div class="card" id="az-box" style="margin-top:12px;font-size:14px">Brak odczytu kanału stanu Azure.</div>
+    <h3 class="sub">Centrum wiadomości Microsoft 365 (Message Center)</h3>
+    <p class="note" style="margin-top:4px">Zapowiedzi zmian zmodyfikowane w ostatnich 14 dniach, odczyt przez Microsoft Graph w tenantach testowych. Tytuły w brzmieniu Microsoft.</p>
+    <div class="card" id="mc-box" style="margin-top:12px;padding:0"><div class="live-empty">Brak odczytu Message Center. Odczyt wymaga uprawnienia ServiceMessage.Read.All.</div></div>
   </section>
 
   <section id="rejestr">
@@ -933,6 +961,7 @@ function renderLive(d){
     if(sv.id==="exo"){var o=0;ser.forEach(function(v){o+=v[0];});exoTxt=(o/ser.length*100).toFixed(1).replace(".",",")+"%";}});
   var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t),health:d.health||[]};REAL.table=renderRealTable(d);lastIdx=-1;
   renderHealth(d.health||[]);
+  try{renderHist(d);renderAzure(d.azure);renderMc(d.health||[]);}catch(e){}
   if(FLIVE)FLIVE.apply();
   var g=new Date(d.generated),age=Math.round((Date.now()-g.getTime())/60000),first=d.samples[0].t,lastT=d.samples[d.samples.length-1].t;
   $("live-note").textContent="Ostatni pomiar: "+p2(g.getUTCDate())+"."+p2(g.getUTCMonth()+1)+" "+p2(g.getUTCHours())+":"+p2(g.getUTCMinutes())+" UTC ("+age+" min temu). Liczba pomiarów: "+d.samples.length+", okno: "+dur(lastT-first)+"."+(age>20?" Uwaga: harmonogram pomiarów jest opóźniony.":"");
@@ -994,11 +1023,39 @@ function renderSignals(d){
       var q,t,r;if(row.chk==="*"){var okc=cs.filter(function(x){return x.state!=="fail";}).length;q=okc===cs.length?"ok":okc?"warn":"crit";t="żądania do Microsoft Graph z tokenem aplikacji";r=okc+" z "+cs.length+" poprawnych";}
       else{var x=cs[0];q=x.state==="ok"?"ok":x.state==="fail"?"crit":x.state==="denied"?"warn":"off";t=x.name;r=(CST[x.state]||x.state)+(x.state==="ok"?" · "+x.ms+" ms":x.code?" · kod "+x.code:"");}
       if(q!=="off")see(q);b+=led(q,h.label+": "+t+", "+r);det+=li(q,"Graph · "+h.label,t,r);});
+    if(row.n==="Azure"&&d.azure&&d.azure.ok){var aq=d.azure.items.length?"warn":"ok",at=d.azure.items.length?"aktywne zdarzenia: "+d.azure.items.length:"brak aktywnych zdarzeń";see(aq);c+=led(aq,"Azure Status: "+at);det+=li(aq,"Azure Status","publiczny kanał stanu Azure",at);}
     if(row.sh)H.forEach(function(h){(h.services||[]).filter(function(x){return row.sh.test(x.name);}).forEach(function(x){var m=hst(x.status);see(m[1]);c+=led(m[1],h.label+": "+x.name+", "+m[0]);det+=li(m[1],"Health · "+h.label,x.name,m[0]);});});
     var el=document.createElement("details");el.className="sg-r"+(worst==="off"?"":" s-"+worst);el.dataset.n=row.n;el.open=!!SGOPEN[row.n];
-    el.innerHTML='<summary class="sg-g"><span class="sg-n">'+esc(row.n)+'</span><span class="sg-l ga" data-l="Punkty końcowe">'+(a||"<em>brak sondy</em>")+'</span><span class="sg-l gb" data-l="Odczyt przez Graph">'+(b||"<em>brak sprawdzenia</em>")+'</span><span class="sg-l gc" data-l="Service Health">'+(c||"<em>"+(row.sh?"brak odczytu":"nie dotyczy")+"</em>")+'</span><span class="sg-v">'+esc(worst==="off"?"Brak danych":LAB[worst])+'</span></summary><ul class="sg-d">'+det+'</ul>';
+    el.innerHTML='<summary class="sg-g"><span class="sg-n">'+esc(row.n)+'</span><span class="sg-l ga" data-l="Punkty końcowe">'+(a||"<em>brak sondy</em>")+'</span><span class="sg-l gb" data-l="Odczyt przez Graph">'+(b||"<em>brak sprawdzenia</em>")+'</span><span class="sg-l gc" data-l="Stan wg Microsoft">'+(c||"<em>"+(row.sh?"brak odczytu":"nie dotyczy")+"</em>")+'</span><span class="sg-v">'+esc(worst==="off"?"Brak danych":LAB[worst])+'</span></summary><ul class="sg-d">'+det+'</ul>';
     box.appendChild(el);});
   $("sg-sum").innerHTML='<span><b class="led ok"></b>poprawne: <b>'+tot.ok+'</b></span><span><b class="led warn"></b>ostrzeżenia: <b>'+tot.warn+'</b></span><span><b class="led crit" style="animation:none"></b>błędy: <b>'+tot.crit+'</b></span><span><b class="led off"></b>nieaktywne: <b>'+tot.off+'</b></span><span>ostatni pomiar: <b>'+esc(fdt(d.generated))+'</b></span>';
+}
+function renderHist(d){
+  var days=d.days||{},keys=[],now=Date.now(),g={},order=[];for(var k=29;k>=0;k--)keys.push(new Date(now-k*86400000).toISOString().slice(0,10));
+  d.services.forEach(function(sv){if(!g[sv.name]){g[sv.name]=[];order.push(sv.name);}g[sv.name].push(sv.id);});
+  var box=$("hist-rows");box.textContent="";
+  order.forEach(function(n){var cells="",a7=[0,0],a30=[0,0];
+    keys.forEach(function(day,ix){var ok=0,tot=0;g[n].forEach(function(id){var v=(days[day]||{})[id];if(v){ok+=v[0];tot+=v[1];}});
+      var q="",t=day.split("-").reverse().join(".")+": brak pomiarów";if(tot){var p=ok/tot*100;q=p>=99.9?"ok":p>=99?"warn":"crit";t=day.split("-").reverse().join(".")+": "+p.toFixed(2).replace(".",",")+"% ("+ok+" z "+tot+" pomiarów)";a30[0]+=ok;a30[1]+=tot;if(ix>=23){a7[0]+=ok;a7[1]+=tot;}}
+      cells+='<i class="'+q+'" title="'+esc(t)+'"></i>';});
+    function pc(a){return a[1]?(a[0]/a[1]*100).toFixed(2).replace(".",",")+"%":"brak";}
+    var el=document.createElement("div");el.className="hi-r";el.innerHTML='<span class="n">'+esc(n)+'</span><span class="hi-c" role="img" aria-label="Dostępność dzienna, 30 dni: '+esc(pc(a30))+'">'+cells+'</span><span class="p">'+pc(a7)+'</span><span class="p">'+pc(a30)+'</span>';box.appendChild(el);});
+}
+function renderAzure(a){
+  var box=$("az-box");if(!a)return;
+  if(!a.ok){box.textContent="Kanał stanu Azure jest niedostępny: "+(a.error||"brak danych")+".";return;}
+  var h='<div style="display:flex;align-items:center;gap:10px;font-weight:600"><b class="led '+(a.items.length?"warn":"ok")+'"></b>'+(a.items.length?"Aktywne zdarzenia: "+a.items.length:"Brak aktywnych zdarzeń o szerokim zasięgu")+'</div><div class="note" style="margin-top:6px">Odczyt: '+esc(fdt(a.fetched))+(a.build?" · ostatnia aktualizacja kanału: "+esc(fdt(a.build)):"")+' · <a rel="noopener" href="https://azure.status.microsoft/status">azure.status.microsoft</a></div>';
+  if(a.items.length)h+='<ul class="mc" style="margin-top:10px">'+a.items.map(function(i){return '<li style="padding-left:0;padding-right:0"><span class="i">'+esc(i.published?fdt(i.published):"")+'</span><span>'+(/^https:\/\//.test(i.link)?'<a rel="noopener" href="'+esc(i.link)+'">'+esc(i.title)+'</a>':esc(i.title))+'<small>'+esc(i.summary)+'</small></span><span></span></li>';}).join("")+'</ul>';
+  box.innerHTML=h;
+}
+var MCC={planForChange:"Planowana zmiana",stayInformed:"Informacja",preventOrFixIssue:"Zapobieganie lub naprawa"};
+function renderMc(list){
+  var seen={},all=[],read=false;list.forEach(function(h){if(h.ok&&h.messagesState==="ok")read=true;(h.messages||[]).forEach(function(m){if(!seen[m.id]){seen[m.id]=1;all.push(m);}});});
+  var box=$("mc-box");if(!read)return;
+  if(!all.length){box.innerHTML='<div class="live-empty">Brak wiadomości zmienionych w ostatnich 14 dniach.</div>';return;}
+  all.sort(function(a,b){return String(b.modified).localeCompare(String(a.modified));});
+  function li(m){return '<li><span class="i">'+esc(m.id)+'</span><span>'+esc(m.title)+'<small>'+esc((m.services||[]).join(", "))+(m.modified?" · zmiana "+esc(fdt(m.modified)):"")+(m.actionBy?" · termin działania "+esc(fdt(m.actionBy)):"")+'</small></span><span class="chip'+(m.major?" major":"")+'">'+esc(m.major?"Istotna zmiana":(MCC[m.category]||m.category||"Wiadomość"))+'</span></li>';}
+  box.innerHTML='<ul class="mc">'+all.slice(0,6).map(li).join("")+'</ul>'+(all.length>6?'<details class="fold" style="margin:0;padding:10px 16px"><summary>Pozostałe wiadomości ('+(all.length-6)+')</summary><ul class="mc" style="margin:8px -16px 0">'+all.slice(6).map(li).join("")+'</ul></details>':"");
 }
 function renderHealth(list){
   var box=$("health-box");if(!list.length)return;box.textContent="";
@@ -1009,7 +1066,7 @@ function renderHealth(list){
     var html='<div class="hh"><h4>'+esc(h.label)+'</h4><span class="hm">'+esc(h.ok?"odczyt "+fdt(h.fetched):"błąd odczytu: "+(h.error||""))+'</span></div>';
     if(h.lastError)html+='<div class="own">Ostatnia próba nieudana ('+esc(fdt(h.lastErrorAt))+'): '+esc(h.lastError)+'. Pokazany jest poprzedni poprawny odczyt.</div>';
     html+='<div class="cnt">Usługi: '+((h.services||[]).length-bad.length)+' z '+(h.services||[]).length+' w stanie „Dostępna”. Zgłoszenia otwarte: '+open.length+', zmienione w ostatnich 7 dniach: '+(h.issues||[]).length+'.</div>';
-    var li=function(i){var m=hst(i.status);return '<li class="s-'+(i.resolved?"ok":m[1])+'"><span class="i">'+esc(i.id)+'</span><span class="t">'+esc(i.title)+'<small>'+esc(i.service||"")+(i.start?" · od "+esc(fdt(i.start)):"")+(i.end?" · do "+esc(fdt(i.end)):"")+'</small></span><span class="chip">'+esc(m[0])+'</span></li>';};
+    var li=function(i){var m=hst(i.status);return '<li class="s-'+(i.resolved?"ok":m[1])+'"><span class="i">'+esc(i.id)+'</span><span class="t">'+esc(i.title)+'<small>'+esc(i.service||"")+(i.start?" · od "+esc(fdt(i.start)):"")+(i.end?" · do "+esc(fdt(i.end)):"")+'</small>'+(i.update?'<span class="u"><b>Ostatni komunikat Microsoft'+(i.updateAt?" ("+esc(fdt(i.updateAt))+")":"")+':</b> '+esc(i.update)+'</span>':"")+'</span><span class="chip">'+esc(m[0])+'</span></li>';};
     if((h.checks||[]).length)html+='<div class="chk">'+h.checks.map(function(c){var cq=c.state==="ok"?"ok":c.state==="fail"?"crit":"warn";return '<span class="s-'+cq+'" title="'+esc(c.name+" ("+c.role+")")+'">'+esc(c.service)+': <b>'+esc(CST[c.state]||c.state)+(c.state==="ok"?" "+c.ms+" ms":"")+'</b></span>';}).join("")+'</div>';
     if(open.length)html+='<details class="fold"><summary>Otwarte zgłoszenia ('+open.length+')</summary><ul>'+open.map(li).join("")+'</ul></details>';
     var closed=(h.issues||[]).filter(function(i){return i.resolved;});

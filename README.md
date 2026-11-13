@@ -19,3 +19,18 @@ Portal stanu usług Microsoft 365 i Azure: https://pulse.azureme.pl
 Sonda bez logowania potwierdza, że warstwa dostępowa usługi odpowiada. Nie sprawdza operacji po zalogowaniu, więc nie wykryje każdej awarii.
 
 Niezależny projekt. Nie jest powiązany z Microsoft.
+
+## Powiadomienia e-mail (opcjonalne)
+
+Moduł `probes/notify.mjs` wysyła wiadomość przy zmianie stanu (dwa kolejne nieudane pomiary sondy, zmiana stanu w Service Health, nowe lub zamknięte zgłoszenie, nieudany odczyt przez Graph, nowe zdarzenie Azure Status) oraz raport dobowy po godzinie 06:00 UTC.
+
+Konfiguracja w sekrecie repozytorium `PULSE_NOTIFY`:
+
+```json
+{ "to": ["adres-odbiorcy"], "tenant": "Tenant 1", "from": "adres-skrzynki-nadawczej" }
+```
+
+- `tenant`: etykieta tenanta z `PULSE_TENANTS`, w którym istnieje skrzynka nadawcza.
+- Aplikacja w tym tenancie wymaga uprawnienia aplikacyjnego `Mail.Send` (Microsoft Graph) ze zgodą administratora.
+- Adresy istnieją wyłącznie w sekrecie; nie trafiają do repozytorium, dziennika zadania ani pliku `status.json`.
+- Bez sekretu moduł niczego nie wysyła.

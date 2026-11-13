@@ -37,6 +37,7 @@ jobs:
       - name: Run probes
         env:
           PULSE_TENANTS: ${{ secrets.PULSE_TENANTS }}
+          PULSE_NOTIFY: ${{ secrets.PULSE_NOTIFY }}
         run: |
           node --version
           node probes/probe.mjs out/prev.json out/status.json
