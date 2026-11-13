@@ -29,7 +29,10 @@ async function graphToken(tenant, assertion) {
   const j = await r.json().catch(() => ({}));
   if (!r.ok || !j.access_token) {
     const code = /AADSTS\d+/.exec(j.error_description || '')?.[0] || j.error || `HTTP ${r.status}`;
-    throw new Error(`logowanie: ${code}`);
+    // The subject claim identifies the workflow, not a secret; reporting it makes a mismatch with the federated credential visible.
+    let sub = '';
+    try { sub = JSON.parse(Buffer.from(assertion.split('.')[1], 'base64url').toString()).sub || ''; } catch { sub = ''; }
+    throw new Error(`logowanie: ${code}; sub=${sub}`);
   }
   return j.access_token;
 }
