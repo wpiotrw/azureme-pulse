@@ -522,6 +522,32 @@ body:not([data-view="model"]) .dock{display:none}
   .sg-d li{grid-template-columns:13px minmax(0,1fr) auto}.sg-d .k{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+.side{width:276px;overflow:hidden;padding:14px 12px 12px}
+body{padding-left:296px}
+.dock{left:296px}
+.side .logo{white-space:nowrap;font-size:16.5px;padding:2px 6px 12px;gap:9px}
+.side .logo .lt{overflow:hidden}
+.side nav{flex:1 1 auto;min-height:0;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin;scrollbar-color:rgba(120,170,230,.35) transparent;padding-right:2px}
+.side nav::-webkit-scrollbar{width:6px}
+.side nav::-webkit-scrollbar-thumb{background:rgba(120,170,230,.35);border-radius:3px}
+.side nav::-webkit-scrollbar-track{background:transparent}
+.side nav a{flex:none}
+.side nav a .lb{white-space:nowrap;overflow:hidden;text-overflow:clip}
+.side .grp{white-space:nowrap;overflow:hidden;flex:none}
+.side .sf{margin-top:8px;flex:none}
+.side .sfv{white-space:nowrap}
+@media (max-height:800px){.side .sfc+.sfc{display:none}.side .grp{padding-top:10px}}
+@media (max-height:640px){.side .sfa{display:none}.side nav a{padding-top:5px;padding-bottom:5px}}
+body.rail{padding-left:98px}
+body.rail .dock{left:98px}
+body.rail .side{width:74px}
+body.rail .side nav{scrollbar-width:none}
+body.rail .side nav::-webkit-scrollbar{display:none}
+@media (max-width:980px){
+  body,body.rail{padding-left:0}
+  .dock,body.rail .dock{left:0}
+  .side,body.rail .side{width:min(300px,86vw)}
+}
 </style>
 </head>
 <body>
