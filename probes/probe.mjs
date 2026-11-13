@@ -6,8 +6,9 @@ import { readAzureStatus } from './azure.mjs';
 import { notify, diffEvents } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
 import { readPublicStatus } from './mscloud.mjs';
+import { updateCases } from './cases.mjs';
 
-const [, , prevPath, outPath] = process.argv;
+const [, , prevPath, outPath, prevCasesPath, casesPath] = process.argv;
 const UA = 'azureme-pulse-probe/0.1 (+https://pulse.azureme.pl)';
 const TIMEOUT_MS = 10000;
 const MAX_SAMPLES = 576; // 48 h at 5-minute cadence
@@ -122,6 +123,20 @@ if (prevPath && outPath) {
   const hasPrev = Array.isArray(prev.samples) && prev.samples.length > 0;
   const fresh = hasPrev ? diffEvents(prev, next).map((e) => ({ t: next.generated, sev: e.sev, kind: e.kind, title: String(e.title).slice(0, 200), text: String(e.text || '').slice(0, 300) })) : [];
   next.events = [...fresh, ...(Array.isArray(prev.events) ? prev.events : [])].slice(0, MAX_EVENTS);
+  // Incident case files (separate file on the data branch). A failure here must not stop the measurement.
+  if (casesPath) {
+    try {
+      let prevCases = {};
+      try { prevCases = JSON.parse(readFileSync(prevCasesPath, 'utf8')); } catch { prevCases = {}; }
+      const cases = updateCases(prevCases, next);
+      writeFileSync(casesPath, JSON.stringify(cases));
+      console.log(`OK   cases open=${cases.cases.filter((c) => !c.end).length} closed=${cases.cases.filter((c) => c.end).length}`);
+    } catch (e) {
+      console.log(`FAIL cases ${e.message}`);
+      try { writeFileSync(casesPath, readFileSync(prevCasesPath, 'utf8')); } catch { writeFileSync(casesPath, '{"schema":1,"cases":[]}'); }
+    }
+  }
+  for (const h of next.health || []) for (const i of h.issues || []) delete i.log;
   next.notify = await notify(prev, next);
   writeFileSync(outPath, JSON.stringify(next));
 }

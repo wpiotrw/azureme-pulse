@@ -118,7 +118,9 @@ export function latestPost(i) {
   if (!text) return {};
   const html = posts[0].description?.content;
   const all = posts.map((p) => htmlToText(p.description?.content, 20000)).join(' ');
-  return { ...slimPost(text), updateAt: posts[0].createdDateTime || null, posts: posts.length, affected: postServices(html), refs: postRefs(all, i.id) };
+  // Full list of update times with the status text; used only for incident case files and removed before publishing status.json.
+  const log = posts.map((p) => ({ t: p.createdDateTime || null, s: slimPost(htmlToText(p.description?.content, 8000)).current || htmlToText(p.description?.content, 700) })).reverse();
+  return { ...slimPost(text), updateAt: posts[0].createdDateTime || null, posts: posts.length, affected: postServices(html), refs: postRefs(all, i.id), log };
 }
 
 export function slimMessage(m) {
