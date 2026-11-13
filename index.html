@@ -548,6 +548,16 @@ body.rail .side nav::-webkit-scrollbar{display:none}
   .dock,body.rail .dock{left:0}
   .side,body.rail .side{width:min(300px,86vw)}
 }
+.inc-s{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:0 0 14px;text-decoration:none;color:var(--ink)}
+.inc-s .ib2{display:flex;align-items:center;gap:12px;border:1px solid color-mix(in srgb,var(--ic,var(--line)) 55%,transparent);border-left:3px solid var(--ic,var(--line));border-radius:12px;background:color-mix(in srgb,var(--ic,transparent) 9%,var(--panel));padding:9px 16px 9px 14px}
+.inc-s .ib2 b{font:700 34px/1 var(--f-display);color:var(--ic,var(--ink));font-variant-numeric:tabular-nums}
+.inc-s .ib2 span{font-size:13.5px;line-height:1.25;color:var(--ink);max-width:11ch}
+.inc-s .ib2.adv b{font-size:26px}
+.inc-s .go{align-self:center;font-size:13px;color:var(--flow)}
+.inc-s:hover .ib2{background:color-mix(in srgb,var(--ic,transparent) 16%,var(--panel))}
+.inc-s:focus-visible{outline:2px solid var(--flow);outline-offset:4px;border-radius:12px}
+.cls{display:inline-block;font:600 11px var(--f-body);letter-spacing:.04em;text-transform:uppercase;padding:1px 7px;border-radius:6px;margin-right:6px;background:rgba(159,178,204,.14);color:#c9d6e8}
+.cls.inc{background:rgba(255,93,98,.16);color:#ff9a9d}
 </style>
 </head>
 <body>
@@ -575,6 +585,11 @@ body.rail .side nav::-webkit-scrollbar{display:none}
       <div class="head">
         <div class="eyebrow"><span class="beacon"></span><span id="phase">…</span></div>
         <h1 id="headline">…</h1>
+        <a class="inc-s" id="inc-s" href="#/incydenty" hidden>
+          <span class="ib2"><b id="inc-n">0</b><span id="inc-l">aktywnych incydentów</span></span>
+          <span class="ib2 adv"><b id="adv-n">0</b><span id="adv-l">komunikatów doradczych</span></span>
+          <span class="go">Szczegóły zgłoszeń →</span>
+        </a>
         <p class="lede" id="lede">…</p>
         <div class="board" id="board" hidden>
           <div class="bl"><span class="bt s-warn" id="bd-bad-t">Usługi z problemami</span><div class="chips" id="bd-bad"></div></div>
@@ -1168,7 +1183,7 @@ function updateDom(){
   $("us-num").textContent=realMode?"01 · DANE RZECZYWISTE":"01 · SYMULACJA";$("us-num").className=realMode?"real":"num sim";
   $("us-p").textContent=realMode?"Stan usług według Microsoft Service Health z tenantów testowych, zestawiony z własnymi sondami. Status wyznacza gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.";
   if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z degradacją</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
-  $("board").hidden=!realMode;
+  $("board").hidden=!realMode;$("inc-s").hidden=!(realMode&&tenantsOk());
   $("map-note").textContent=realMode?"Łuki: model przepływu Exchange Online, kolor według Service Health. Romby: regiony Azure, pomiar rzeczywisty.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
   if(FUS)FUS.apply();
   if(live&&REAL)applyReal();
@@ -1191,9 +1206,14 @@ function applyReal(){
     if(open){since="trwa";sub="otwarty incydent w rejestrze";}else if(e){since=dur((Date.now()-e)/60000);sub="według rejestru incydentów";}}
   setK("k-du","Czas od ostatniego incydentu",since,sub);
   setK("k-si","Punkty końcowe dostępne",r.ok+" z "+r.total,"ostatni pomiar");
-  setK("k-le","Wiek ostatniego pomiaru",age+" min","cykl około 5 min");
+  var os=openSplit(r.health),ni=os.inc.length,na=os.adv.length,icr=os.inc.some(function(i){return hst(i.status)[1]==="crit";});
+  setK("k-le","Aktywne incydenty Microsoft",String(ni),"komunikaty doradcze: "+na);
+  $("inc-n").textContent=ni;$("inc-l").textContent=plf(ni,"aktywny incydent","aktywne incydenty","aktywnych incydentów");
+  $("adv-n").textContent=na;$("adv-l").textContent=plf(na,"komunikat doradczy","komunikaty doradcze","komunikatów doradczych");
+  $("inc-n").parentNode.style.setProperty("--ic",ni?(icr?"var(--crit)":"var(--warn)"):"var(--ok)");$("adv-n").parentNode.style.setProperty("--ic",na?"#9fb2cc":"var(--ok)");
   $("when-s").textContent=r.when+" UTC";
 }
+function tenantsOk(){return !!(REAL&&(REAL.health||[]).some(function(h){return h.ok;}));}
 function setPlaying(p){playing=p;lastIdx=-1;$("play").setAttribute("aria-label",p?"Pauza":"Odtwórz");$("play-i").innerHTML=p?'<path d="M3 2h4v12H3zM9 2h4v12H9z"/>':'<path d="M4 2l10 6-10 6z"/>';}
 function resize(){$("heat").style.height=heatH()+"px";buildPipe();["globe","pipec","chart","traffic","mini","heat"].forEach(fit);if(VIEW==="map"){fit("map");buildMap();}}
 
@@ -1389,11 +1409,11 @@ function nextTxt(o){if(o.next){var late=Date.parse(o.next)<Date.now();return esc
 function renderCurrent(d){
   var box=$("cur-box"),cards=[],seen={},open=[],read=false;
   (d.health||[]).forEach(function(h){if(!h.ok)return;read=true;(h.issues||[]).forEach(function(i){if(!i.resolved&&!seen[i.id]){seen[i.id]=1;open.push(i);}});});
-  open.sort(function(a,b){return String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
+  open.sort(function(a,b){return (isInc(b)-isInc(a))||String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
   var p=d.public&&d.public.ok!==false?d.public.m365:null;
   if(p&&(p.title||(PST[p.status]||["","warn"])[1]!=="ok")){var m=PST[p.status]||[p.status||"Komunikat","warn"];
     cards.push('<article class="card rc cur s-'+m[1]+'"><div class="rt"><span class="chip">'+esc(m[0])+'</span><span class="id">status.cloud.microsoft</span></div><h3>'+esc(p.title||"Komunikat na publicznej stronie stanu Microsoft 365")+'</h3><dl class="facts"><div><dt>Opublikowano</dt><dd>'+esc(fdt(p.authored))+'</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>'+esc(fdt(p.updated))+'</dd></div><div><dt>Następna aktualizacja</dt><dd>'+nextTxt(p)+'</dd></div><div><dt>Odczyt</dt><dd>'+esc(fdt(d.public.fetched))+'</dd></div></dl>'+(p.impact?'<p><b>Wpływ na użytkowników:</b> '+esc(p.impact)+'</p>':"")+(p.current?'<p><b>Bieżący stan:</b> '+esc(p.current)+'</p>':"")+(p.scope?'<p><b>Zakres:</b> '+esc(p.scope)+'</p>':"")+'<div class="src"><a rel="noopener" href="https://status.cloud.microsoft/">Źródło: publiczna strona stanu Microsoft 365</a></div></article>');}
-  function card(i){var m=hst(i.status);return '<article class="card rc cur s-'+m[1]+'"><div class="rt"><span class="chip">'+esc(m[0])+'</span><span class="id"><a rel="noopener" target="_blank" href="'+shUrl(i.id)+'" title="Otwórz w centrum administracyjnym Microsoft 365 (wymaga logowania administratora)">'+esc(i.id)+' ↗</a></span></div><h3>'+esc(i.title)+'</h3><dl class="facts"><div><dt>Usługa</dt><dd>'+esc(i.service||"brak danych")+'</dd></div><div><dt>Początek</dt><dd>'+esc(i.start?fdt(i.start):"brak danych")+'</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>'+esc(fdt(i.updateAt||i.modified))+(i.posts?" · komunikat nr "+i.posts:"")+'</dd></div><div><dt>Następna aktualizacja</dt><dd>'+nextTxt(i)+'</dd></div></dl>'+(i.impact?'<p><b>Wpływ na użytkowników:</b> '+esc(i.impact)+'</p>':"")+(i.current?'<p><b>Bieżący stan:</b> '+esc(i.current)+'</p>':"")+'</article>';}
+  function card(i){var m=hst(i.status);return '<article class="card rc cur s-'+m[1]+'"><div class="rt"><span class="chip">'+esc(m[0])+'</span>'+clsChip(i)+'<span class="id"><a rel="noopener" target="_blank" href="'+shUrl(i.id)+'" title="Otwórz w centrum administracyjnym Microsoft 365 (wymaga logowania administratora)">'+esc(i.id)+' ↗</a></span></div><h3>'+esc(i.title)+'</h3><dl class="facts"><div><dt>Usługa</dt><dd>'+esc(i.service||"brak danych")+'</dd></div><div><dt>Początek</dt><dd>'+esc(i.start?fdt(i.start):"brak danych")+'</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>'+esc(fdt(i.updateAt||i.modified))+(i.posts?" · komunikat nr "+i.posts:"")+'</dd></div><div><dt>Następna aktualizacja</dt><dd>'+nextTxt(i)+'</dd></div></dl>'+(i.impact?'<p><b>Wpływ na użytkowników:</b> '+esc(i.impact)+'</p>':"")+(i.current?'<p><b>Bieżący stan:</b> '+esc(i.current)+'</p>':"")+'</article>';}
   open.slice(0,3).forEach(function(i){cards.push(card(i));});
   var h=cards.join("");
   if(open.length>3)h+='<details class="fold"><summary>Pozostałe otwarte zgłoszenia ('+(open.length-3)+')</summary><div class="reg" style="margin-top:12px">'+open.slice(3).map(card).join("")+'</div></details>';
@@ -1406,8 +1426,8 @@ function renderTiles(d){
   open.sort(function(a,b){return String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
   function tile(v,k,q,val,sub,go){t.push('<a class="tile'+(q?" s-"+q:"")+'" href="#/'+v+'"><span class="tk">'+esc(k)+'<b class="led '+(q||"off")+'" style="animation:none"></b></span><span class="tv">'+esc(val)+'</span><span class="ts">'+sub+'</span><span class="go">'+esc(go)+' →</span></a>');}
   var o=open[0],iq=open.some(function(i){return hst(i.status)[1]==="crit";})?"crit":open.length?"warn":H.length?"ok":"";
-  tile("incydenty","Bieżące incydenty",iq,H.length?(open.length?"Otwarte zgłoszenia: "+open.length:"Brak otwartych zgłoszeń"):"Brak odczytu",o?esc(o.id+": "+String(o.title).slice(0,90))+(o.next||o.nextRaw?"<br>Następna aktualizacja: "+nextTxt(o):""):"Microsoft Service Health","Szczegóły zgłoszeń");
-  setBadge("incydenty",open.length?String(open.length):"",iq);
+  var ti=open.filter(isInc).length;tile("incydenty","Bieżące incydenty",iq,H.length?(open.length?"Aktywne incydenty: "+ti:"Brak otwartych zgłoszeń"):"Brak odczytu",(open.length?"Komunikaty doradcze: "+(open.length-ti)+"<br>":"")+o?esc(o.id+": "+String(o.title).slice(0,90))+(o.next||o.nextRaw?"<br>Następna aktualizacja: "+nextTxt(o):""):"Microsoft Service Health","Szczegóły zgłoszeń");
+  setBadge("incydenty",open.length?String(ti):"",ti?iq:"");
   var dn=Object.keys(deg),dq=dn.some(function(n){return deg[n]==="crit";})?"crit":dn.length?"warn":H.length?"ok":"";
   tile("uslugi","Stan usług według Microsoft",dq,H.length?(dn.length?"Usługi z problemami: "+dn.length:"Wszystkie usługi dostępne"):"Brak odczytu",esc(dn.slice(0,4).join(", ")+(dn.length>4?" oraz "+(dn.length-4)+" kolejne":"")),"Tabela usług");
   setBadge("uslugi",dn.length?String(dn.length):"",dq);
@@ -1451,6 +1471,10 @@ function mcUrl(id){return "https://admin.microsoft.com/Adminportal/Home#/Message
 function shUrl(id){return "https://admin.microsoft.com/Adminportal/Home#/servicehealth/:/alerts/"+encodeURIComponent(id);}
 function sdt(iso){var x=new Date(iso);return isNaN(x)?"brak":p2(x.getUTCDate())+"."+p2(x.getUTCMonth()+1)+" "+p2(x.getUTCHours())+":"+p2(x.getUTCMinutes());}
 function snext(o){if(o.next){return esc(sdt(o.next))+(Date.parse(o.next)<Date.now()?' <span class="late" title="Zapowiedziany termin już minął">po terminie</span>':"");}return esc(o.nextRaw?"w komunikacie":"nie podano");}
+function plf(n,a,b,c){var m=n%10,h=n%100;return n===1?a:(m>=2&&m<=4&&(h<12||h>14))?b:c;}
+function isInc(i){return String(i.classification||"").toLowerCase()==="incident";}
+function clsChip(i){return '<span class="cls'+(isInc(i)?" inc":"")+'">'+(isInc(i)?"Incydent":"Komunikat doradczy")+'</span>';}
+function openSplit(H){var seen={},inc=[],adv=[];(H||[]).forEach(function(h){if(!h.ok)return;(h.issues||[]).forEach(function(i){if(i.resolved||seen[i.id])return;seen[i.id]=1;(isInc(i)?inc:adv).push(i);});});return {inc:inc,adv:adv};}
 function tlab(l){return String(l).replace(/\s*\(.*$/,"");}
 function renderMc(list){
   var by={},all=[],read=false;list.forEach(function(h){if(h.ok&&h.messagesState==="ok")read=true;(h.messages||[]).forEach(function(m){if(!by[m.id]){by[m.id]=m;m._t=[];all.push(m);}by[m.id]._t.push(tlab(h.label));});});
@@ -1477,10 +1501,10 @@ function renderHealth(list){
   var show=SHALL?rows:rows.filter(function(r){return r.q!=="ok";});
   $("sh-all").hidden=false;$("sh-all").textContent=SHALL?"Pokaż tylko usługi z problemami":"Pokaż wszystkie usługi ("+rows.length+")";
   $("sh-svc").innerHTML='<thead><tr><th>Usługa</th>'+H.map(function(h){return '<th>'+esc(tlab(h.label))+'</th>';}).join("")+'<th>Otwarte zgłoszenia</th></tr></thead><tbody>'+(show.length?show.map(function(r){return '<tr><td class="main">'+esc(r.n)+'</td>'+H.map(function(h,hi){var m=r.st[hi]?hst(r.st[hi]):["brak usługi","ok"];return '<td data-l="'+esc(tlab(h.label))+'">'+(r.st[hi]?'<span class="st-c s-'+m[1]+'">'+esc(m[0])+'</span>':'<span style="color:var(--muted)">brak usługi</span>')+'</td>';}).join("")+'<td class="id" data-l="Zgłoszenia">'+(Object.keys(r.ids).map(function(id){return '<button type="button" data-iss="'+esc(id)+'">'+esc(id)+'</button>';}).join(" ")||'<span style="color:var(--muted);font-family:var(--f-body)">brak</span>')+'</td></tr>';}).join(""):'<tr><td class="live-empty" colspan="9">Wszystkie usługi są w stanie „Dostępna”.</td></tr>')+'</tbody>';
-  iss.sort(function(a,b){return (a.resolved-b.resolved)||String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
+  iss.sort(function(a,b){return (a.resolved-b.resolved)||(isInc(b)-isInc(a))||String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
   var fl=SHF==="open"?open:SHF==="closed"?closed:iss;
   $("sh-f").innerHTML=[["open","Otwarte",open.length],["closed","Zamknięte (7 dni)",closed.length],["all","Wszystkie",iss.length]].map(function(f){return '<button type="button" data-shf="'+f[0]+'" aria-pressed="'+(SHF===f[0])+'">'+f[1]+' <span>'+f[2]+'</span></button>';}).join("");
-  $("sh-iss").innerHTML='<thead><tr><th>Identyfikator</th><th>Zgłoszenie</th><th>Stan</th><th>Początek (UTC)</th><th>Aktualizacja</th><th>Następna</th><th>Tenanty</th></tr></thead><tbody>'+(fl.length?fl.map(function(i){var m=hst(i.status);return '<tr class="cl" data-iss="'+esc(i.id)+'"><td class="id" data-l="Identyfikator"><button type="button" data-iss="'+esc(i.id)+'">'+esc(i.id)+'</button></td><td class="main">'+esc(i.title)+'<small>'+esc(i.service||"")+'</small></td><td data-l="Stan"><span class="st-c s-'+(i.resolved?"ok":m[1])+'">'+esc(i.resolved?"Zamknięte":m[0])+'</span></td><td class="mono" data-l="Początek">'+esc(i.start?sdt(i.start):"brak")+'</td><td class="mono" data-l="Aktualizacja">'+esc(sdt(i.updateAt||i.modified))+'</td><td class="mono" data-l="Następna">'+(i.resolved?"nie dotyczy":snext(i))+'</td><td data-l="Tenanty">'+i._t.map(function(t){return '<span class="tg" title="'+esc(t)+'">'+esc(String(t).replace(/^Tenant\s+/,"T"))+'</span>';}).join("")+'</td></tr>';}).join(""):'<tr><td class="live-empty" colspan="7">Brak zgłoszeń w tym widoku.</td></tr>')+'</tbody>';
+  $("sh-iss").innerHTML='<thead><tr><th>Identyfikator</th><th>Zgłoszenie</th><th>Stan</th><th>Początek (UTC)</th><th>Aktualizacja</th><th>Następna</th><th>Tenanty</th></tr></thead><tbody>'+(fl.length?fl.map(function(i){var m=hst(i.status);return '<tr class="cl" data-iss="'+esc(i.id)+'"><td class="id" data-l="Identyfikator"><button type="button" data-iss="'+esc(i.id)+'">'+esc(i.id)+'</button></td><td class="main">'+esc(i.title)+'<small>'+clsChip(i)+esc(i.service||"")+'</small></td><td data-l="Stan"><span class="st-c s-'+(i.resolved?"ok":m[1])+'">'+esc(i.resolved?"Zamknięte":m[0])+'</span></td><td class="mono" data-l="Początek">'+esc(i.start?sdt(i.start):"brak")+'</td><td class="mono" data-l="Aktualizacja">'+esc(sdt(i.updateAt||i.modified))+'</td><td class="mono" data-l="Następna">'+(i.resolved?"nie dotyczy":snext(i))+'</td><td data-l="Tenanty">'+i._t.map(function(t){return '<span class="tg" title="'+esc(t)+'">'+esc(String(t).replace(/^Tenant\s+/,"T"))+'</span>';}).join("")+'</td></tr>';}).join(""):'<tr><td class="live-empty" colspan="7">Brak zgłoszeń w tym widoku.</td></tr>')+'</tbody>';
   setTabCount("zrodla","sh",open.length);
 }
 function openDlg(t,h){$("dlg-t").textContent=t;$("dlg-b").innerHTML=h;var d=$("dlg");if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute("open","");$("dlg-b").scrollTop=0;}
