@@ -30,8 +30,10 @@ export async function runChecks(tenant, token, fetchImpl = fetch) {
   const roles = tokenRoles(token);
   return Promise.all(CHECKS.map(async (c) => {
     const base = { id: c.id, service: c.service, name: c.name, role: c.role };
-    if (!roles.includes(c.role)) return { ...base, state: 'noperm', code: 0, ms: 0 };
     if (c.needs && !tenant[c.needs]) return { ...base, state: 'noconfig', code: 0, ms: 0 };
+    // Mailbox checks may be authorised in Exchange Online (RBAC for Applications) instead of Entra ID;
+    // such a grant is not visible in the token, so these checks run whenever the mailbox is configured.
+    if (!c.needs && !roles.includes(c.role)) return { ...base, state: 'noperm', code: 0, ms: 0 };
     const t0 = performance.now();
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), CHECK_TIMEOUT_MS);
