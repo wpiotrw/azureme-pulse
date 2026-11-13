@@ -274,6 +274,26 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   .nd span{display:none}
   .stp{padding:20px 18px 2px}
 }
+.globe.is-map{aspect-ratio:1.5/1;max-width:none}
+.globe canvas[hidden]{display:none}
+.vctl{position:absolute;top:0;right:0;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;z-index:2}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:rgba(5,10,19,.72)}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:500 12.5px var(--f-body);padding:7px 11px;min-width:34px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:rgba(86,204,255,.16);color:var(--ink)}
+.seg button:hover{color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--flow);outline-offset:-2px}
+.vnote{position:absolute;left:0;top:0;margin:0;max-width:42%;font-size:11.5px;line-height:1.4;color:var(--muted);pointer-events:none}
+.globe:not(.is-map) .vnote{display:none}
+@media (max-width:720px){.vnote{position:static;max-width:none;padding-top:40px}.globe.is-map{aspect-ratio:auto}.globe.is-map canvas{position:relative;height:auto;aspect-ratio:1.45/1}.globe.is-map .cap{position:static;margin-top:8px}}
+.rg-g{margin-bottom:14px}
+.rg-g h3{font-family:var(--f-display);font-weight:600;font-size:14px;margin:0 0 8px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.rg-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px}
+.rg-i{display:grid;grid-template-columns:13px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:9px 12px;font-size:13.5px}
+.rg-i b.n{font-weight:600;display:block}
+.rg-i small{color:var(--muted);font-size:12px}
+.rg-i .r{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.rg-i.home{border-color:var(--flow)}
 .hist{padding:14px 16px;overflow-x:auto}
 .hi-r{display:grid;grid-template-columns:170px minmax(300px,1fr) 70px 70px;gap:12px;align-items:center;padding:6px 0;font-size:14px}
 .hi-r.h{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
@@ -330,7 +350,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 <body>
 <div class="top"><div class="in">
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
-  <nav aria-label="Sekcje"><a href="#sygnaly">Sygnały</a><a href="#uslugi">Stan usług</a><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#model">Model incydentu</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Oś czasu</a></nav>
+  <nav aria-label="Sekcje"><a href="#sygnaly">Sygnały</a><a href="#uslugi">Stan usług</a><a href="#regiony">Regiony Azure</a><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#model">Model incydentu</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Oś czasu</a></nav>
 </div></div>
 
 <div class="wrap">
@@ -356,7 +376,10 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     </div>
     <div class="globe">
       <canvas id="globe" role="img" aria-label="Globus z łukami ruchu między regionami użytkowników a centrami danych Microsoft"></canvas>
-      <div class="cap"><span class="key" style="--c:var(--flow)"><i></i>ruch obsługiwany</span><span class="key" style="--c:var(--warn)"><i></i>obsługa częściowa</span><span class="key" style="--c:var(--crit)"><i></i>brak odpowiedzi</span></div>
+      <canvas id="map" hidden role="img" aria-label="Mapa świata z przepływem ruchu oraz stanem regionów Azure"></canvas>
+      <div class="vctl"><div class="seg" role="group" aria-label="Rodzaj widoku"><button type="button" id="v-globe" aria-pressed="true">Globus 3D</button><button type="button" id="v-map" aria-pressed="false">Mapa 2D</button></div><div class="seg" role="group" aria-label="Powiększenie"><button type="button" id="z-out" aria-label="Pomniejsz">−</button><button type="button" id="z-in" aria-label="Powiększ">+</button><button type="button" id="z-0" aria-label="Widok początkowy">1:1</button></div></div>
+      <p class="vnote" id="map-note"></p>
+      <div class="cap"><span class="key" style="--c:var(--flow)"><i></i>ruch obsługiwany</span><span class="key" style="--c:var(--warn)"><i></i>obsługa częściowa</span><span class="key" style="--c:var(--crit)"><i></i>brak odpowiedzi</span><span class="key" id="k-reg" hidden><i style="border-radius:1px;transform:rotate(45deg);width:7px;height:7px"></i>region Azure (pomiar rzeczywisty)</span></div>
     </div>
   </section>
 
@@ -369,14 +392,6 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
       <div id="sg-rows"></div>
     </div>
     <div class="lkey" style="margin-top:12px"><span><b class="led ok" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>sprawdzenie poprawne</span><span><b class="led warn" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>degradacja, odmowa lub pojedynczy błąd</span><span><b class="led crit" style="display:inline-block;vertical-align:-2px;margin-right:8px;animation:none"></b>błąd w dwóch kolejnych pomiarach lub przerwa</span><span><b class="led off" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>sprawdzenie nieaktywne</span></div>
-  </section>
-
-  <section id="mapa" aria-label="Mapa przepływu ruchu">
-    <div class="card">
-      <div class="chart-h"><h3>Mapa przepływu ruchu Exchange Online</h3><span id="map-note">Symulacja</span></div>
-      <canvas id="map" role="img" aria-label="Mapa świata z przepływem ruchu między regionami użytkowników a centrami danych Microsoft" style="display:block;width:100%;margin-top:10px"></canvas>
-      <div class="lkey"><span><i style="--c:#56ccff"></i>ruch obsługiwany</span><span><i style="--c:#ffb547"></i>degradacja lub obsługa częściowa</span><span><i style="--c:#ff5d62"></i>brak odpowiedzi</span><span>○ Warszawa: punkt odniesienia</span></div>
-    </div>
   </section>
 
   <div class="demo" style="margin:0;padding:0"><p><b>Co jest rzeczywiste.</b> Nagłówek w widoku na żywo, „Pomiary rzeczywiste” i „Rejestr incydentów”. Sekcje oznaczone SYMULACJA odtwarzają incydent z 12–13 listopada 2026 na modelu: godziny i komunikaty pochodzą z publicznych źródeł, liczby nie są pomiarami.</p></div>
@@ -396,6 +411,12 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
       <div class="h60"><span>ostatnie 60 dni</span><svg id="h60" viewBox="0 0 180 14" preserveAspectRatio="none" aria-hidden="true"></svg></div>
       <canvas id="chart" role="img" aria-label="Wykres dostępności wybranej usługi"></canvas>
     </div>
+  </section>
+
+  <section id="regiony">
+    <header><span class="real">DANE RZECZYWISTE</span><h2>Regiony Azure: osiągalność</h2><p>Każdy publiczny region Azure ma własny regionalny punkt końcowy usługi Azure Resource Manager. Sonda odpytuje go co około 5 minut z jednej lokalizacji (GitHub Actions) i zapisuje wynik oraz czas odpowiedzi. Czas odpowiedzi zależy od odległości regionu od lokalizacji pomiarowej, dlatego służy do porównań w czasie, a nie między regionami.</p></header>
+    <p class="sg-sum" id="rg-sum" aria-live="polite"></p>
+    <div id="rg-box"><div class="card live-empty">Wczytywanie pomiarów…</div></div>
   </section>
 
   <section id="pomiary">
@@ -449,7 +470,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   </section>
 
   <section id="lokalizacje">
-    <header><span class="num sim">04 · SYMULACJA</span><h2>Aktywność centrów danych</h2><p>Stan obsługi ruchu Exchange Online w każdej lokalizacji. Podział na grupy według analizy Kentik, przebieg w wierszach jest symulowany.</p></header>
+    <header><span class="num sim">04 · SYMULACJA</span><h2>Aktywność centrów danych</h2><p>Stan obsługi ruchu Exchange Online w każdej lokalizacji. Lista lokalizacji i podział na grupy pochodzą z analizy Kentik dotyczącej incydentu z 12 listopada 2026; nie jest to pełna lista centrów danych Microsoft, a przebieg w wierszach jest symulowany. Rzeczywisty stan wszystkich regionów Azure, w tym Poland Central, pokazuje sekcja <a href="#regiony">Regiony Azure</a>.</p></header>
     <div class="card"><canvas id="heat" role="img" aria-label="Oś stanu obsługi ruchu dla każdego centrum danych"></canvas>
       <div class="lkey"><span><i style="--c:#2c4d80"></i>ruch nominalny</span><span><i style="--c:#ffb547"></i>ruch częściowy</span><span><i style="--c:#d9484d"></i>brak ruchu</span><span><i style="--c:#7fe0ff"></i>przejęcie ruchu</span></div></div>
   </section>
@@ -594,13 +615,23 @@ SITES.forEach(function(s,si){
     for(var k=0;k<=K;k++){var u=k/K,wa=Math.sin((1-u)*om)/so,wb=Math.sin(u*om)/so,r=1+lift*Math.sin(Math.PI*u);pts[k*3]=(a[0]*wa+b[0]*wb)*r;pts[k*3+1]=(a[1]*wa+b[1]*wb)*r;pts[k*3+2]=(a[2]*wa+b[2]*wb)*r;}
     ARCS.push({s:si,h:nr[1],pts:pts,ph:R(),sp:.16+R()*.1,scr:new Float32Array((K+1)*3)});});
 });
+var VIEW="globe",GZ=1,MZ=1,MCX=.5,MCY=.5,GL=[],REG=null;
+function drawLabels(x,list,W,H,font){
+  x.font=font+getComputedStyle(document.body).fontFamily;x.textBaseline="middle";x.textAlign="left";
+  list.sort(function(a,b){return a.p-b.p;});var placed=[],seen={};
+  list.forEach(function(l){if(seen[l.t])return;if(l.x<0||l.x>W||l.y<8||l.y>H-8)return;var tw=x.measureText(l.t).width+8,opts=[l.x+7,l.x-7-tw];
+    for(var o=0;o<2;o++){var rx=opts[o],ry=l.y-8;if(rx<0||rx+tw>W)continue;
+      if(placed.some(function(r){return rx<r[0]+r[2]+2&&rx+tw+2>r[0]&&ry<r[1]+17&&ry+17>r[1];}))continue;
+      placed.push([rx,ry,tw]);seen[l.t]=1;x.fillStyle="rgba(5,10,19,.62)";x.fillRect(rx,ry,tw,16);x.fillStyle=l.c;x.fillText(l.t,rx+4,l.y+.5);return;}});
+}
 var TONE=null;
 function siteCol(I){if(I<.25)return COL.crit;if(TONE&&pos>=TOTAL&&!playing)return COL[TONE];return I>=.7?COL.flow:COL.warn;}
+var GLAB2={"Johannesburg":1,"Santiago":1,"Rio de Janeiro":1,"Dubaj":1,"Pune":1,"Tokio":1,"Sydney":1,"Londyn":1,"Toronto":1,"Querétaro":1};
 var WAW=5; // index of Warsaw in HUBS
 var lam=-38,phi=24,drag=null,LABELS={"San Antonio":1,"Chicago":1,"Wiedeń":1,"Gävle":1,"Tokio":1,"Sydney":1,"Pune":1,"Campinas":1,"Johannesburg":1};
 function drawGlobe(now,dt){
-  var x=ctxOf("globe"),W=size.globe.w,H=size.globe.h,cx=W/2,cy=H/2-6,Rr=Math.min(W,H)*.43;
-  if(!drag&&!reduce)lam+=dt*2.6;
+  var x=ctxOf("globe"),W=size.globe.w,H=size.globe.h,cx=W/2,cy=H/2-6,Rr=Math.min(W,H)*.43*GZ;GL.length=0;
+  if(!drag&&!reduce&&GZ<1.2)lam+=dt*2.6;
   var cl=Math.cos(lam*D2R),sl=Math.sin(lam*D2R),cp=Math.cos(phi*D2R),sp=Math.sin(phi*D2R);
   function proj(vx,vy,vz,out,o){var x1=vx*cl-vz*sl,z1=vz*cl+vx*sl,y2=vy*cp-z1*sp,z2=z1*cp+vy*sp;out[o]=cx+Rr*x1;out[o+1]=cy-Rr*y2;out[o+2]=(z2>0||x1*x1+y2*y2>1.0004)?z2+2:z2-2;}
   var g=x.createRadialGradient(cx,cy,Rr*.92,cx,cy,Rr*1.32);g.addColorStop(0,"rgba(86,204,255,.26)");g.addColorStop(.35,"rgba(70,120,255,.10)");g.addColorStop(1,"rgba(86,204,255,0)");
@@ -632,7 +663,7 @@ function drawGlobe(now,dt){
   // hubs
   x.fillStyle="rgba(232,240,251,.75)";hubV.forEach(function(h,hi){proj(h[0],h[1],h[2],tmp,0);if(tmp[2]<0)return;x.fillRect(tmp[0]-1.5,tmp[1]-1.5,3,3);
     if(hi===WAW){x.strokeStyle="rgba(255,255,255,.9)";x.lineWidth=1.3;x.beginPath();x.arc(tmp[0],tmp[1],5.5,0,7);x.stroke();
-      if(tmp[2]-2>.2){x.font="600 10.5px "+getComputedStyle(document.body).fontFamily;x.textBaseline="middle";var ww=x.measureText("Warszawa").width;x.fillStyle="rgba(5,10,19,.6)";x.fillRect(tmp[0]+8,tmp[1]-8,ww+8,16);x.fillStyle="#fff";x.fillText("Warszawa",tmp[0]+12,tmp[1]+.5);x.fillStyle="rgba(232,240,251,.75)";}}});
+      if(tmp[2]-2>.2)GL.push({x:tmp[0],y:tmp[1],t:"Warszawa",c:"#fff",p:-1});}});
   // sites
   x.font="500 10.5px "+getComputedStyle(document.body).fontFamily;x.textBaseline="middle";
   SITES.forEach(function(s,i){proj(s.p[0],s.p[1],s.p[2],tmp,0);if(tmp[2]<0)return;var I=inten[i],c=siteCol(I),sx=tmp[0],sy=tmp[1],z=tmp[2]-2;
@@ -640,26 +671,27 @@ function drawGlobe(now,dt){
       var hg=x.createRadialGradient(sx,sy,0,sx,sy,9*boost);hg.addColorStop(0,rgba(c,.75));hg.addColorStop(1,rgba(c,0));x.fillStyle=hg;x.beginPath();x.arc(sx,sy,9*boost,0,7);x.fill();
       x.fillStyle="#fff";x.beginPath();x.arc(sx,sy,1.8,0,7);x.fill();}
     else{x.strokeStyle=rgba(c,.9);x.lineWidth=1.4;x.beginPath();x.arc(sx,sy,3.4,0,7);x.stroke();x.fillStyle="#050a13";x.fill();}
-    if(LABELS[s.name]&&z>.35){x.fillStyle="rgba(5,10,19,.55)";var tw=x.measureText(s.name).width;x.fillRect(sx+7,sy-8,tw+8,16);x.fillStyle=rgba(I>=.25?[232,240,251]:c,.95);x.fillText(s.name,sx+11,sy+.5);}});
+    if(z>.3)GL.push({x:sx,y:sy,t:s.name,c:rgba(I>=.25?[232,240,251]:c,.95),p:LABELS[s.name]?0:GLAB2[s.name]?1:2});});
+  drawLabels(x,GZ>=1.6?GL:GL.filter(function(l){return l.p<2;}),W,H,"500 10.5px ");
 }
 
 /* ---------- 2D flow map (Miller projection, same model as the globe) ---------- */
 var MLON0=-135,MLON1=160,MLAT0=-56,MLAT1=78;
 function mill(lat){return 1.25*Math.log(Math.tan(Math.PI/4+.4*lat*D2R));}
 var MY0=mill(MLAT1),MY1=mill(MLAT0),MAPR=(MY0-MY1)/((MLON1-MLON0)*D2R);
-function mxy(lon,lat,W,H){return [(lon-MLON0)/(MLON1-MLON0)*W,(MY0-mill(lat))/(MY0-MY1)*H];}
+function mxy(lon,lat,W,H){var bw=Math.min(W,H/MAPR),bh=bw*MAPR;return [((lon-MLON0)/(MLON1-MLON0)-MCX)*bw*MZ+W/2,((MY0-mill(lat))/(MY0-MY1)-MCY)*bh*MZ+H/2];}
 var mapBg=null,mapArcs=[],MK=26;
 function buildMap(){
   var W=size.map.w,H=size.map.h;mapBg=document.createElement("canvas");mapBg.width=Math.round(W*dpr);mapBg.height=Math.round(H*dpr);
-  var x=mapBg.getContext("2d");x.scale(dpr,dpr);x.fillStyle="#6f9fd6";x.globalAlpha=.55;var ds=Math.max(1.1,W/420);
-  for(var i=0;i<DOTS.length;i+=2){var lo=DOTS[i]/10,la=DOTS[i+1]/10;if(lo<MLON0||lo>MLON1||la<MLAT0||la>MLAT1)continue;var p=mxy(lo,la,W,H);x.fillRect(p[0]-ds/2,p[1]-ds/2,ds,ds);}
+  var x=mapBg.getContext("2d");x.scale(dpr,dpr);x.fillStyle="#6f9fd6";x.globalAlpha=.55;var ds=Math.max(1.1,W/420)*Math.sqrt(MZ);
+  for(var i=0;i<DOTS.length;i+=2){var lo=DOTS[i]/10,la=DOTS[i+1]/10;if(lo<MLON0||lo>MLON1||la<MLAT0||la>MLAT1)continue;var p=mxy(lo,la,W,H);if(p[0]<-2||p[0]>W+2||p[1]<-2||p[1]>H+2)continue;x.fillRect(p[0]-ds/2,p[1]-ds/2,ds,ds);}
   mapArcs=ARCS.map(function(a){var s=SITES[a.s],h=HUBS[a.h],p0=mxy(h[0],h[1],W,H),p1=mxy(s.lon,s.lat,W,H),dx=p1[0]-p0[0],dy=p1[1]-p0[1],d=Math.sqrt(dx*dx+dy*dy),cx=(p0[0]+p1[0])/2,cy=(p0[1]+p1[1])/2-Math.max(8,d*.28),pts=new Float32Array((MK+1)*2);
     for(var k=0;k<=MK;k++){var u=k/MK,v=1-u;pts[k*2]=v*v*p0[0]+2*v*u*cx+u*u*p1[0];pts[k*2+1]=v*v*p0[1]+2*v*u*cy+u*u*p1[1];}
     return {s:a.s,pts:pts,ph:a.ph,sp:a.sp};});
 }
-var MAPLAB={"San Antonio":1,"Chicago":1,"Wiedeń":1,"Gävle":1,"Tokio":1,"Sydney":1,"Pune":1,"Campinas":1,"Johannesburg":1,"Dubaj":1,"Santiago":1},MAPLABN={"San Antonio":1,"Tokio":1,"Sydney":1};
+var MAPLAB={"San Antonio":1,"Chicago":1,"Wiedeń":1,"Gävle":1,"Tokio":1,"Sydney":1,"Pune":1,"Campinas":1,"Johannesburg":1,"Dubaj":1,"Santiago":1};
 function drawMap(now){
-  var x=ctxOf("map"),W=size.map.w,H=size.map.h,narrow=W<560,body=getComputedStyle(document.body).fontFamily,k;
+  var x=ctxOf("map"),W=size.map.w,H=size.map.h,narrow=W<560,k,ML=[];
   if(mapBg)x.drawImage(mapBg,0,0,W,H);
   var inten=SITES.map(function(s){return siteI(s,pos);});
   x.lineCap="round";
@@ -671,13 +703,16 @@ function drawMap(now){
       for(k=from;k<=to;k++){var al=(k-(head-TAIL))/TAIL;al=al<0?0:al>1?1:al;al=al*al*fade*(dead?.75:.35+I*.6);
         x.beginPath();x.moveTo(p[k*2],p[k*2+1]);x.lineTo(p[k*2+2],p[k*2+3]);x.strokeStyle=rgba(a.c,al*.45);x.lineWidth=3.6;x.stroke();x.strokeStyle=rgba(dead?a.c:[215,243,255],al);x.lineWidth=1.1;x.stroke();}}});
   x.globalCompositeOperation="source-over";
-  x.font="500 "+(narrow?"10px ":"11px ")+body;x.textBaseline="middle";
+  if(REG&&pos>=TOTAL&&!playing)REG.forEach(function(r){var p=mxy(r.lon,r.lat,W,H);if(p[0]<0||p[0]>W||p[1]<0||p[1]>H)return;var q=r.ok?"ok":r.fails>=2?"crit":"warn",d=narrow?2.6:3.2;
+    x.beginPath();x.moveTo(p[0],p[1]-d);x.lineTo(p[0]+d,p[1]);x.lineTo(p[0],p[1]+d);x.lineTo(p[0]-d,p[1]);x.closePath();x.fillStyle=HEX[q];x.fill();x.strokeStyle="rgba(5,10,19,.9)";x.lineWidth=1;x.stroke();
+    if(MZ>=2.2||r.id==="polandcentral")ML.push({x:p[0],y:p[1],t:r.id==="polandcentral"?"Warszawa · Poland Central":r.city,c:r.ok?"#cfe0f5":HEX[q],p:r.id==="polandcentral"?-1:3});});
   HUBS.forEach(function(h,hi){var p=mxy(h[0],h[1],W,H);x.fillStyle="rgba(232,240,251,.8)";x.fillRect(p[0]-1.5,p[1]-1.5,3,3);
-    if(hi===WAW){x.strokeStyle="#fff";x.lineWidth=1.3;x.beginPath();x.arc(p[0],p[1],5.5,0,7);x.stroke();x.textAlign="left";x.fillStyle="rgba(5,10,19,.6)";var ww=x.measureText("Warszawa").width;x.fillRect(p[0]+8,p[1]-8,ww+8,16);x.fillStyle="#fff";x.fillText("Warszawa",p[0]+12,p[1]+.5);}});
+    if(hi===WAW){x.strokeStyle="#fff";x.lineWidth=1.3;x.beginPath();x.arc(p[0],p[1],5.5,0,7);x.stroke();if(!ML.some(function(l){return l.p===-1;}))ML.push({x:p[0],y:p[1],t:"Warszawa",c:"#fff",p:-1});}});
   SITES.forEach(function(s,i){var p=mxy(s.lon,s.lat,W,H),I=inten[i],c=siteCol(I);
     if(I>=.25){var pu=((reduce?0:now)*.7+s.jit*5)%1;x.strokeStyle=rgba(c,(1-pu)*.7);x.lineWidth=1.1;x.beginPath();x.arc(p[0],p[1],2.5+pu*7,0,7);x.stroke();x.fillStyle=rgba(c,1);x.beginPath();x.arc(p[0],p[1],2.4,0,7);x.fill();}
     else{x.strokeStyle=rgba(c,.95);x.lineWidth=1.3;x.beginPath();x.arc(p[0],p[1],3,0,7);x.stroke();x.fillStyle="#050a13";x.fill();}
-    if((narrow?MAPLABN:MAPLAB)[s.name]){var right=p[0]<W-90;x.textAlign=right?"left":"right";var tw=x.measureText(s.name).width,tx=right?p[0]+7:p[0]-7;x.fillStyle="rgba(5,10,19,.6)";x.fillRect(right?tx-3:tx-tw-3,p[1]-7,tw+6,14);x.fillStyle=rgba(I>=.25?[232,240,251]:c,.95);x.fillText(s.name,tx,p[1]+.5);}});
+    ML.push({x:p[0],y:p[1],t:s.name,c:rgba(I>=.25?[232,240,251]:c,.95),p:MAPLAB[s.name]?0:GLAB2[s.name]?1:2});});
+  drawLabels(x,MZ>=1.6?ML:ML.filter(function(l){return l.p<(narrow?1:2)||l.p===3;}),W,H,narrow&&MZ<1.6?"500 10px ":"500 11px ");
 }
 
 /* ---------- pipeline (volumetric ribbons with light filaments) ---------- */
@@ -885,7 +920,7 @@ function updateDom(){
   $("us-p").textContent=realMode?"Stan usług według Microsoft Service Health z tenantów testowych, zestawiony z własnymi sondami. Status wyznacza gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.";
   if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z degradacją</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
   $("board").hidden=!realMode;
-  $("map-note").textContent=realMode?"Rozkład lokalizacji według modelu. Kolor przepływu odpowiada bieżącemu stanowi Exchange Online w Service Health.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
+  $("map-note").textContent=realMode?"Łuki: model przepływu Exchange Online, kolor według Service Health. Romby: regiony Azure, pomiar rzeczywisty.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
   if(FUS)FUS.apply();
   if(live&&REAL)applyReal();
 }
@@ -911,14 +946,14 @@ function applyReal(){
   $("when-s").textContent=r.when+" UTC";
 }
 function setPlaying(p){playing=p;lastIdx=-1;$("play").setAttribute("aria-label",p?"Pauza":"Odtwórz");$("play-i").innerHTML=p?'<path d="M3 2h4v12H3zM9 2h4v12H9z"/>':'<path d="M4 2l10 6-10 6z"/>';}
-function resize(){$("heat").style.height=heatH()+"px";$("map").style.height=Math.round($("map").getBoundingClientRect().width*MAPR)+"px";buildPipe();["globe","pipec","chart","traffic","mini","heat","map"].forEach(fit);buildMap();}
+function resize(){$("heat").style.height=heatH()+"px";buildPipe();["globe","pipec","chart","traffic","mini","heat"].forEach(fit);if(VIEW==="map"){fit("map");buildMap();}}
 
 var vis={globe:true,pipe:true,chart:true,heat:true,traffic:true,map:true};
 if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[e.target.id]=e.isIntersecting;});},{rootMargin:"120px"});["globe","pipe","chart","heat","traffic","map"].forEach(function(id){io.observe($(id));});}
 var prev=0;
 function frame(ts){var dt=Math.min(.1,(ts-prev)/1000||0);prev=ts;
   if(playing){pos+=dt*speed;if(pos>=TOTAL){pos=TOTAL;setPlaying(false);}}
-  updateDom();if(vis.globe)drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.map)drawMap(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
+  updateDom();if(vis.globe&&VIEW==="globe")drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.map&&VIEW==="map")drawMap(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
 
 buildDom();FUS=mkFilter("f-us",["rows","rows-real"]);FLIVE=mkFilter("f-live",["live-rows"]);resize();setPlaying(false);
 window.addEventListener("resize",resize);
@@ -933,15 +968,39 @@ $("replay").addEventListener("click",startReplay);$("golive").addEventListener("
   tr.addEventListener("keydown",function(ev){if(ev.key==="ArrowRight"){seek(pos+15);ev.preventDefault();}else if(ev.key==="ArrowLeft"){seek(pos-15);ev.preventDefault();}});})();
 (function(){var c=$("chart"),down=false;function at(ev){var r=c.getBoundingClientRect();seek((ev.clientX-r.left-CH.l)/(r.width-CH.l-CH.r)*TOTAL);}
   c.addEventListener("pointerdown",function(ev){down=true;at(ev);});c.addEventListener("pointermove",function(ev){if(down)at(ev);});window.addEventListener("pointerup",function(){down=false;});})();
-(function(){var c=$("globe");c.addEventListener("pointerdown",function(ev){drag={x:ev.clientX,l:lam};c.style.cursor="grabbing";});
-  window.addEventListener("pointermove",function(ev){if(drag)lam=drag.l-(ev.clientX-drag.x)*.35;});
-  function up(){drag=null;c.style.cursor="grab";}window.addEventListener("pointerup",up);window.addEventListener("pointercancel",up);})();
+(function(){
+  var g=$("globe"),m=$("map"),wrap=g.parentNode,pts={},pinch=0;
+  function clampMap(){var h=.5/MZ;MCX=Math.min(1-h,Math.max(h,MCX));MCY=Math.min(1-h,Math.max(h,MCY));}
+  function touch(){var z=VIEW==="map"?MZ:GZ;(VIEW==="map"?m:g).style.touchAction=z>1.05?"none":"pan-y";(VIEW==="map"?m:g).style.cursor=VIEW==="map"&&MZ<=1.05?"default":"grab";}
+  function setZoom(z){z=Math.min(VIEW==="map"?6:3.2,Math.max(1,z));if(VIEW==="map"){MZ=z;clampMap();buildMap();}else GZ=z;touch();}
+  function setView(v){VIEW=v;g.hidden=v!=="globe";m.hidden=v!=="map";wrap.classList.toggle("is-map",v==="map");$("v-globe").setAttribute("aria-pressed",v==="globe");$("v-map").setAttribute("aria-pressed",v==="map");
+    try{localStorage.setItem("pulse-view",v);}catch(e){}resize();touch();}
+  $("v-globe").addEventListener("click",function(){setView("globe");});$("v-map").addEventListener("click",function(){setView("map");});
+  $("z-in").addEventListener("click",function(){setZoom((VIEW==="map"?MZ:GZ)*1.5);});$("z-out").addEventListener("click",function(){setZoom((VIEW==="map"?MZ:GZ)/1.5);});
+  $("z-0").addEventListener("click",function(){MCX=MCY=.5;phi=24;setZoom(1);});
+  [g,m].forEach(function(c){
+    c.addEventListener("pointerdown",function(ev){pts[ev.pointerId]=[ev.clientX,ev.clientY];var n=Object.keys(pts).length;
+      if(n===1)drag={x:ev.clientX,y:ev.clientY,l:lam,p:phi,cx:MCX,cy:MCY};else if(n===2){drag=null;pinch=0;}
+      try{c.setPointerCapture(ev.pointerId);}catch(e){}});
+    c.addEventListener("pointermove",function(ev){if(!pts[ev.pointerId])return;pts[ev.pointerId]=[ev.clientX,ev.clientY];var k=Object.keys(pts);
+      if(k.length===2){var a=pts[k[0]],b=pts[k[1]],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch)setZoom((VIEW==="map"?MZ:GZ)*d/pinch);pinch=d;return;}
+      if(!drag)return;var dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;
+      if(VIEW==="globe"){lam=drag.l-dx*.35/GZ;if(GZ>1.05||ev.pointerType==="mouse")phi=Math.min(70,Math.max(-55,drag.p+dy*.3/GZ));}
+      else if(MZ>1.05){var bw=Math.min(size.map.w,size.map.h/MAPR);MCX=drag.cx-dx/(bw*MZ);MCY=drag.cy-dy/(bw*MAPR*MZ);clampMap();buildMap();}});
+    function up(ev){delete pts[ev.pointerId];pinch=0;if(!Object.keys(pts).length)drag=null;}
+    c.addEventListener("pointerup",up);c.addEventListener("pointercancel",up);
+    c.addEventListener("dblclick",function(){setZoom((VIEW==="map"?MZ:GZ)*1.5);});
+    c.addEventListener("wheel",function(ev){if(!ev.ctrlKey)return;ev.preventDefault();setZoom((VIEW==="map"?MZ:GZ)*(ev.deltaY<0?1.15:1/1.15));},{passive:false});});
+  var saved="globe";try{saved=localStorage.getItem("pulse-view")||"globe";}catch(e){}
+  if(saved==="map")setView("map");else touch();
+})();
 requestAnimationFrame(frame);
 
 /* ---------- live probes (real data from the repository's data branch) ---------- */
 var DATA_URL="https://raw.githubusercontent.com/wpiotrw/azureme-pulse/data/status.json";
 function renderLive(d){
   if(!d||!d.services||!d.samples||!d.samples.length)throw new Error("empty");
+  try{renderRegions(d.regions);}catch(e){}
   try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
   var box=$("live-rows");box.textContent="";$("live-empty").hidden=true;
   d.services.forEach(function(sv){
@@ -1008,6 +1067,17 @@ var SIG=[
   {n:"Microsoft Graph",http:["graph","graph-userinfo","graph-meta"],chk:"*",sh:null},
   {n:"Azure",http:["azure","arm","arm-meta"],chk:null,sh:null}
 ];
+var GEO=[["eu","Europa"],["am","Ameryka Północna i Południowa"],["mea","Bliski Wschód i Afryka"],["ap","Azja i Pacyfik"]];
+function renderRegions(rg){
+  if(!rg||!rg.list||!rg.list.length)return;REG=rg.list;$("k-reg").hidden=false;
+  var box=$("rg-box"),t={ok:0,warn:0,crit:0};box.textContent="";
+  GEO.forEach(function(g){var items=rg.list.filter(function(r){return r.geo===g[0];});if(!items.length)return;
+    items.sort(function(a,b){return (b.id==="polandcentral")-(a.id==="polandcentral")||a.name.localeCompare(b.name);});
+    var h='<h3>'+esc(g[1])+' ('+items.length+')</h3><div class="rg-l">'+items.map(function(r){var q=r.ok?"ok":r.fails>=2?"crit":"warn";t[q]++;
+      return '<div class="rg-i'+(r.id==="polandcentral"?" home":"")+'"><b class="led '+q+'"'+(q==="crit"?"":' style="animation:none"')+'></b><span><b class="n">'+esc(r.name)+'</b><small>'+esc(r.city)+'</small></span><span class="r">'+esc(r.ok?r.ms+" ms":"kod "+(r.code||"brak"))+'</span></div>';}).join("")+'</div>';
+    var el=document.createElement("div");el.className="rg-g";el.innerHTML=h;box.appendChild(el);});
+  $("rg-sum").innerHTML='<span><b class="led ok"></b>odpowiada: <b>'+t.ok+'</b></span><span><b class="led warn"></b>pojedynczy błąd: <b>'+t.warn+'</b></span><span><b class="led crit" style="animation:none"></b>brak odpowiedzi: <b>'+t.crit+'</b></span><span>regionów: <b>'+rg.list.length+'</b></span><span>odczyt: <b>'+esc(fdt(rg.fetched))+'</b></span>';
+}
 var SGOPEN={};
 function renderSignals(d){
   var n=d.samples.length,last=d.samples[n-1].r||{},prev=n>1?(d.samples[n-2].r||{}):{},byId={},H=(d.health||[]).filter(function(h){return h.ok;}),tot={ok:0,warn:0,crit:0,off:0},rank={off:3,ok:2,warn:1,crit:0};
@@ -1023,6 +1093,7 @@ function renderSignals(d){
       var q,t,r;if(row.chk==="*"){var okc=cs.filter(function(x){return x.state!=="fail";}).length;q=okc===cs.length?"ok":okc?"warn":"crit";t="żądania do Microsoft Graph z tokenem aplikacji";r=okc+" z "+cs.length+" poprawnych";}
       else{var x=cs[0];q=x.state==="ok"?"ok":x.state==="fail"?"crit":x.state==="denied"?"warn":"off";t=x.name;r=(CST[x.state]||x.state)+(x.state==="ok"?" · "+x.ms+" ms":x.code?" · kod "+x.code:"");}
       if(q!=="off")see(q);b+=led(q,h.label+": "+t+", "+r);det+=li(q,"Graph · "+h.label,t,r);});
+    if(row.n==="Azure"&&d.regions&&d.regions.list&&d.regions.list.length){var rl=d.regions.list,rb=rl.filter(function(r){return !r.ok;}),rq=!rb.length?"ok":rb.some(function(r){return r.fails>=2;})?"crit":"warn",rt=(rl.length-rb.length)+" z "+rl.length+" regionów odpowiada";see(rq);a+=led(rq,"Regiony Azure: "+rt);det+=li(rq,"Regiony Azure","regionalne punkty końcowe Azure Resource Manager",rt);}
     if(row.n==="Azure"&&d.azure&&d.azure.ok){var aq=d.azure.items.length?"warn":"ok",at=d.azure.items.length?"aktywne zdarzenia: "+d.azure.items.length:"brak aktywnych zdarzeń";see(aq);c+=led(aq,"Azure Status: "+at);det+=li(aq,"Azure Status","publiczny kanał stanu Azure",at);}
     if(row.sh)H.forEach(function(h){(h.services||[]).filter(function(x){return row.sh.test(x.name);}).forEach(function(x){var m=hst(x.status);see(m[1]);c+=led(m[1],h.label+": "+x.name+", "+m[0]);det+=li(m[1],"Health · "+h.label,x.name,m[0]);});});
     var el=document.createElement("details");el.className="sg-r"+(worst==="off"?"":" s-"+worst);el.dataset.n=row.n;el.open=!!SGOPEN[row.n];
