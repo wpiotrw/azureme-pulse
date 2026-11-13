@@ -72,6 +72,15 @@ export function diffEvents(prev, next) {
       if (p.state === 'fail' && c.state === 'ok') ev.push({ sev: 'ok', kind: 'Odczyt przez Graph', title: `${c.service}: sprawdzenie ponownie poprawne`, text: `${c.label}: ${c.name}, ${c.ms} ms.` });
     }
   }
+  if (prev.regions?.list && next.regions?.list) {
+    const was = new Map(prev.regions.list.map((r) => [r.id, r.fails || 0]));
+    for (const r of next.regions.list) {
+      const p = was.get(r.id);
+      if (p === undefined) continue;
+      if (r.fails === 2) ev.push({ sev: 'crit', kind: 'Region Azure', title: `${r.name} (${r.city}): brak odpowiedzi`, text: `Regionalny punkt końcowy Azure Resource Manager nie odpowiedział poprawnie w dwóch kolejnych pomiarach, ostatni kod: ${r.code || 'brak odpowiedzi'}.` });
+      if (r.ok && p >= 2) ev.push({ sev: 'ok', kind: 'Region Azure', title: `${r.name} (${r.city}): odpowiedź przywrócona`, text: `Ostatni pomiar poprawny, ${r.ms} ms.` });
+    }
+  }
   if (prev.azure?.ok && next.azure?.ok) {
     const seen = new Set(prev.azure.items.map((i) => i.link || i.title));
     for (const i of next.azure.items) if (!seen.has(i.link || i.title)) ev.push({ sev: 'warn', kind: 'Azure Status', title: i.title, text: i.summary });
