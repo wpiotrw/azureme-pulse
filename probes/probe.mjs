@@ -5,6 +5,7 @@ import { readServiceHealth } from './health.mjs';
 import { readAzureStatus } from './azure.mjs';
 import { notify } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
+import { readPublicStatus } from './mscloud.mjs';
 
 const [, , prevPath, outPath] = process.argv;
 const UA = 'azureme-pulse-probe/0.1 (+https://pulse.azureme.pl)';
@@ -110,6 +111,9 @@ if (prevPath && outPath) {
   const azure = await readAzureStatus();
   console.log(`${azure.ok ? 'OK  ' : 'FAIL'} azure-status items=${azure.items.length} ${azure.error}`);
   const next = merge(prev, results, Date.now(), health.length ? merged : null, azure);
+  const pub = await readPublicStatus();
+  console.log(`${pub.ok ? 'OK  ' : 'FAIL'} status.cloud.microsoft m365=${pub.m365?.status || ''} ${pub.error}`);
+  next.public = pub.ok ? pub : prev.public ? { ...prev.public, lastError: pub.error } : pub;
   next.regions = await probeRegions(prev.regions);
   const down = next.regions.list.filter((r) => !r.ok);
   console.log(`${down.length ? 'FAIL' : 'OK  '} regions ${next.regions.list.length - down.length}/${next.regions.list.length} ${down.map((r) => r.id).join(',')}`);
