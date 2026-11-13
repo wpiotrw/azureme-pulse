@@ -274,13 +274,44 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   .nd span{display:none}
   .stp{padding:20px 18px 2px}
 }
+.sg{padding:0;overflow:hidden}
+.sg-r{border-bottom:1px solid var(--line)}
+.sg-r:last-child{border-bottom:0}
+.sg-g{display:grid;grid-template-columns:minmax(150px,1.15fr) 1fr 1fr 1fr 128px;gap:6px 14px;align-items:center;padding:12px 16px}
+.sg-h{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:#0a1322;border-bottom:1px solid var(--line)}
+.sg-r summary{cursor:pointer;list-style:none}
+.sg-r summary::-webkit-details-marker{display:none}
+.sg-r summary:hover{background:rgba(86,204,255,.04)}
+.sg-r summary:focus-visible{outline:2px solid var(--flow);outline-offset:-2px}
+.sg-n{font-weight:600;font-size:15px}
+.sg-l{display:flex;gap:9px;align-items:center;flex-wrap:wrap;min-height:16px}
+.sg-l em{font-style:normal;font-size:12px;color:var(--muted)}
+.sg-v{justify-self:end;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--sc,var(--muted))}
+.led{--c:#3a4a63;width:13px;height:13px;border-radius:50%;flex:none;background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.55),transparent 42%),var(--c);box-shadow:0 0 0 1px rgba(5,10,19,.9),0 0 0 2px color-mix(in srgb,var(--c) 45%,transparent),0 0 12px -1px var(--c)}
+.led.ok{--c:var(--ok)}.led.warn{--c:var(--warn)}.led.crit{--c:var(--crit);animation:ledp 1.6s ease-in-out infinite}
+.led.off{background:#18243a;box-shadow:0 0 0 1px rgba(5,10,19,.9),0 0 0 2px #2a3a55}
+@keyframes ledp{50%{box-shadow:0 0 0 1px rgba(5,10,19,.9),0 0 0 2px color-mix(in srgb,var(--c) 45%,transparent),0 0 18px 3px var(--c)}}
+.sg-d{margin:0;padding:4px 16px 14px;list-style:none;display:grid;gap:7px}
+.sg-d li{display:grid;grid-template-columns:13px 112px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px}
+.sg-d .k{color:var(--muted);font-size:12px}
+.sg-d .r{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);text-align:right}
+.sg-sum{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:0 0 12px}
+.sg-sum span{display:inline-flex;align-items:center;gap:8px}
+.sg-sum b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+@media (max-width:720px){
+  .sg-h{display:none}
+  .sg-g{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n v" "a a" "b b" "c c"}
+  .sg-n{grid-area:n}.sg-v{grid-area:v}.sg-l.ga{grid-area:a}.sg-l.gb{grid-area:b}.sg-l.gc{grid-area:c}
+  .sg-l::before{content:attr(data-l);font-size:12px;color:var(--muted);width:118px;flex:none}
+  .sg-d li{grid-template-columns:13px minmax(0,1fr) auto}.sg-d .k{display:none}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <div class="top"><div class="in">
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
-  <nav aria-label="Sekcje"><a href="#uslugi">Stan usług</a><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#model">Model incydentu</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Oś czasu</a></nav>
+  <nav aria-label="Sekcje"><a href="#sygnaly">Sygnały</a><a href="#uslugi">Stan usług</a><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#model">Model incydentu</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Oś czasu</a></nav>
 </div></div>
 
 <div class="wrap">
@@ -307,6 +338,25 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     <div class="globe">
       <canvas id="globe" role="img" aria-label="Globus z łukami ruchu między regionami użytkowników a centrami danych Microsoft"></canvas>
       <div class="cap"><span class="key" style="--c:var(--flow)"><i></i>ruch obsługiwany</span><span class="key" style="--c:var(--warn)"><i></i>obsługa częściowa</span><span class="key" style="--c:var(--crit)"><i></i>brak odpowiedzi</span></div>
+    </div>
+  </section>
+
+  <section id="sygnaly">
+    <header><span class="real">DANE RZECZYWISTE</span><h2>Panel sygnalizacyjny sond</h2><p>Jedna kontrolka odpowiada jednemu sprawdzeniu. Każda usługa jest oceniana trzema niezależnymi metodami: odpowiedź publicznego punktu końcowego (HTTP), odczyt danych przez Microsoft Graph w tenancie testowym oraz stan deklarowany przez Microsoft w Service Health. Wiersz można rozwinąć, aby zobaczyć poszczególne sprawdzenia.</p></header>
+    <p class="sg-sum" id="sg-sum" aria-live="polite"></p>
+    <div class="card sg">
+      <div class="sg-g sg-h"><span>Usługa</span><span>Punkty końcowe (HTTP)</span><span>Odczyt przez Graph</span><span>Service Health</span><span style="justify-self:end">Ocena</span></div>
+      <div class="live-empty" id="sg-empty">Wczytywanie pomiarów…</div>
+      <div id="sg-rows"></div>
+    </div>
+    <div class="lkey" style="margin-top:12px"><span><b class="led ok" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>sprawdzenie poprawne</span><span><b class="led warn" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>degradacja, odmowa lub pojedynczy błąd</span><span><b class="led crit" style="display:inline-block;vertical-align:-2px;margin-right:8px;animation:none"></b>błąd w dwóch kolejnych pomiarach lub przerwa</span><span><b class="led off" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>sprawdzenie nieaktywne</span></div>
+  </section>
+
+  <section id="mapa" aria-label="Mapa przepływu ruchu">
+    <div class="card">
+      <div class="chart-h"><h3>Mapa przepływu ruchu Exchange Online</h3><span id="map-note">Symulacja</span></div>
+      <canvas id="map" role="img" aria-label="Mapa świata z przepływem ruchu między regionami użytkowników a centrami danych Microsoft" style="display:block;width:100%;margin-top:10px"></canvas>
+      <div class="lkey"><span><i style="--c:#56ccff"></i>ruch obsługiwany</span><span><i style="--c:#ffb547"></i>degradacja lub obsługa częściowa</span><span><i style="--c:#ff5d62"></i>brak odpowiedzi</span><span>○ Warszawa: punkt odniesienia</span></div>
     </div>
   </section>
 
@@ -514,8 +564,11 @@ SITES.forEach(function(s,si){
   var near=hubV.map(function(h,hi){return [ang(h,s.p),hi];}).sort(function(a,b){return a[0]-b[0];}).slice(0,s.g===1?3:2);
   near.forEach(function(nr){var om=nr[0];if(om<.04)return;var a=hubV[nr[1]],b=s.p,so=Math.sin(om),pts=new Float32Array((K+1)*3),lift=.06+.42*om/Math.PI;
     for(var k=0;k<=K;k++){var u=k/K,wa=Math.sin((1-u)*om)/so,wb=Math.sin(u*om)/so,r=1+lift*Math.sin(Math.PI*u);pts[k*3]=(a[0]*wa+b[0]*wb)*r;pts[k*3+1]=(a[1]*wa+b[1]*wb)*r;pts[k*3+2]=(a[2]*wa+b[2]*wb)*r;}
-    ARCS.push({s:si,pts:pts,ph:R(),sp:.16+R()*.1,scr:new Float32Array((K+1)*3)});});
+    ARCS.push({s:si,h:nr[1],pts:pts,ph:R(),sp:.16+R()*.1,scr:new Float32Array((K+1)*3)});});
 });
+var TONE=null;
+function siteCol(I){if(I<.25)return COL.crit;if(TONE&&pos>=TOTAL&&!playing)return COL[TONE];return I>=.7?COL.flow:COL.warn;}
+var WAW=5; // index of Warsaw in HUBS
 var lam=-38,phi=24,drag=null,LABELS={"San Antonio":1,"Chicago":1,"Wiedeń":1,"Gävle":1,"Tokio":1,"Sydney":1,"Pune":1,"Campinas":1,"Johannesburg":1};
 function drawGlobe(now,dt){
   var x=ctxOf("globe"),W=size.globe.w,H=size.globe.h,cx=W/2,cy=H/2-6,Rr=Math.min(W,H)*.43;
@@ -533,7 +586,7 @@ function drawGlobe(now,dt){
   var inten=SITES.map(function(s){return siteI(s,pos);});
   // arcs
   x.lineCap="round";
-  ARCS.forEach(function(a){var I=inten[a.s],c=I>=.7?COL.flow:I>=.25?COL.warn:COL.crit,sc=a.scr;
+  ARCS.forEach(function(a){var I=inten[a.s],c=siteCol(I),sc=a.scr;
     for(var k=0;k<=K;k++)proj(a.pts[k*3],a.pts[k*3+1],a.pts[k*3+2],sc,k*3);
     x.strokeStyle=rgba(c,I>=.25?.16:.2);x.lineWidth=1;x.beginPath();var pen=false;
     for(k=0;k<=K;k++){if(sc[k*3+2]<0){pen=false;continue;}if(pen)x.lineTo(sc[k*3],sc[k*3+1]);else{x.moveTo(sc[k*3],sc[k*3+1]);pen=true;}}
@@ -549,15 +602,54 @@ function drawGlobe(now,dt){
     }});
   x.globalCompositeOperation="source-over";
   // hubs
-  x.fillStyle="rgba(232,240,251,.75)";hubV.forEach(function(h){proj(h[0],h[1],h[2],tmp,0);if(tmp[2]<0)return;x.fillRect(tmp[0]-1.5,tmp[1]-1.5,3,3);});
+  x.fillStyle="rgba(232,240,251,.75)";hubV.forEach(function(h,hi){proj(h[0],h[1],h[2],tmp,0);if(tmp[2]<0)return;x.fillRect(tmp[0]-1.5,tmp[1]-1.5,3,3);
+    if(hi===WAW){x.strokeStyle="rgba(255,255,255,.9)";x.lineWidth=1.3;x.beginPath();x.arc(tmp[0],tmp[1],5.5,0,7);x.stroke();
+      if(tmp[2]-2>.2){x.font="600 10.5px "+getComputedStyle(document.body).fontFamily;x.textBaseline="middle";var ww=x.measureText("Warszawa").width;x.fillStyle="rgba(5,10,19,.6)";x.fillRect(tmp[0]+8,tmp[1]-8,ww+8,16);x.fillStyle="#fff";x.fillText("Warszawa",tmp[0]+12,tmp[1]+.5);x.fillStyle="rgba(232,240,251,.75)";}}});
   // sites
   x.font="500 10.5px "+getComputedStyle(document.body).fontFamily;x.textBaseline="middle";
-  SITES.forEach(function(s,i){proj(s.p[0],s.p[1],s.p[2],tmp,0);if(tmp[2]<0)return;var I=inten[i],c=I>=.7?COL.flow:I>=.25?COL.warn:COL.crit,sx=tmp[0],sy=tmp[1],z=tmp[2]-2;
+  SITES.forEach(function(s,i){proj(s.p[0],s.p[1],s.p[2],tmp,0);if(tmp[2]<0)return;var I=inten[i],c=siteCol(I),sx=tmp[0],sy=tmp[1],z=tmp[2]-2;
     if(I>=.25){var pu=(now*.7+s.jit*5)%1,boost=s.g===1&&pos>T.drop?1.7:1;x.strokeStyle=rgba(c,(1-pu)*.7);x.lineWidth=1.2;x.beginPath();x.arc(sx,sy,3+pu*9*boost,0,7);x.stroke();
       var hg=x.createRadialGradient(sx,sy,0,sx,sy,9*boost);hg.addColorStop(0,rgba(c,.75));hg.addColorStop(1,rgba(c,0));x.fillStyle=hg;x.beginPath();x.arc(sx,sy,9*boost,0,7);x.fill();
       x.fillStyle="#fff";x.beginPath();x.arc(sx,sy,1.8,0,7);x.fill();}
     else{x.strokeStyle=rgba(c,.9);x.lineWidth=1.4;x.beginPath();x.arc(sx,sy,3.4,0,7);x.stroke();x.fillStyle="#050a13";x.fill();}
     if(LABELS[s.name]&&z>.35){x.fillStyle="rgba(5,10,19,.55)";var tw=x.measureText(s.name).width;x.fillRect(sx+7,sy-8,tw+8,16);x.fillStyle=rgba(I>=.25?[232,240,251]:c,.95);x.fillText(s.name,sx+11,sy+.5);}});
+}
+
+/* ---------- 2D flow map (Miller projection, same model as the globe) ---------- */
+var MLON0=-135,MLON1=160,MLAT0=-56,MLAT1=78;
+function mill(lat){return 1.25*Math.log(Math.tan(Math.PI/4+.4*lat*D2R));}
+var MY0=mill(MLAT1),MY1=mill(MLAT0),MAPR=(MY0-MY1)/((MLON1-MLON0)*D2R);
+function mxy(lon,lat,W,H){return [(lon-MLON0)/(MLON1-MLON0)*W,(MY0-mill(lat))/(MY0-MY1)*H];}
+var mapBg=null,mapArcs=[],MK=26;
+function buildMap(){
+  var W=size.map.w,H=size.map.h;mapBg=document.createElement("canvas");mapBg.width=Math.round(W*dpr);mapBg.height=Math.round(H*dpr);
+  var x=mapBg.getContext("2d");x.scale(dpr,dpr);x.fillStyle="#6f9fd6";x.globalAlpha=.55;var ds=Math.max(1.1,W/420);
+  for(var i=0;i<DOTS.length;i+=2){var lo=DOTS[i]/10,la=DOTS[i+1]/10;if(lo<MLON0||lo>MLON1||la<MLAT0||la>MLAT1)continue;var p=mxy(lo,la,W,H);x.fillRect(p[0]-ds/2,p[1]-ds/2,ds,ds);}
+  mapArcs=ARCS.map(function(a){var s=SITES[a.s],h=HUBS[a.h],p0=mxy(h[0],h[1],W,H),p1=mxy(s.lon,s.lat,W,H),dx=p1[0]-p0[0],dy=p1[1]-p0[1],d=Math.sqrt(dx*dx+dy*dy),cx=(p0[0]+p1[0])/2,cy=(p0[1]+p1[1])/2-Math.max(8,d*.28),pts=new Float32Array((MK+1)*2);
+    for(var k=0;k<=MK;k++){var u=k/MK,v=1-u;pts[k*2]=v*v*p0[0]+2*v*u*cx+u*u*p1[0];pts[k*2+1]=v*v*p0[1]+2*v*u*cy+u*u*p1[1];}
+    return {s:a.s,pts:pts,ph:a.ph,sp:a.sp};});
+}
+var MAPLAB={"San Antonio":1,"Chicago":1,"Wiedeń":1,"Gävle":1,"Tokio":1,"Sydney":1,"Pune":1,"Campinas":1,"Johannesburg":1,"Dubaj":1,"Santiago":1},MAPLABN={"San Antonio":1,"Tokio":1,"Sydney":1};
+function drawMap(now){
+  var x=ctxOf("map"),W=size.map.w,H=size.map.h,narrow=W<560,body=getComputedStyle(document.body).fontFamily,k;
+  if(mapBg)x.drawImage(mapBg,0,0,W,H);
+  var inten=SITES.map(function(s){return siteI(s,pos);});
+  x.lineCap="round";
+  mapArcs.forEach(function(a){var I=inten[a.s],c=siteCol(I),p=a.pts;a.c=c;a.I=I;x.strokeStyle=rgba(c,I>=.25?.2:.24);x.lineWidth=1;x.beginPath();for(k=0;k<=MK;k++)x.lineTo(p[k*2],p[k*2+1]);x.stroke();});
+  x.globalCompositeOperation="lighter";
+  mapArcs.forEach(function(a){var p=a.pts,I=a.I,dead=I<.25,n=dead?1:2,TAIL=7;
+    for(var q=0;q<n;q++){var ph=(((reduce?0:now)*(dead?a.sp*.55:a.sp*(.6+I*.6))+a.ph+q/n)%1),fade=1;if(dead){if(ph>.62)continue;fade=1-ph/.62;}
+      var head=ph*(MK+TAIL),from=Math.max(0,Math.floor(head-TAIL)),to=Math.min(MK-1,Math.floor(head));
+      for(k=from;k<=to;k++){var al=(k-(head-TAIL))/TAIL;al=al<0?0:al>1?1:al;al=al*al*fade*(dead?.75:.35+I*.6);
+        x.beginPath();x.moveTo(p[k*2],p[k*2+1]);x.lineTo(p[k*2+2],p[k*2+3]);x.strokeStyle=rgba(a.c,al*.45);x.lineWidth=3.6;x.stroke();x.strokeStyle=rgba(dead?a.c:[215,243,255],al);x.lineWidth=1.1;x.stroke();}}});
+  x.globalCompositeOperation="source-over";
+  x.font="500 "+(narrow?"10px ":"11px ")+body;x.textBaseline="middle";
+  HUBS.forEach(function(h,hi){var p=mxy(h[0],h[1],W,H);x.fillStyle="rgba(232,240,251,.8)";x.fillRect(p[0]-1.5,p[1]-1.5,3,3);
+    if(hi===WAW){x.strokeStyle="#fff";x.lineWidth=1.3;x.beginPath();x.arc(p[0],p[1],5.5,0,7);x.stroke();x.textAlign="left";x.fillStyle="rgba(5,10,19,.6)";var ww=x.measureText("Warszawa").width;x.fillRect(p[0]+8,p[1]-8,ww+8,16);x.fillStyle="#fff";x.fillText("Warszawa",p[0]+12,p[1]+.5);}});
+  SITES.forEach(function(s,i){var p=mxy(s.lon,s.lat,W,H),I=inten[i],c=siteCol(I);
+    if(I>=.25){var pu=((reduce?0:now)*.7+s.jit*5)%1;x.strokeStyle=rgba(c,(1-pu)*.7);x.lineWidth=1.1;x.beginPath();x.arc(p[0],p[1],2.5+pu*7,0,7);x.stroke();x.fillStyle=rgba(c,1);x.beginPath();x.arc(p[0],p[1],2.4,0,7);x.fill();}
+    else{x.strokeStyle=rgba(c,.95);x.lineWidth=1.3;x.beginPath();x.arc(p[0],p[1],3,0,7);x.stroke();x.fillStyle="#050a13";x.fill();}
+    if((narrow?MAPLABN:MAPLAB)[s.name]){var right=p[0]<W-90;x.textAlign=right?"left":"right";var tw=x.measureText(s.name).width,tx=right?p[0]+7:p[0]-7;x.fillStyle="rgba(5,10,19,.6)";x.fillRect(right?tx-3:tx-tw-3,p[1]-7,tw+6,14);x.fillStyle=rgba(I>=.25?[232,240,251]:c,.95);x.fillText(s.name,tx,p[1]+.5);}});
 }
 
 /* ---------- pipeline (volumetric ribbons with light filaments) ---------- */
@@ -765,6 +857,7 @@ function updateDom(){
   $("us-p").textContent=realMode?"Stan usług według Microsoft Service Health z tenantów testowych, zestawiony z własnymi sondami. Status wyznacza gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.";
   if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z degradacją</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
   $("board").hidden=!realMode;
+  $("map-note").textContent=realMode?"Rozkład lokalizacji według modelu. Kolor przepływu odpowiada bieżącemu stanowi Exchange Online w Service Health.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
   if(FUS)FUS.apply();
   if(live&&REAL)applyReal();
 }
@@ -776,6 +869,7 @@ function applyReal(){
   setCls($("stage"),q);$("phase").textContent="Na żywo: dane rzeczywiste";
   var deg={},openIds={},tenants=0;(r.health||[]).forEach(function(h){if(!h.ok)return;tenants++;(h.services||[]).forEach(function(sv){if(hst(sv.status)[1]!=="ok")deg[sv.name]=hst(sv.status)[1];});(h.issues||[]).forEach(function(i){if(!i.resolved)openIds[i.id]=1;});});
   var degN=Object.keys(deg),crit=degN.some(function(n){return deg[n]==="crit";});
+  var exN=degN.filter(function(n){return /Exchange/i.test(n);})[0];TONE=exN?deg[exN]:null;
   if(q==="ok"&&degN.length){q=crit?"crit":"warn";setCls($("stage"),q);}
   $("headline").innerHTML=r.ok!==r.total?"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>":degN.length?"Microsoft zgłasza <em>"+(crit?"przerwę w działaniu":"degradację")+": "+degN.length+" usług</em>":"Wszystkie usługi <em>dostępne</em>";
   $("lede").textContent="Sondy HTTP ("+r.when+" UTC): odpowiada "+r.ok+" z "+r.total+" punktów końcowych."+(tenants?" Service Health z "+tenants+" tenantów: otwarte zgłoszenia "+Object.keys(openIds).length+".":"");
@@ -789,14 +883,14 @@ function applyReal(){
   $("when-s").textContent=r.when+" UTC";
 }
 function setPlaying(p){playing=p;lastIdx=-1;$("play").setAttribute("aria-label",p?"Pauza":"Odtwórz");$("play-i").innerHTML=p?'<path d="M3 2h4v12H3zM9 2h4v12H9z"/>':'<path d="M4 2l10 6-10 6z"/>';}
-function resize(){$("heat").style.height=heatH()+"px";buildPipe();["globe","pipec","chart","traffic","mini","heat"].forEach(fit);}
+function resize(){$("heat").style.height=heatH()+"px";$("map").style.height=Math.round($("map").getBoundingClientRect().width*MAPR)+"px";buildPipe();["globe","pipec","chart","traffic","mini","heat","map"].forEach(fit);buildMap();}
 
-var vis={globe:true,pipe:true,chart:true,heat:true,traffic:true};
-if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[e.target.id]=e.isIntersecting;});},{rootMargin:"120px"});["globe","pipe","chart","heat","traffic"].forEach(function(id){io.observe($(id));});}
+var vis={globe:true,pipe:true,chart:true,heat:true,traffic:true,map:true};
+if(window.IntersectionObserver){var io=new IntersectionObserver(function(es){es.forEach(function(e){vis[e.target.id]=e.isIntersecting;});},{rootMargin:"120px"});["globe","pipe","chart","heat","traffic","map"].forEach(function(id){io.observe($(id));});}
 var prev=0;
 function frame(ts){var dt=Math.min(.1,(ts-prev)/1000||0);prev=ts;
   if(playing){pos+=dt*speed;if(pos>=TOTAL){pos=TOTAL;setPlaying(false);}}
-  updateDom();if(vis.globe)drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
+  updateDom();if(vis.globe)drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.map)drawMap(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
 
 buildDom();FUS=mkFilter("f-us",["rows","rows-real"]);FLIVE=mkFilter("f-live",["live-rows"]);resize();setPlaying(false);
 window.addEventListener("resize",resize);
@@ -820,6 +914,7 @@ requestAnimationFrame(frame);
 var DATA_URL="https://raw.githubusercontent.com/wpiotrw/azureme-pulse/data/status.json";
 function renderLive(d){
   if(!d||!d.services||!d.samples||!d.samples.length)throw new Error("empty");
+  try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
   var box=$("live-rows");box.textContent="";$("live-empty").hidden=true;
   d.services.forEach(function(sv){
     var ser=d.samples.map(function(x){return x.r&&x.r[sv.id];}).filter(Boolean),n=ser.length;if(!n)return;
@@ -872,6 +967,38 @@ function renderRealTable(d){
   $("bd-ok").innerHTML=good.map(function(r){return '<span class="bchip s-ok">'+esc(r.e.name)+'</span>';}).join("");
   Array.prototype.forEach.call($("bd-bad").children,function(a){a.addEventListener("click",function(){if(FUS)FUS.set("bad");});});
   return {counts:counts};
+}
+var SIG=[
+  {n:"Microsoft Entra ID",http:["entra","entra-keys"],chk:"dir",sh:/^Microsoft Entra$/i},
+  {n:"Exchange Online",http:["exo","exo-mapi","exo-autod"],chk:"exo",sh:/^Exchange Online$/i},
+  {n:"SharePoint Online",http:[],chk:"spo",sh:/^SharePoint Online$/i},
+  {n:"Microsoft Teams",http:["teams"],chk:"teams",sh:/^Microsoft Teams$/i},
+  {n:"Microsoft Intune",http:["intune","intune-enroll"],chk:"intune",sh:/^Microsoft Intune$/i},
+  {n:"Microsoft Defender XDR",http:["defender","defender-api"],chk:null,sh:/^Microsoft Defender XDR$/i},
+  {n:"Microsoft 365 Copilot",http:["copilot"],chk:null,sh:/^Microsoft 365 Copilot/i},
+  {n:"Microsoft Graph",http:["graph","graph-userinfo","graph-meta"],chk:"*",sh:null},
+  {n:"Azure",http:["azure","arm","arm-meta"],chk:null,sh:null}
+];
+var SGOPEN={};
+function renderSignals(d){
+  var n=d.samples.length,last=d.samples[n-1].r||{},prev=n>1?(d.samples[n-2].r||{}):{},byId={},H=(d.health||[]).filter(function(h){return h.ok;}),tot={ok:0,warn:0,crit:0,off:0},rank={off:3,ok:2,warn:1,crit:0};
+  d.services.forEach(function(sv){byId[sv.id]=sv;});
+  function led(q,t){tot[q]++;return '<b class="led '+q+'" title="'+esc(t)+'"></b>';}
+  function li(q,k,t,r){return '<li><b class="led '+q+'" style="animation:none"></b><span class="k">'+esc(k)+'</span><span>'+esc(t)+'</span><span class="r">'+esc(r)+'</span></li>';}
+  var box=$("sg-rows");Array.prototype.forEach.call(box.children,function(el){SGOPEN[el.dataset.n]=el.open;});box.textContent="";$("sg-empty").hidden=true;
+  SIG.forEach(function(row){
+    var a="",b="",c="",det="",worst="off";function see(q){if(rank[q]<rank[worst])worst=q;}
+    row.http.forEach(function(id){var v=last[id],sv=byId[id];if(!v||!sv)return;var q=v[0]?"ok":(prev[id]&&!prev[id][0])?"crit":"warn",r=v[0]?"HTTP "+v[2]+" · "+v[1]+" ms":"kod "+(v[2]||"brak odpowiedzi");
+      see(q);a+=led(q,sv.what+": "+r);det+=li(q,"Punkt końcowy",sv.what,r);});
+    H.forEach(function(h){var cs=(h.checks||[]).filter(function(x){return row.chk==="*"?(x.state==="ok"||x.state==="fail"||x.state==="denied"):x.id===row.chk;});if(!row.chk||!cs.length)return;
+      var q,t,r;if(row.chk==="*"){var okc=cs.filter(function(x){return x.state!=="fail";}).length;q=okc===cs.length?"ok":okc?"warn":"crit";t="żądania do Microsoft Graph z tokenem aplikacji";r=okc+" z "+cs.length+" poprawnych";}
+      else{var x=cs[0];q=x.state==="ok"?"ok":x.state==="fail"?"crit":x.state==="denied"?"warn":"off";t=x.name;r=(CST[x.state]||x.state)+(x.state==="ok"?" · "+x.ms+" ms":x.code?" · kod "+x.code:"");}
+      if(q!=="off")see(q);b+=led(q,h.label+": "+t+", "+r);det+=li(q,"Graph · "+h.label,t,r);});
+    if(row.sh)H.forEach(function(h){(h.services||[]).filter(function(x){return row.sh.test(x.name);}).forEach(function(x){var m=hst(x.status);see(m[1]);c+=led(m[1],h.label+": "+x.name+", "+m[0]);det+=li(m[1],"Health · "+h.label,x.name,m[0]);});});
+    var el=document.createElement("details");el.className="sg-r"+(worst==="off"?"":" s-"+worst);el.dataset.n=row.n;el.open=!!SGOPEN[row.n];
+    el.innerHTML='<summary class="sg-g"><span class="sg-n">'+esc(row.n)+'</span><span class="sg-l ga" data-l="Punkty końcowe">'+(a||"<em>brak sondy</em>")+'</span><span class="sg-l gb" data-l="Odczyt przez Graph">'+(b||"<em>brak sprawdzenia</em>")+'</span><span class="sg-l gc" data-l="Service Health">'+(c||"<em>"+(row.sh?"brak odczytu":"nie dotyczy")+"</em>")+'</span><span class="sg-v">'+esc(worst==="off"?"Brak danych":LAB[worst])+'</span></summary><ul class="sg-d">'+det+'</ul>';
+    box.appendChild(el);});
+  $("sg-sum").innerHTML='<span><b class="led ok"></b>poprawne: <b>'+tot.ok+'</b></span><span><b class="led warn"></b>ostrzeżenia: <b>'+tot.warn+'</b></span><span><b class="led crit" style="animation:none"></b>błędy: <b>'+tot.crit+'</b></span><span><b class="led off"></b>nieaktywne: <b>'+tot.off+'</b></span><span>ostatni pomiar: <b>'+esc(fdt(d.generated))+'</b></span>';
 }
 function renderHealth(list){
   var box=$("health-box");if(!list.length)return;box.textContent="";

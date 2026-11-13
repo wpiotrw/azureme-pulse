@@ -13,14 +13,22 @@ const MAX_DAYS = 60;
 // A 401 from an API without a token still proves that the API front end answers.
 export const TARGETS = [
   { id: 'entra', name: 'Entra ID', what: 'metadane OpenID Connect', url: 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration', expect: [200] },
+  { id: 'entra-keys', name: 'Entra ID', what: 'klucze podpisujące tokeny (JWKS)', url: 'https://login.microsoftonline.com/common/discovery/v2.0/keys', expect: [200] },
   { id: 'exo', name: 'Exchange Online', what: 'punkt końcowy EWS, odpowiedź bez tokenu', url: 'https://outlook.office365.com/EWS/Exchange.asmx', expect: [401] },
+  { id: 'exo-mapi', name: 'Exchange Online', what: 'MAPI over HTTP (Outlook), odpowiedź bez tokenu', url: 'https://outlook.office365.com/mapi/emsmdb/', expect: [401] },
+  { id: 'exo-autod', name: 'Exchange Online', what: 'Autodiscover v2, odpowiedź JSON', url: 'https://outlook.office365.com/autodiscover/autodiscover.json/v1.0/pulse@outlook.com?Protocol=EWS', expect: [200] },
   { id: 'graph', name: 'Microsoft Graph', what: 'odpowiedź API bez tokenu', url: 'https://graph.microsoft.com/v1.0/me', expect: [401] },
+  { id: 'graph-userinfo', name: 'Microsoft Graph', what: 'OpenID Connect UserInfo, odpowiedź bez tokenu', url: 'https://graph.microsoft.com/oidc/userinfo', expect: [401] },
+  { id: 'graph-meta', name: 'Microsoft Graph', what: 'dokument metadanych API v1.0', url: 'https://graph.microsoft.com/v1.0/$metadata', expect: [200], noBody: true },
   { id: 'teams', name: 'Teams', what: 'strona klienta WWW', url: 'https://teams.microsoft.com/' },
   { id: 'copilot', name: 'Microsoft 365 Copilot', what: 'strona klienta WWW', url: 'https://m365.cloud.microsoft/' },
   { id: 'intune', name: 'Intune', what: 'centrum administracyjne', url: 'https://intune.microsoft.com/' },
+  { id: 'intune-enroll', name: 'Intune', what: 'usługa wykrywania rejestracji urządzeń', url: 'https://enrollment.manage.microsoft.com/enrollmentserver/discovery.svc', expect: [200] },
   { id: 'defender', name: 'Defender XDR', what: 'portal zabezpieczeń', url: 'https://security.microsoft.com/' },
+  { id: 'defender-api', name: 'Defender XDR', what: 'API incydentów, odpowiedź bez tokenu', url: 'https://api.security.microsoft.com/api/incidents', expect: [401] },
   { id: 'azure', name: 'Azure Portal', what: 'strona portalu', url: 'https://portal.azure.com/' },
   { id: 'arm', name: 'Azure Resource Manager', what: 'odpowiedź API bez tokenu', url: 'https://management.azure.com/subscriptions?api-version=2022-12-01', expect: [401] },
+  { id: 'arm-meta', name: 'Azure Resource Manager', what: 'metadane punktów końcowych chmury', url: 'https://management.azure.com/metadata/endpoints?api-version=2022-09-01', expect: [200] },
 ];
 
 async function once(t) {
@@ -29,7 +37,9 @@ async function once(t) {
   const timer = setTimeout(() => ac.abort(), TIMEOUT_MS);
   try {
     const r = await fetch(t.url, { redirect: 'follow', signal: ac.signal, headers: { 'user-agent': UA, accept: '*/*' } });
-    await r.arrayBuffer().catch(() => {});
+    // noBody: a large document; the response headers are enough, so the body is not downloaded.
+    if (t.noBody) await r.body?.cancel().catch(() => {});
+    else await r.arrayBuffer().catch(() => {});
     const ok = t.expect ? t.expect.includes(r.status) : r.status >= 200 && r.status < 400;
     return { ok, code: r.status, ms: Math.round(performance.now() - t0), err: '' };
   } catch (e) {
@@ -84,7 +94,7 @@ if (prevPath && outPath) {
   const results = Object.fromEntries(entries);
   for (const t of TARGETS) {
     const v = results[t.id];
-    console.log(`${v.ok ? 'OK  ' : 'FAIL'} ${t.id.padEnd(9)} code=${v.code} ${v.ms} ms ${v.err}`);
+    console.log(`${v.ok ? 'OK  ' : 'FAIL'} ${t.id.padEnd(14)} code=${v.code} ${v.ms} ms ${v.err}`);
   }
   const health = await readServiceHealth();
   for (const h of health) console.log(`${h.ok ? 'OK  ' : 'FAIL'} health:${h.label} services=${h.services.length} issues=${h.issues.length} ${h.query || ''} ${h.error || ''}`);
