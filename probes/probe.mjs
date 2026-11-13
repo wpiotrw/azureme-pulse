@@ -7,6 +7,7 @@ import { notify, diffEvents } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
 import { readPublicStatus } from './mscloud.mjs';
 import { updateCases } from './cases.mjs';
+import { readSignals, signalEvents } from './signals.mjs';
 
 const [, , prevPath, outPath, prevCasesPath, casesPath] = process.argv;
 const UA = 'azureme-pulse-probe/0.1 (+https://pulse.azureme.pl)';
@@ -119,9 +120,12 @@ if (prevPath && outPath) {
   next.regions = await probeRegions(prev.regions);
   const down = next.regions.list.filter((r) => !r.ok);
   console.log(`${down.length ? 'FAIL' : 'OK  '} regions ${next.regions.list.length - down.length}/${next.regions.list.length} ${down.map((r) => r.id).join(',')}`);
+  try { next.signals = await readSignals(prev.signals); } catch (e) { next.signals = prev.signals || {}; console.log(`FAIL signals ${e.message}`); }
+  console.log(`${next.signals.bgp?.ok ? 'OK  ' : 'FAIL'} bgp AS8075 v4=${next.signals.bgp?.v4?.seen}/${next.signals.bgp?.v4?.total} prefixes=${next.signals.bgp?.v4?.prefixes} state=${next.signals.bgp?.state} ${next.signals.bgp?.error || ''}`);
+  console.log(next.signals.radar?.configured ? `${next.signals.radar.ok ? 'OK  ' : 'FAIL'} radar points=${next.signals.radar.values?.length} dev=${next.signals.radar.dev} state=${next.signals.radar.state} ${next.signals.radar.error || ''}` : 'SKIP radar: PULSE_CF_TOKEN not set');
   // Change log shown on the page: state changes detected between this run and the previous one, newest first.
   const hasPrev = Array.isArray(prev.samples) && prev.samples.length > 0;
-  const fresh = hasPrev ? diffEvents(prev, next).map((e) => ({ t: next.generated, sev: e.sev, kind: e.kind, title: String(e.title).slice(0, 200), text: String(e.text || '').slice(0, 300) })) : [];
+  const fresh = hasPrev ? [...diffEvents(prev, next), ...signalEvents(prev.signals, next.signals)].map((e) => ({ t: next.generated, sev: e.sev, kind: e.kind, title: String(e.title).slice(0, 200), text: String(e.text || '').slice(0, 300) })) : [];
   next.events = [...fresh, ...(Array.isArray(prev.events) ? prev.events : [])].slice(0, MAX_EVENTS);
   // Incident case files (separate file on the data branch). A failure here must not stop the measurement.
   if (casesPath) {

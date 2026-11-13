@@ -54,3 +54,9 @@ Oba skrypty obsługują `-WhatIf` i można je bezpiecznie uruchamiać wielokrotn
 - Po zamknięciu incydentu karta przechodzi do historii. Portal przechowuje 5 ostatnich zamkniętych kart.
 - Obserwacje zewnętrzne (na przykład dane o ruchu) dopisuje zaplanowane zadanie w polu `timeline` wpisu rejestru (`routines/incydenty.md`).
 - Symulacja incydentu z 12–13 listopada 2026 jest osobnym, ręcznie przygotowanym studium przypadku.
+
+## Sygnały zewnętrzne
+
+- `probes/signals.mjs` odczytuje co około 15 minut dwa pośrednie wskaźniki stanu sieci Microsoft (AS8075): widoczność tras BGP z RIPEstat (bez klucza) oraz ruch widziany przez Cloudflare Radar.
+- Cloudflare Radar wymaga sekretu repozytorium `PULSE_CF_TOKEN` z tokenem o uprawnieniu Account > Radar > Read. Bez sekretu to źródło jest pomijane.
+- Wskaźniki nie mierzą ruchu użytkowników do Microsoft 365. Zmiana oceny trafia do dziennika zmian i do karty analizy trwającego incydentu.
