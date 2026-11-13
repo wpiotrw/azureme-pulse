@@ -12,7 +12,15 @@
                                       https://graphpermissions.merill.net/permission/ServiceHealth.Read.All
            ServiceMessage.Read.All  - komunikaty Centrum wiadomości
                                       https://graphpermissions.merill.net/permission/ServiceMessage.Read.All
-         Węższych uprawnień dla tych interfejsów Microsoft Graph nie udostępnia.
+         oraz uprawnienia sond funkcjonalnych (jedno tanie zapytanie odczytu na usługę):
+           Organization.Read.All                   - Entra ID: GET /organization
+           MailboxSettings.Read                    - Exchange Online: GET /users/{id}/mailboxSettings
+                                                     (ustawienia skrzynki, bez dostępu do treści poczty;
+                                                     zasięg można zawęzić do jednej skrzynki zasadą dostępu aplikacji)
+           SharePointTenantSettings.Read.All       - SharePoint: GET /admin/sharepoint/settings
+           DeviceManagementServiceConfig.Read.All  - Intune: GET /deviceManagement/deviceEnrollmentConfigurations
+           Team.ReadBasic.All                      - Teams: GET /teams
+         Dla każdego wywołania wybrano najniższe uprawnienie aplikacyjne podane w Microsoft Learn.
       4. poświadczenie federacyjne (federated identity credential) dla GitHub Actions,
          dzięki któremu zadanie loguje się bez sekretu.
 
@@ -58,9 +66,10 @@
     Tworzy aplikację, nadaje uprawnienia i dodaje poświadczenie federacyjne.
 
 .NOTES
-    Wersja: 1.1.0 (13-11-2026)
+    Wersja: 1.2.0 (13-11-2026)
     Autor:  Piotr Wiśniewski - APN Promise S.A.
-    Zmiany: 1.1.0 - podmiot poświadczenia w formacie GitHub z identyfikatorami liczbowymi;
+    Zmiany: 1.2.0 - uprawnienia sond funkcjonalnych; dopisywanie brakujących uprawnień do istniejącej aplikacji.
+            1.1.0 - podmiot poświadczenia w formacie GitHub z identyfikatorami liczbowymi;
                     istniejące poświadczenie o tej samej nazwie jest aktualizowane.
             1.0.1 - wynik i komunikaty podają nazwę aplikacji.
             1.0.0 - pierwsza wersja.
@@ -82,7 +91,11 @@ $ErrorActionPreference = 'Stop'
 $RequiredModules = @('Microsoft.Graph.Authentication', 'Microsoft.Graph.Applications')
 $RequiredScopes  = @('Application.ReadWrite.All', 'AppRoleAssignment.ReadWrite.All')
 $GraphAppId      = '00000003-0000-0000-c000-000000000000'   # stały identyfikator aplikacji Microsoft Graph
-$AppRoleNames    = @('ServiceHealth.Read.All', 'ServiceMessage.Read.All')
+$AppRoleNames    = @(
+    'ServiceHealth.Read.All', 'ServiceMessage.Read.All',
+    'Organization.Read.All', 'MailboxSettings.Read', 'SharePointTenantSettings.Read.All',
+    'DeviceManagementServiceConfig.Read.All', 'Team.ReadBasic.All'
+)
 $Issuer          = 'https://token.actions.githubusercontent.com'
 $Audience        = 'api://AzureADTokenExchange'
 $Subject         = if ($GitHubSubject) { $GitHubSubject } else { "repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}" }
@@ -140,6 +153,21 @@ try {
     if (@($app).Count -gt 1) { throw "Istnieje więcej niż jedna aplikacja o nazwie '$DisplayName'. Usuń duplikat albo podaj inną nazwę." }
     if ($app) {
         Write-Host "Aplikacja już istnieje: $($app.AppId)"
+        # Uzupełnienie listy wymaganych uprawnień o brakujące role; wpisy innych interfejsów pozostają bez zmian.
+        $current  = @($app.RequiredResourceAccess)
+        $graphRra = $current | Where-Object { $_.ResourceAppId -eq $GraphAppId } | Select-Object -First 1
+        $haveIds  = @(if ($graphRra) { $graphRra.ResourceAccess | ForEach-Object { $_.Id } })
+        $missing  = @($roles | Where-Object { $haveIds -notcontains $_.Id })
+        if ($missing.Count -gt 0 -and $PSCmdlet.ShouldProcess($DisplayName, "Dopisanie wymaganych uprawnień: $(($missing | ForEach-Object { $_.Value }) -join ', ')")) {
+            $access = @(if ($graphRra) { $graphRra.ResourceAccess | ForEach-Object { @{ Id = $_.Id; Type = $_.Type } } })
+            $access += @($missing | ForEach-Object { @{ Id = $_.Id; Type = 'Role' } })
+            $newRra = @($current | Where-Object { $_.ResourceAppId -ne $GraphAppId } | ForEach-Object {
+                    @{ ResourceAppId = $_.ResourceAppId; ResourceAccess = @($_.ResourceAccess | ForEach-Object { @{ Id = $_.Id; Type = $_.Type } }) }
+                })
+            $newRra += @{ ResourceAppId = $GraphAppId; ResourceAccess = $access }
+            Update-MgApplication -ApplicationId $app.Id -RequiredResourceAccess $newRra
+            Write-Host "Dopisano wymagane uprawnienia: $(($missing | ForEach-Object { $_.Value }) -join ', ')"
+        }
     }
     elseif ($PSCmdlet.ShouldProcess($DisplayName, 'Utworzenie rejestracji aplikacji')) {
         $resourceAccess = @{
