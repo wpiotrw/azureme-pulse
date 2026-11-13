@@ -47,3 +47,10 @@ Oba skrypty obsługują `-WhatIf` i można je bezpiecznie uruchamiać wielokrotn
 - Przełącznik motywu (jasny lub ciemny) oraz przełącznik języka (PL lub EN) znajdują się w polu „Aktualność danych”. Wybór jest zapisywany w przeglądarce.
 - Wersja angielska powstaje w przeglądarce ze słownika wbudowanego w `index.html`. Treść komunikatów Microsoft pozostaje w brzmieniu oryginalnym.
 - Wpisy rejestru incydentów mają pola angielskie z przyrostkiem `_en` (opis w `routines/incydenty.md`). Wiadomości e-mail są wysyłane po polsku.
+
+## Analiza incydentów (automatyczna)
+
+- `probes/cases.mjs` prowadzi kartę analizy każdego incydentu Microsoft widocznego w Service health: komunikaty Microsoft, wyniki własnych sond z czasu incydentu i zdarzenia wykryte przez portal. Plik `cases.json` trafia do gałęzi `data` razem z `status.json`.
+- Po zamknięciu incydentu karta przechodzi do historii. Portal przechowuje 5 ostatnich zamkniętych kart.
+- Obserwacje zewnętrzne (na przykład dane o ruchu) dopisuje zaplanowane zadanie w polu `timeline` wpisu rejestru (`routines/incydenty.md`).
+- Symulacja incydentu z 12–13 listopada 2026 jest osobnym, ręcznie przygotowanym studium przypadku.

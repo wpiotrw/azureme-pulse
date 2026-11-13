@@ -48,3 +48,12 @@ Najwyżej sześć linii: czy coś zmieniono, identyfikatory i tytuły dotknięty
 - Portal ma przełącznik języka. Każde pole tekstowe wpisu ma odpowiednik angielski w polu z przyrostkiem `_en`: `title_en`, `duration_en`, `summary_en`, `own_probes_en`, `related_note_en`.
 - Przy każdej zmianie pola polskiego zaktualizować w tym samym zapisie pole `_en`. Portal dopasowuje tłumaczenie do dokładnego brzmienia pola polskiego, dlatego nieaktualne pole `_en` pokazuje czytelnikowi nieaktualną treść.
 - Tekst angielski jest wiernym przekładem tekstu polskiego, bez dodatkowych informacji. Stany Microsoft w brzmieniu angielskim: „Service degradation”, „Service interruption”, „Restoring service”, „Extended recovery”, „Service restored”. Typy zgłoszeń: „incident”, „advisory”. Daty w tym samym formacie co w tekście polskim.
+
+## Obserwacje zewnętrzne do karty analizy (pole `timeline`)
+
+- Portal sam prowadzi kartę analizy każdego incydentu (plik `cases.json` w gałęzi `data`): komunikaty Microsoft i własne pomiary. Zadanie nie zmienia tego pliku.
+- Rolą zadania jest uzupełnienie karty o to, czego portal sam nie zmierzy: obserwacje innych podmiotów, na przykład dane o wolumenie ruchu (Kentik, Cloudflare Radar), zasięgu (ThousandEyes, Downdetector) lub przyczynie (raport Microsoft po zdarzeniu).
+- Obserwacje zapisywać we wpisie rejestru w polu `timeline` jako listę obiektów: `t` (czas zdarzenia w formacie ISO 8601, UTC), `source` (nazwa źródła), `url` (adres https), `title` (jedno zdanie), `text` (jedno lub dwa zdania z liczbami podanymi przez źródło) oraz `title_en` i `text_en`.
+- Portal dopasowuje wpis rejestru do karty analizy po identyfikatorach z pól `ids` i `related`, dlatego identyfikator Microsoft musi być we wpisie.
+- Każda obserwacja musi mieć źródło, które da się otworzyć. Nie zapisywać liczb szacowanych samodzielnie ani obserwacji bez adresu źródła. Jeżeli źródła podają różne wartości, zapisać każdą osobno z nazwą źródła.
+- Po zamknięciu incydentu przez Microsoft: ustawić `end`, dopisać do `timeline` raport Microsoft po zdarzeniu, gdy zostanie opublikowany, i zakończyć aktualizowanie wpisu.

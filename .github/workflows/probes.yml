@@ -30,8 +30,10 @@ jobs:
           mkdir -p out
           if git fetch --depth=1 origin data 2>/dev/null; then
             git show FETCH_HEAD:status.json > out/prev.json || echo '{}' > out/prev.json
+            git show FETCH_HEAD:cases.json > out/prev-cases.json 2>/dev/null || echo '{}' > out/prev-cases.json
           else
             echo '{}' > out/prev.json
+            echo '{}' > out/prev-cases.json
           fi
 
       - name: Run probes
@@ -40,17 +42,18 @@ jobs:
           PULSE_NOTIFY: ${{ secrets.PULSE_NOTIFY }}
         run: |
           node --version
-          node probes/probe.mjs out/prev.json out/status.json
+          node probes/probe.mjs out/prev.json out/status.json out/prev-cases.json out/cases.json
 
       - name: Publish results to the data branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd out
-          rm -f prev.json
+          rm -f prev.json prev-cases.json
+          test -s cases.json || echo '{"schema":1,"cases":[]}' > cases.json
           git init -q -b data
           git config user.name "azureme-pulse-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add status.json
+          git add status.json cases.json
           git commit -q -m "probe $(date -u +%FT%TZ)"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
