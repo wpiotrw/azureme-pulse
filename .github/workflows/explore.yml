@@ -9,12 +9,11 @@ jobs:
     timeout-minutes: 4
     steps:
       - run: |
-          B="https://atlas.ripe.net/api/v2/measurements/"
-          for t in ping sslcert http traceroute dns; do
-            echo "== asn8075 $t"
-            curl -s -m 30 "$B?status=2&is_public=true&target_asn=8075&type=$t&page_size=100" | jq -c '.count as $c | [.results[] | {id,target,interval,p:.participant_count,af,st:.start_time}] | sort_by(-.p) | {c:$c, top:.[0:12]}'
+          A="https://atlas.ripe.net/api/v2"
+          for m in 177421582 176906969; do
+            echo "== meta $m"; curl -s -m 30 "$A/measurements/$m/" | jq -c '{id,target,target_asn,target_ip,description,resolve_on_probe,interval,packets,tags,is_public,af,probes_scheduled,participant_count}'
+            S=$(( $(date +%s) - 600 ))
+            echo "== results anchors $m"; curl -s -m 60 -o r.json -w 'http=%{http_code} bytes=%{size_download} t=%{time_total}\n' "$A/measurements/$m/results/?start=$S&anchors_only=true&format=json"
+            jq -c '{n:length, probes:([.[].prb_id]|unique|length), ok:([.[]|select(.rcvd>0)]|length), sample:.[0], dst:([.[].dst_addr]|unique|length), med:([.[]|select(.avg>0)|.avg]|sort|.[(length/2|floor)])}' r.json | cut -c1-900
           done
-          for h in outlook.office365.com login.microsoftonline.com graph.microsoft.com teams.microsoft.com www.office.com portal.azure.com; do
-            echo "== target $h"
-            curl -s -m 30 "$B?status=2&is_public=true&target=$h&page_size=100" | jq -c '.count as $c | [.results[] | {id,type,interval,p:.participant_count,af}] | sort_by(-.p) | {c:$c, top:.[0:6]}'
-          done
+          echo "== probes"; curl -s -m 30 -w '\nhttp=%{http_code} bytes=%{size_download}\n' "$A/probes/?is_anchor=true&status=1&fields=id,country_code,asn_v4&page_size=500" | head -c 400
