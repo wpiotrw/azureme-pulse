@@ -317,6 +317,30 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 .side .bdg.crit{color:var(--crit);border-color:var(--crit)}
 .side .sf{margin-top:auto;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--muted);padding:0 8px}
 .side .sf a{color:var(--flow)}
+.side{background:#0a1220;gap:6px;padding:16px 12px 14px}
+.side .logo{padding:4px 10px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.side nav{gap:3px}
+.side .grp{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#7f93b0;padding:14px 12px 6px}
+.side nav a{color:#c9d6e8;font-size:14.5px;font-weight:500;padding:9px 10px 9px 9px;border-radius:9px;border-left:3px solid transparent;gap:10px;justify-content:flex-start;white-space:nowrap}
+.side nav a svg{width:18px;height:18px;flex:none;stroke:#8ea4c2;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.side nav a .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.side nav a:hover{background:rgba(255,255,255,.045);color:#fff}
+.side nav a[aria-current="page"]{background:rgba(86,204,255,.16);color:#fff;font-weight:600;border-left-color:var(--flow)}
+.side nav a[aria-current="page"] svg{stroke:var(--flow)}
+.side nav a.sep{margin-top:0}
+.side .bdg{font-size:11.5px;padding:1px 8px;border:0;background:rgba(159,178,204,.14);color:#c9d6e8}
+.side .bdg.ok{background:rgba(61,220,151,.14);color:var(--ok)}
+.side .bdg.warn{background:rgba(255,181,71,.16);color:var(--warn)}
+.side .bdg.crit{background:rgba(255,93,98,.18);color:var(--crit)}
+.side .sf{gap:10px;padding:0;font-size:12.5px;color:#9fb2cc}
+.side .sfc{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);padding:10px 12px}
+.side .sfl{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#7f93b0}
+.side .sfv{display:flex;align-items:center;gap:9px;color:#e8f0fb;font-family:var(--f-mono);font-size:12px}
+.side .sfv small{display:block;font-family:var(--f-body);font-size:12px;color:#9fb2cc;margin-top:2px}
+.side .sfc a{display:flex;align-items:center;justify-content:space-between;color:#c9d6e8;text-decoration:none;font-size:13px}
+.side .sfc a:hover{color:var(--flow)}
+.side .sfc a svg{width:11px;height:11px;stroke:currentColor;stroke-width:1.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.side .sfa{padding:2px 12px 0;font-size:12px;color:#7f93b0}
 .top{display:none}
 .top .vt{margin-left:auto;font-size:13.5px;color:var(--muted)}
 .mbtn{appearance:none;border:1px solid var(--line);background:var(--panel);border-radius:9px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer}
@@ -416,7 +440,11 @@ body:not([data-view="model"]) .dock{display:none}
 <aside class="side" id="side" aria-label="Menu główne">
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
   <nav id="menu" aria-label="Widoki"></nav>
-  <div class="sf"><span>Autor: Piotr Wiśniewski</span><span id="side-when">Ostatni pomiar: brak danych</span><span>Oficjalne strony stanu:<br><a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365</a> · <a href="https://azure.status.microsoft/status" rel="noopener">Azure</a></span></div>
+  <div class="sf">
+    <div class="sfc"><span class="sfl">Aktualność danych</span><span class="sfv"><b class="led off" id="side-led" style="animation:none"></b><span id="side-when">wczytywanie…</span></span></div>
+    <div class="sfc"><span class="sfl">Oficjalne strony stanu</span><a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5l-6 6"/></svg></a><a href="https://azure.status.microsoft/status" rel="noopener">Microsoft Azure<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5l-6 6"/></svg></a></div>
+    <div class="sfa">Autor: Piotr Wiśniewski</div>
+  </div>
 </aside>
 
 <div class="wrap">
@@ -1036,7 +1064,8 @@ function frame(ts){var dt=Math.min(.1,(ts-prev)/1000||0);prev=ts;
   if(playing){pos+=dt*speed;if(pos>=TOTAL){pos=TOTAL;setPlaying(false);}}
   updateDom();if(vis.globe&&VIEW==="globe")drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.map&&VIEW==="map")drawMap(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
 
-var VIEWS=[["home","Przegląd",["stage","home-tiles"]],["incydenty","Incydenty",["biezace","rejestr"]],["sygnaly","Panel sygnalizacyjny",["sygnaly"]],["uslugi","Stan usług",["uslugi"]],["regiony","Regiony Azure",["regiony"]],["pomiary","Sondy i dostępność",["pomiary"]],["microsoft","Komunikaty Microsoft",["zrodla"]],["model","Model incydentu",["demo-b","model","model-globe","ruch","sciezka","lokalizacje","zdarzenia"]]],CURV="";
+var VIEWS=[["home","Przegląd",["stage","home-tiles"]],["incydenty","Incydenty",["biezace","rejestr"]],["sygnaly","Panel sygnałów",["sygnaly"]],["uslugi","Stan usług",["uslugi"]],["regiony","Regiony Azure",["regiony"]],["pomiary","Sondy HTTP",["pomiary"]],["microsoft","Komunikaty Microsoft",["zrodla"]],["model","Model incydentu",["demo-b","model","model-globe","ruch","sciezka","lokalizacje","zdarzenia"]]],CURV="";
+var VICON={home:'<path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/>',incydenty:'<path d="M10 3l8 14H2zM10 8.5v4M10 14.6v.2"/>',sygnaly:'<circle cx="4.5" cy="10" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="15.5" cy="10" r="2"/>',uslugi:'<path d="M3 5h14M3 10h14M3 15h14"/>',regiony:'<circle cx="10" cy="10" r="7.5"/><path d="M2.5 10h15M10 2.5c3 3 3 12 0 15M10 2.5c-3 3-3 12 0 15"/>',pomiary:'<path d="M2 10h4l2-5 3 10 2-5h5"/>',microsoft:'<path d="M3 4h14v10H8.5L5 17v-3H3z"/>',model:'<path d="M6.5 4.5l9 5.5-9 5.5z"/>'},VGRP={home:"Monitoring",microsoft:"Źródła Microsoft",model:"Analiza"};
 function setBadge(v,t,q){var b=$("bdg-"+v);if(!b)return;b.textContent=t;b.className="bdg"+(q?" "+q:"");b.hidden=!t;}
 function showView(v,anchor){
   if(!VIEWS.some(function(x){return x[0]===v;}))v="home";
@@ -1050,7 +1079,7 @@ function showView(v,anchor){
   if(anchor&&$(anchor))$(anchor).scrollIntoView();else window.scrollTo(0,0);
 }
 function route(){var h=location.hash.replace(/^#\/?/,"");var byId=VIEWS.filter(function(x){return x[2].indexOf(h)>=0;})[0];if(byId&&VIEWS.every(function(x){return x[0]!==h;}))showView(byId[0],byId[0]==="home"?null:h);else showView(h||"home");}
-(function(){var m=$("menu");VIEWS.forEach(function(x){var a=document.createElement("a");a.href="#/"+x[0];a.id="mi-"+x[0];if(x[0]==="model")a.className="sep";a.innerHTML="<span>"+x[1]+'</span><span class="bdg" id="bdg-'+x[0]+'" hidden></span>';m.appendChild(a);});
+(function(){var m=$("menu");VIEWS.forEach(function(x){var a=document.createElement("a");a.href="#/"+x[0];a.id="mi-"+x[0];if(x[0]==="model")a.className="sep";if(VGRP[x[0]]){var gh=document.createElement("div");gh.className="grp";gh.textContent=VGRP[x[0]];m.appendChild(gh);}a.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true">'+VICON[x[0]]+'</svg><span class="lb">'+x[1]+'</span><span class="bdg" id="bdg-'+x[0]+'" hidden></span>';m.appendChild(a);});
   $("menu-btn").addEventListener("click",function(){var o=!$("side").classList.contains("open");$("side").classList.toggle("open",o);$("scrim").hidden=!o;this.setAttribute("aria-expanded",o);});
   $("scrim").addEventListener("click",function(){$("side").classList.remove("open");$("scrim").hidden=true;$("menu-btn").setAttribute("aria-expanded","false");});
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("side").classList.contains("open"))$("scrim").click();});
@@ -1248,9 +1277,8 @@ function renderTiles(d){
   var az=d.azure&&d.azure.ok?d.azure.items.length:null,mc={};H.forEach(function(h){(h.messages||[]).forEach(function(m){mc[m.id]=1;});});
   tile("microsoft","Komunikaty Microsoft",az?"warn":az===0?"ok":"",az===null?"Azure Status: brak odczytu":az?"Azure Status: zdarzenia "+az:"Azure Status: brak zdarzeń","Message Center: "+Object.keys(mc).length+" wiadomości z ostatnich 14 dni","Komunikaty i tenanty");
   $("tiles").innerHTML=t.join("");
-  $("side-when").textContent="Ostatni pomiar: "+fdt(d.generated);
   var gd=new Date(d.generated),pl="";try{pl=new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(gd).replace(",","")+" czasu polskiego · ";}catch(e){}
-  var ageM=Math.max(0,Math.round((Date.now()-gd.getTime())/60000));$("upd").textContent=pl+p2(gd.getUTCHours())+":"+p2(gd.getUTCMinutes())+" UTC ("+(ageM<1?"przed chwilą":ageM+" min temu")+")";$("upd-led").className="led "+(ageM<=15?"ok":ageM<=60?"warn":"crit");
+  var ageM=Math.max(0,Math.round((Date.now()-gd.getTime())/60000));$("upd").textContent=pl+p2(gd.getUTCHours())+":"+p2(gd.getUTCMinutes())+" UTC ("+(ageM<1?"przed chwilą":ageM+" min temu")+")";$("upd-led").className="led "+(ageM<=15?"ok":ageM<=60?"warn":"crit");$("side-led").className=$("upd-led").className;$("side-when").innerHTML=esc(pl?pl.replace(" czasu polskiego · ",""):fdt(d.generated))+"<small>"+(ageM<1?"przed chwilą":ageM+" min temu")+"</small>";
 }
 var SGT={ok:0,warn:0,crit:0,off:0};
 function renderHist(d){
