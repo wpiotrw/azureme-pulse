@@ -1,6 +1,7 @@
 // AzureMe Pulse: unauthenticated HTTP reachability probes for public Microsoft endpoints.
 // Usage: node probes/probe.mjs <previous status.json> <output status.json>
 import { readFileSync, writeFileSync } from 'node:fs';
+import { readServiceHealth } from './health.mjs';
 
 const [, , prevPath, outPath] = process.argv;
 const UA = 'azureme-pulse-probe/0.1 (+https://pulse.azureme.pl)';
@@ -47,7 +48,7 @@ async function probe(t) {
   return second.ok ? { ...second, retried: true } : second;
 }
 
-export function merge(prev, results, now = Date.now()) {
+export function merge(prev, results, now = Date.now(), health = null) {
   const samples = Array.isArray(prev.samples) ? prev.samples.slice() : [];
   const r = {};
   for (const [id, v] of Object.entries(results)) r[id] = [v.ok ? 1 : 0, v.ms, v.code];
@@ -70,6 +71,7 @@ export function merge(prev, results, now = Date.now()) {
     stepMin: 5,
     vantage: 'GitHub Actions (jedna lokalizacja)',
     services: TARGETS.map(({ id, name, what }) => ({ id, name, what, last: results[id] })),
+    health: health ?? prev.health ?? [],
     samples,
     days,
   };
@@ -84,5 +86,10 @@ if (prevPath && outPath) {
     const v = results[t.id];
     console.log(`${v.ok ? 'OK  ' : 'FAIL'} ${t.id.padEnd(9)} code=${v.code} ${v.ms} ms ${v.err}`);
   }
-  writeFileSync(outPath, JSON.stringify(merge(prev, results)));
+  const health = await readServiceHealth();
+  for (const h of health) console.log(`${h.ok ? 'OK  ' : 'FAIL'} health:${h.label} services=${h.services.length} issues=${h.issues.length} ${h.query || ''} ${h.error || ''}`);
+  // Keep the previous reading for a tenant whose read failed, so one failed login does not blank the page.
+  const prevHealth = Array.isArray(prev.health) ? prev.health : [];
+  const merged = health.map((h) => (h.ok ? h : { ...(prevHealth.find((p) => p.label === h.label && p.ok) || h), lastError: h.error, lastErrorAt: h.fetched }));
+  writeFileSync(outPath, JSON.stringify(merge(prev, results, Date.now(), health.length ? merged : null)));
 }

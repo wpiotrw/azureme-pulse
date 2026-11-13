@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 concurrency:
   group: probes
@@ -34,6 +35,8 @@ jobs:
           fi
 
       - name: Run probes
+        env:
+          PULSE_TENANTS: ${{ secrets.PULSE_TENANTS }}
         run: |
           node --version
           node probes/probe.mjs out/prev.json out/status.json

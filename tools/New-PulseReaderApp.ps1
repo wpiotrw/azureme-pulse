@@ -51,9 +51,10 @@
     Tworzy aplikację, nadaje uprawnienia i dodaje poświadczenie federacyjne.
 
 .NOTES
-    Wersja: 1.0.0 (13-11-2026)
+    Wersja: 1.0.1 (13-11-2026)
     Autor:  Piotr Wiśniewski - APN Promise S.A.
-    Zmiany: 1.0.0 - pierwsza wersja.
+    Zmiany: 1.0.1 - wynik i komunikaty podają nazwę aplikacji.
+            1.0.0 - pierwsza wersja.
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
 param(
@@ -113,6 +114,7 @@ $connectedHere = Connect-PulseGraph
 try {
     $organization = Get-MgContext
     Write-Host "Tenant docelowy: $($organization.TenantId)"
+    Write-Host "Nazwa aplikacji: $DisplayName"
 
     # 1. Role aplikacyjne Microsoft Graph odczytywane z tenanta, bez identyfikatorów wpisanych na stałe.
     $graphSp = Get-MgServicePrincipal -Filter "appId eq '$GraphAppId'" -Property 'id,appId,appRoles'
@@ -188,6 +190,7 @@ try {
 
     # 6. Wartości do wpisania w repozytorium GitHub (Settings > Secrets and variables > Actions > Variables).
     [pscustomobject]@{
+        DisplayName      = $app.DisplayName
         TenantId         = (Get-MgContext).TenantId
         ClientId         = $app.AppId
         ApplicationObjId = $app.Id
