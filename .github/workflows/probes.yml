@@ -40,7 +40,7 @@ jobs:
         env:
           PULSE_TENANTS: ${{ secrets.PULSE_TENANTS }}
           PULSE_NOTIFY: ${{ secrets.PULSE_NOTIFY }}
-          PULSE_CF_TOKEN: ${{ secrets.PULSE_CF_TOKEN }}
+          PULSE_CF_TOKEN: ${{ secrets.PULSE_CLOUDFLARE_TOKEN }}
         run: |
           node --version
           node probes/probe.mjs out/prev.json out/status.json out/prev-cases.json out/cases.json
