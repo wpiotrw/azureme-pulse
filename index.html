@@ -715,8 +715,11 @@ function setK(id,k,v,sub){var el=$(id);el.previousElementSibling.textContent=k;e
 function applyReal(){
   var r=REAL,q=r.ok===r.total?"ok":r.ok>=r.total-1?"warn":"crit",age=Math.max(0,Math.round((Date.now()-r.gen)/60000));
   setCls($("stage"),q);$("phase").textContent="Na żywo: dane rzeczywiste";
-  $("headline").innerHTML=q==="ok"?"Wszystkie punkty końcowe <em>dostępne</em>":"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>";
-  $("lede").textContent="Ostatni pomiar sond HTTP: "+r.when+" UTC. Odpowiada "+r.ok+" z "+r.total+" monitorowanych punktów końcowych Microsoft.";
+  var deg={},openIds={},tenants=0;(r.health||[]).forEach(function(h){if(!h.ok)return;tenants++;(h.services||[]).forEach(function(sv){if(hst(sv.status)[1]!=="ok")deg[sv.name]=hst(sv.status)[1];});(h.issues||[]).forEach(function(i){if(!i.resolved)openIds[i.id]=1;});});
+  var degN=Object.keys(deg),crit=degN.some(function(n){return deg[n]==="crit";});
+  if(q==="ok"&&degN.length){q=crit?"crit":"warn";setCls($("stage"),q);}
+  $("headline").innerHTML=r.ok!==r.total?"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>":degN.length?"Microsoft zgłasza <em>"+(crit?"przerwę w działaniu":"degradację")+": "+degN.length+" usług</em>":"Wszystkie usługi <em>dostępne</em>";
+  $("lede").textContent="Sondy HTTP ("+r.when+" UTC): odpowiada "+r.ok+" z "+r.total+" punktów końcowych."+(tenants?" Service Health w "+tenants+" tenantach: "+(degN.length?"stan inny niż dostępny mają "+degN.slice(0,6).join(", ")+(degN.length>6?" i "+(degN.length-6)+" kolejne":"")+". Otwarte zgłoszenia: "+Object.keys(openIds).length+".":"wszystkie usługi dostępne."):"");
   setK("k-av","Dostępność Exchange Online",r.exo,"sondy HTTP, okno "+r.win);
   var since="brak wpisów",sub="rejestr incydentów";
   if(INC&&INC.length){var e=INC.map(function(i){return Date.parse(i.end||"");}).filter(function(x){return !isNaN(x);}).sort().pop();var open=INC.some(function(i){return !i.end;});
@@ -774,7 +777,7 @@ function renderLive(d){
     [ic,nm,sp,ms,av,vd].forEach(function(e){row.appendChild(e);});box.appendChild(row);});
   var bad=[],okN=0,tot=0,exoTxt="brak";d.services.forEach(function(sv){var ser=d.samples.map(function(x){return x.r&&x.r[sv.id];}).filter(Boolean);if(!ser.length)return;tot++;if(ser[ser.length-1][0])okN++;else bad.push(sv.name);
     if(sv.id==="exo"){var o=0;ser.forEach(function(v){o+=v[0];});exoTxt=(o/ser.length*100).toFixed(1).replace(".",",")+"%";}});
-  var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t)};lastIdx=-1;
+  var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t),health:d.health||[]};lastIdx=-1;
   renderHealth(d.health||[]);
   var g=new Date(d.generated),age=Math.round((Date.now()-g.getTime())/60000),first=d.samples[0].t,lastT=d.samples[d.samples.length-1].t;
   $("live-note").textContent="Ostatni pomiar: "+p2(g.getUTCDate())+"."+p2(g.getUTCMonth()+1)+" "+p2(g.getUTCHours())+":"+p2(g.getUTCMinutes())+" UTC ("+age+" min temu). Liczba pomiarów: "+d.samples.length+", okno: "+dur(lastT-first)+"."+(age>20?" Uwaga: harmonogram pomiarów jest opóźniony.":"");
