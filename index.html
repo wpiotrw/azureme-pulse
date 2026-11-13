@@ -561,6 +561,9 @@ body.rail .side nav::-webkit-scrollbar{display:none}
 .sr .vd,.lr .vd,.sg-v{white-space:nowrap}
 .sr .pr{white-space:nowrap}
 @media (max-width:720px){.sr .vd,.lr .vd{font-size:11.5px;letter-spacing:.03em}}
+.gstate{position:absolute;left:0;top:0;display:flex;align-items:center;gap:9px;max-width:46%;font-size:12px;line-height:1.35;color:var(--ink);border:1px solid color-mix(in srgb,var(--sc) 50%,transparent);border-radius:10px;background:rgba(5,10,19,.72);padding:7px 10px;pointer-events:none;z-index:2}
+@media (min-width:721px){.globe.is-map .vnote{display:none}}
+@media (max-width:720px){.gstate{position:static;max-width:none;margin:44px 0 6px}.globe.is-map .gstate{margin-top:8px}}
 </style>
 </head>
 <body>
@@ -613,6 +616,7 @@ body.rail .side nav::-webkit-scrollbar{display:none}
       <canvas id="map" hidden role="img" aria-label="Mapa świata z przepływem ruchu oraz stanem regionów Azure"></canvas>
       <div class="vctl"><div class="seg" role="group" aria-label="Rodzaj widoku"><button type="button" id="v-globe" aria-pressed="true">Globus 3D</button><button type="button" id="v-map" aria-pressed="false">Mapa 2D</button></div><div class="seg" role="group" aria-label="Powiększenie"><button type="button" id="z-out" aria-label="Pomniejsz">−</button><button type="button" id="z-in" aria-label="Powiększ">+</button><button type="button" id="z-0" aria-label="Widok początkowy">1:1</button></div></div>
       <p class="vnote" id="map-note"></p>
+      <div class="gstate" id="globe-state" hidden></div>
       <div class="cap"><span class="key" style="--c:var(--flow)"><i></i>ruch obsługiwany</span><span class="key" style="--c:var(--warn)"><i></i>obsługa częściowa</span><span class="key" style="--c:var(--crit)"><i></i>brak odpowiedzi</span><span class="key" id="k-reg" hidden><i style="border-radius:1px;transform:rotate(45deg);width:7px;height:7px"></i>region Azure (pomiar rzeczywisty)</span></div>
     </div>
   </section>
@@ -909,11 +913,11 @@ function drawGlobe(now,dt){
   if(!drag&&!reduce&&GZ<1.2)lam+=dt*2.6;
   var cl=Math.cos(lam*D2R),sl=Math.sin(lam*D2R),cp=Math.cos(phi*D2R),sp=Math.sin(phi*D2R);
   function proj(vx,vy,vz,out,o){var x1=vx*cl-vz*sl,z1=vz*cl+vx*sl,y2=vy*cp-z1*sp,z2=z1*cp+vy*sp;out[o]=cx+Rr*x1;out[o+1]=cy-Rr*y2;out[o+2]=(z2>0||x1*x1+y2*y2>1.0004)?z2+2:z2-2;}
-  var g=x.createRadialGradient(cx,cy,Rr*.92,cx,cy,Rr*1.32);g.addColorStop(0,"rgba(86,204,255,.26)");g.addColorStop(.35,"rgba(70,120,255,.10)");g.addColorStop(1,"rgba(86,204,255,0)");
+  var g=x.createRadialGradient(cx,cy,Rr*.92,cx,cy,Rr*1.32);var gc=TONE&&pos>=TOTAL&&!playing?COL[TONE]:COL.flow,gp=TONE&&pos>=TOTAL&&!playing&&!reduce?.07*Math.sin(now*2.2):0;g.addColorStop(0,rgba(gc,.3+gp));g.addColorStop(.35,rgba(gc,.11+gp/2));g.addColorStop(1,rgba(gc,0));
   x.fillStyle=g;x.beginPath();x.arc(cx,cy,Rr*1.32,0,7);x.fill();
   g=x.createRadialGradient(cx-Rr*.35,cy-Rr*.4,Rr*.05,cx,cy,Rr);g.addColorStop(0,"#15305c");g.addColorStop(.6,"#0a1730");g.addColorStop(1,"#060d1c");
   x.fillStyle=g;x.beginPath();x.arc(cx,cy,Rr,0,7);x.fill();
-  x.strokeStyle="rgba(120,200,255,.45)";x.lineWidth=1;x.stroke();
+  x.strokeStyle=rgba(gc,.55);x.lineWidth=1;x.stroke();
   var tmp=[0,0,0],ds=Math.max(1.1,Rr/150);x.fillStyle="#7fb3ee";
   for(var i=0;i<dotV.length;i+=3){proj(dotV[i],dotV[i+1],dotV[i+2],tmp,0);if(tmp[2]<0)continue;var z=tmp[2]-2;x.globalAlpha=.16+z*.62;x.fillRect(tmp[0]-ds/2,tmp[1]-ds/2,ds,ds);}
   x.globalAlpha=1;
@@ -1194,8 +1198,8 @@ function updateDom(){
   $("us-num").textContent=realMode?"01 · DANE RZECZYWISTE":"01 · SYMULACJA";$("us-num").className=realMode?"real":"num sim";
   $("us-p").textContent=realMode?"Stan usług według Microsoft Service health z tenantów testowych, zestawiony z własnymi sondami. O stanie usługi decyduje gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Stan każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Stan według Microsoft” pokazuje, czy Microsoft potwierdził incydent w Service health.";
   if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z obniżoną wydajnością</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
-  $("board").hidden=!realMode;$("inc-s").hidden=!(realMode&&tenantsOk());
-  $("map-note").textContent=realMode?"Łuki: model przepływu Exchange Online, kolor według Service health. Romby: regiony Azure, pomiar rzeczywisty.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
+  $("board").hidden=!realMode;if(!realMode)$("globe-state").hidden=true;$("inc-s").hidden=!(realMode&&tenantsOk());
+  $("map-note").textContent=realMode?"Łuki: model przepływu, kolor według aktywnych incydentów Microsoft. Romby: regiony Azure, pomiar rzeczywisty.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
   if(FUS)FUS.apply();
   if(live&&REAL)applyReal();
 }
@@ -1207,7 +1211,7 @@ function applyReal(){
   setCls($("stage"),q);$("phase").textContent="Na żywo: dane rzeczywiste";
   var deg={},openIds={},tenants=0;(r.health||[]).forEach(function(h){if(!h.ok)return;tenants++;(h.services||[]).forEach(function(sv){if(hst(sv.status)[1]!=="ok")deg[sv.name]=hst(sv.status)[1];});(h.issues||[]).forEach(function(i){if(!i.resolved)openIds[i.id]=1;});});
   var degN=Object.keys(deg),crit=degN.some(function(n){return deg[n]==="crit";});
-  var exN=degN.filter(function(n){return /Exchange/i.test(n);})[0];TONE=exN?deg[exN]:null;
+
   if(q==="ok"&&degN.length){q=crit?"crit":"warn";setCls($("stage"),q);}
   $("headline").innerHTML=r.ok!==r.total?"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>":degN.length?"Microsoft zgłasza <em>"+(crit?"przerwę w świadczeniu usług":"obniżenie wydajności")+": "+degN.length+" "+plf(degN.length,"usługa","usługi","usług")+"</em>":"Wszystkie usługi <em>dostępne</em>";
   $("lede").textContent="Sondy HTTP ("+r.when+" UTC): odpowiada "+r.ok+" z "+r.total+" punktów końcowych."+(tenants?" Service health z "+tenants+" tenantów: otwarte zgłoszenia "+Object.keys(openIds).length+".":"");
@@ -1219,9 +1223,12 @@ function applyReal(){
   setK("k-si","Punkty końcowe dostępne",r.ok+" z "+r.total,"ostatni pomiar");
   var os=openSplit(r.health),ni=os.inc.length,na=os.adv.length,icr=os.inc.some(function(i){return hst(i.status)[1]==="crit";});
   setK("k-le","Aktywne incydenty Microsoft",String(ni),"porady: "+na);
+  TONE=ni?(icr?"crit":"warn"):null;
+  var gs=$("globe-state");gs.hidden=false;gs.className="gstate "+(ni?(icr?"s-crit":"s-warn"):"s-ok");
+  gs.innerHTML='<b class="led '+(ni?(icr?"crit":"warn"):"ok")+'" style="animation:none"></b>'+(ni?"Aktywne incydenty: "+ni+". Przepływ i poświata w kolorze "+(icr?"czerwonym":"pomarańczowym")+".":"Brak aktywnych incydentów. Przepływ w kolorze niebieskim.");
   $("inc-n").textContent=ni;$("inc-l").textContent=plf(ni,"aktywny incydent","aktywne incydenty","aktywnych incydentów");
   $("adv-n").textContent=na;$("adv-l").textContent=plf(na,"porada","porady","porad");
-  $("inc-n").parentNode.style.setProperty("--ic",ni?(icr?"var(--crit)":"var(--warn)"):"var(--ok)");$("adv-n").parentNode.style.setProperty("--ic",na?"#9fb2cc":"var(--ok)");
+  $("inc-n").parentNode.style.setProperty("--ic",ni?"var(--crit)":"var(--ok)");$("adv-n").parentNode.style.setProperty("--ic",na?"var(--warn)":"var(--ok)");
   $("when-s").textContent=r.when+" UTC";
 }
 function tenantsOk(){return !!(REAL&&(REAL.health||[]).some(function(h){return h.ok;}));}
@@ -1436,8 +1443,8 @@ function renderTiles(d){
   H.forEach(function(h){(h.issues||[]).forEach(function(i){if(!i.resolved&&!seen[i.id]){seen[i.id]=1;open.push(i);}});(h.services||[]).forEach(function(x){var m=hst(x.status);if(m[1]!=="ok"&&deg[x.name]!=="crit")deg[x.name]=m[1];});});
   open.sort(function(a,b){return String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
   function tile(v,k,q,val,sub,go){t.push('<a class="tile'+(q?" s-"+q:"")+'" href="#/'+v+'"><span class="tk">'+esc(k)+'<b class="led '+(q||"off")+'" style="animation:none"></b></span><span class="tv">'+esc(val)+'</span><span class="ts">'+sub+'</span><span class="go">'+esc(go)+' →</span></a>');}
-  var o=open[0],iq=open.some(function(i){return hst(i.status)[1]==="crit";})?"crit":open.length?"warn":H.length?"ok":"";
-  var ti=open.filter(isInc).length;tile("incydenty","Bieżące incydenty",iq,H.length?(open.length?"Aktywne incydenty: "+ti:"Brak otwartych zgłoszeń"):"Brak odczytu",(open.length?"Porady: "+(open.length-ti)+"<br>":"")+o?esc(o.id+": "+String(o.title).slice(0,90))+(o.next||o.nextRaw?"<br>Następna aktualizacja: "+nextTxt(o):""):"Microsoft Service health","Szczegóły zgłoszeń");
+  var o=open[0],iq=open.some(isInc)?"crit":open.length?"warn":H.length?"ok":"";
+  var ti=open.filter(isInc).length;tile("incydenty","Bieżące incydenty",iq,H.length?(open.length?"Aktywne incydenty: "+ti:"Brak otwartych zgłoszeń"):"Brak odczytu",(open.length?"Porady: "+(open.length-ti)+"<br>":"")+(o?esc(o.id+": "+String(o.title).slice(0,90))+(o.next||o.nextRaw?"<br>Następna aktualizacja: "+nextTxt(o):""):"Microsoft Service health"),"Szczegóły zgłoszeń");
   setBadge("incydenty",open.length?String(ti):"",ti?iq:"");
   var dn=Object.keys(deg),dq=dn.some(function(n){return deg[n]==="crit";})?"crit":dn.length?"warn":H.length?"ok":"";
   tile("uslugi","Stan usług według Microsoft",dq,H.length?(dn.length?"Usługi z problemami: "+dn.length:"Wszystkie usługi dostępne"):"Brak odczytu",esc(dn.slice(0,4).join(", ")+(dn.length>4?" oraz "+(dn.length-4)+" kolejne":"")),"Szczegóły stanu usług");
