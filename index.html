@@ -2,6 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="utf-8">
+<meta name="author" content="Piotr Wiśniewski">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AzureMe Pulse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -301,6 +302,11 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 .side nav{order:0!important;width:auto!important;overflow:visible!important;white-space:normal!important}
 .side .sf{order:1}
 #headline{font-size:clamp(28px,3.3vw,44px);line-height:1.12}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px 18px;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:9px 14px;font-size:13px;color:var(--muted);margin-bottom:-32px}
+.meta b{color:var(--ink);font-weight:600}
+.meta .mu{display:inline-flex;align-items:center;gap:10px}
+.meta #upd{font-family:var(--f-mono);font-weight:500;font-size:12.5px}
+@media (max-width:860px){.meta{margin-bottom:-24px}}
 .side nav a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:9px;font-size:14.5px;color:var(--muted);text-decoration:none;border-left:3px solid transparent}
 .side nav a:hover{color:var(--ink);background:var(--panel2)}
 .side nav a[aria-current="page"]{color:var(--ink);background:rgba(86,204,255,.1);border-left-color:var(--flow);font-weight:600}
@@ -410,10 +416,11 @@ body:not([data-view="model"]) .dock{display:none}
 <aside class="side" id="side" aria-label="Menu główne">
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
   <nav id="menu" aria-label="Widoki"></nav>
-  <div class="sf"><span id="side-when">Ostatni pomiar: brak danych</span><span>Oficjalne strony stanu:<br><a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365</a> · <a href="https://azure.status.microsoft/status" rel="noopener">Azure</a></span></div>
+  <div class="sf"><span>Autor: Piotr Wiśniewski</span><span id="side-when">Ostatni pomiar: brak danych</span><span>Oficjalne strony stanu:<br><a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365</a> · <a href="https://azure.status.microsoft/status" rel="noopener">Azure</a></span></div>
 </aside>
 
 <div class="wrap">
+  <div class="meta" id="meta"><span class="mu"><b class="led off" id="upd-led" style="animation:none"></b><span>Ostatnia aktualizacja danych: <b id="upd">wczytywanie…</b></span></span><span class="ma">Autor: <b>Piotr Wiśniewski</b></span></div>
   <section class="stage s-ok" id="stage" aria-label="Przegląd">
     <div>
       <div class="head">
@@ -574,7 +581,7 @@ body:not([data-view="model"]) .dock{display:none}
     </div>
   </section>
 
-  <footer>Niezależny projekt. Nie jest powiązany z Microsoft ani Kentik. Nazwy usług należą do ich właścicieli.</footer>
+  <footer>Autor: Piotr Wiśniewski. Niezależny projekt. Nie jest powiązany z Microsoft ani Kentik. Nazwy usług należą do ich właścicieli.</footer>
 </div>
 
 <div class="dock"><div class="in">
@@ -1242,6 +1249,8 @@ function renderTiles(d){
   tile("microsoft","Komunikaty Microsoft",az?"warn":az===0?"ok":"",az===null?"Azure Status: brak odczytu":az?"Azure Status: zdarzenia "+az:"Azure Status: brak zdarzeń","Message Center: "+Object.keys(mc).length+" wiadomości z ostatnich 14 dni","Komunikaty i tenanty");
   $("tiles").innerHTML=t.join("");
   $("side-when").textContent="Ostatni pomiar: "+fdt(d.generated);
+  var gd=new Date(d.generated),pl="";try{pl=new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(gd).replace(",","")+" czasu polskiego · ";}catch(e){}
+  var ageM=Math.max(0,Math.round((Date.now()-gd.getTime())/60000));$("upd").textContent=pl+p2(gd.getUTCHours())+":"+p2(gd.getUTCMinutes())+" UTC ("+(ageM<1?"przed chwilą":ageM+" min temu")+")";$("upd-led").className="led "+(ageM<=15?"ok":ageM<=60?"warn":"crit");
 }
 var SGT={ok:0,warn:0,crit:0,off:0};
 function renderHist(d){
