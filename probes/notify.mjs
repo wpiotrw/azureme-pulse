@@ -202,3 +202,4 @@ export async function notify(prev, next, now = Date.now(), fetchImpl = fetch) {
   }
   return state;
 }
+// Sender for notifications must be an existing mailbox (user or shared) in the tenant named in PULSE_NOTIFY.
