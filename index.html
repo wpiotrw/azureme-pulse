@@ -47,6 +47,24 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,5.2vw,56px)
 h1 em{font-style:normal;color:var(--sc);text-shadow:0 0 34px color-mix(in srgb,var(--sc) 55%,transparent)}
 .lede{color:var(--muted);max-width:46ch;margin:0 0 16px}
 [hidden]{display:none!important}
+.board{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px}
+.board .bt{font-family:var(--f-display);font-weight:600;font-size:14px;color:var(--sc);display:inline-flex;align-items:center;gap:8px}
+.board .bt::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--sc);box-shadow:0 0 10px var(--sc)}
+.board summary{cursor:pointer;list-style:none}
+.board summary::-webkit-details-marker{display:none}
+.board summary .bt::after{content:"pokaż";font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted);margin-left:6px;text-decoration:underline dotted}
+.board details[open] summary .bt::after{content:"ukryj"}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bchip{font-size:12.5px;text-decoration:none;color:var(--ink);border:1px solid color-mix(in srgb,var(--sc) 55%,var(--line));background:color-mix(in srgb,var(--sc) 10%,transparent);border-radius:99px;padding:3px 10px;white-space:nowrap}
+.bchip b{font-weight:600;color:var(--sc);margin-left:5px}
+a.bchip:hover{border-color:var(--sc)}
+.official{font-size:13px;color:var(--muted);margin:0 0 14px}
+.divider{border-top:1px solid var(--line);padding-top:28px;display:flex;flex-direction:column;gap:4px}
+.divider p{margin:0;color:var(--muted);font-size:14px;max-width:75ch}
+.fbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.fbar button{appearance:none;font:inherit;font-size:13px;font-weight:600;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:6px 12px;cursor:pointer}
+.fbar button[aria-pressed="true"]{color:#04121f;background:var(--flow);border-color:var(--flow)}
+.fbar button b{font-family:var(--f-mono);font-weight:500;margin-left:5px}
 .cta{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
 .btn{appearance:none;font:inherit;font-weight:600;font-size:14px;color:#04121f;background:var(--flow);border:1px solid var(--flow);border-radius:10px;padding:9px 15px;cursor:pointer;box-shadow:0 8px 30px -12px var(--flow)}
 .btn.ghost{background:transparent;color:var(--flow);box-shadow:none}
@@ -236,7 +254,8 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   .globe{order:2;max-width:480px} .kpis{order:3}
   .stage>div:first-child{display:contents}
   .head{order:1}
-  nav{display:none}
+  nav{order:3;width:100%;margin:0;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+  html{scroll-padding-top:112px}
   .wrap{gap:44px}
   .dock .in{grid-template-columns:auto minmax(0,1fr) auto;gap:10px}
   .when{grid-column:1/-1;grid-row:1;display:flex;gap:8px;align-items:baseline} .when small{display:inline}
@@ -261,10 +280,8 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 <body>
 <div class="top"><div class="in">
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
-  <nav aria-label="Sekcje"><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#uslugi">Dostępność</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Incydent</a></nav>
+  <nav aria-label="Sekcje"><a href="#uslugi">Stan usług</a><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#model">Model incydentu</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Oś czasu</a></nav>
 </div></div>
-
-<div class="demo"><p><b>Co jest rzeczywiste.</b> Nagłówek w widoku na żywo, „Pomiary rzeczywiste” i „Rejestr incydentów”. Sekcje oznaczone SYMULACJA odtwarzają incydent z 12–13 listopada 2026 na modelu: godziny i komunikaty pochodzą z publicznych źródeł, liczby nie są pomiarami.</p></div>
 
 <div class="wrap">
   <section class="stage s-ok" id="stage" aria-label="Przegląd">
@@ -273,6 +290,11 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
         <div class="eyebrow"><span class="beacon"></span><span id="phase">…</span></div>
         <h1 id="headline">…</h1>
         <p class="lede" id="lede">…</p>
+        <div class="board" id="board" hidden>
+          <div class="bl"><span class="bt s-warn" id="bd-bad-t">Usługi z problemami</span><div class="chips" id="bd-bad"></div></div>
+          <details class="bl"><summary><span class="bt s-ok" id="bd-ok-t">Usługi bez problemów</span></summary><div class="chips" id="bd-ok"></div></details>
+        </div>
+        <p class="official">Oficjalne strony stanu: <a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365</a> · <a href="https://azure.status.microsoft/status" rel="noopener">Azure</a></p>
         <div class="cta"><button class="btn" id="replay" type="button">Odtwórz przebieg incydentu</button><button class="btn ghost" id="golive" type="button" hidden>Wróć do widoku na żywo</button></div>
       </div>
       <div class="kpis">
@@ -288,8 +310,28 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     </div>
   </section>
 
+  <div class="demo" style="margin:0;padding:0"><p><b>Co jest rzeczywiste.</b> Nagłówek w widoku na żywo, „Pomiary rzeczywiste” i „Rejestr incydentów”. Sekcje oznaczone SYMULACJA odtwarzają incydent z 12–13 listopada 2026 na modelu: godziny i komunikaty pochodzą z publicznych źródeł, liczby nie są pomiarami.</p></div>
+
+  <section id="uslugi">
+    <header><span class="num sim" id="us-num">01 · SYMULACJA</span><h2>Dostępność usług</h2><p id="us-p">Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
+    <div class="sum" id="sum" hidden></div>
+    <div class="fbar" id="f-us" role="group" aria-label="Filtr statusu usług"></div>
+    <div class="card st">
+      <div class="st-h"><span></span><span>Usługa</span><span>Sondy</span><span>Producent</span><span style="justify-self:end">Status</span></div>
+      <div id="rows"></div>
+      <div id="rows-real" hidden></div>
+    </div>
+    <p class="note" id="us-note">Zakres wpływu według komunikatu MO1550821 w opracowaniu <a href="https://azureblog.co.uk/posts/microsoft-365-outage-12-november-2026/" rel="noopener">azureblog.co.uk</a>. Wartości dostępności są symulowane.</p>
+    <div class="card" style="margin-top:12px" id="us-chart">
+      <div class="chart-h"><h3 id="chart-t">…</h3><span>odsetek udanych testów, średnie 5-minutowe, czas UTC</span></div>
+      <div class="h60"><span>ostatnie 60 dni</span><svg id="h60" viewBox="0 0 180 14" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <canvas id="chart" role="img" aria-label="Wykres dostępności wybranej usługi"></canvas>
+    </div>
+  </section>
+
   <section id="pomiary">
     <header><span class="real">DANE RZECZYWISTE</span><h2>Pomiary rzeczywiste: sondy HTTP</h2><p>Osiągalność publicznych punktów końcowych Microsoft, mierzona co około 5 minut z jednej lokalizacji (GitHub Actions). Sonda bez uwierzytelnienia potwierdza, że warstwa dostępowa usługi odpowiada. Nie sprawdza operacji po zalogowaniu.</p></header>
+    <div class="fbar" id="f-live" role="group" aria-label="Filtr statusu sond"></div>
     <div class="card st">
       <div class="lr h"><span></span><span>Usługa</span><span>Czas odpowiedzi, trend</span><span>Ostatni</span><span>Dostępność</span><span style="justify-self:end">Status</span></div>
       <div class="live-empty" id="live-empty">Wczytywanie pomiarów…</div>
@@ -306,21 +348,11 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     <div class="reg" id="reg"><div class="card live-empty" id="reg-empty">Wczytywanie rejestru…</div></div>
   </section>
 
-  <section id="uslugi">
-    <header><span class="num sim" id="us-num">01 · SYMULACJA</span><h2>Dostępność usług</h2><p id="us-p">Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
-    <div class="sum" id="sum"></div>
-    <div class="card st">
-      <div class="st-h"><span></span><span>Usługa</span><span>Sondy</span><span>Producent</span><span style="justify-self:end">Status</span></div>
-      <div id="rows"></div>
-      <div id="rows-real" hidden></div>
-    </div>
-    <p class="note" id="us-note">Zakres wpływu według komunikatu MO1550821 w opracowaniu <a href="https://azureblog.co.uk/posts/microsoft-365-outage-12-november-2026/" rel="noopener">azureblog.co.uk</a>. Wartości dostępności są symulowane.</p>
-    <div class="card" style="margin-top:12px" id="us-chart">
-      <div class="chart-h"><h3 id="chart-t">…</h3><span>odsetek udanych testów, średnie 5-minutowe, czas UTC</span></div>
-      <div class="h60"><span>ostatnie 60 dni</span><svg id="h60" viewBox="0 0 180 14" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-      <canvas id="chart" role="img" aria-label="Wykres dostępności wybranej usługi"></canvas>
-    </div>
-  </section>
+  <div class="divider" id="model">
+    <span class="num sim">MODEL DEMONSTRACYJNY</span>
+    <h2>Odtworzenie incydentu z 12–13 listopada 2026</h2>
+    <p>Poniższe sekcje nie pokazują pomiarów. To model, który odtwarza przebieg incydentu: godziny i komunikaty pochodzą z publicznych źródeł, wartości liczbowe są symulowane. Uruchom go przyciskiem odtwarzania na dolnym pasku.</p>
+  </div>
 
   <section id="ruch">
     <header><span class="num sim">02 · SYMULACJA</span><h2>Analiza wolumenu ruchu</h2><p>Ruch rzeczywisty zestawiony z wartością oczekiwaną (baseline), czyli profilem z poprzedniej doby. Krzywa jest symulowana na podstawie wartości podanych przez Kentik.</p></header>
@@ -671,6 +703,14 @@ function buildDom(){
   $("ev-prev").addEventListener("click",function(){if(lastCur>0){seek(EV[lastCur-1].t);setPlaying(false);}});
   $("ev-next").addEventListener("click",function(){if(lastCur<EV.length-1){seek(EV[lastCur+1].t);setPlaying(false);}});
 }
+function mkFilter(barId,ids){
+  var bar=$(barId),state="all",btn={};
+  function apply(){var n={all:0,bad:0,ok:0};ids.forEach(function(id){var box=$(id);if(box.hidden)return;Array.prototype.forEach.call(box.children,function(r){var ok=r.classList.contains("s-ok");n.all++;n[ok?"ok":"bad"]++;r.style.display=(state==="all"||(state==="ok")===ok)?"":"none";});});
+    ["all","bad","ok"].forEach(function(k){btn[k].setAttribute("aria-pressed",k===state?"true":"false");btn[k].lastChild.textContent=n[k];});}
+  [["all","Wszystkie"],["bad","Z problemami"],["ok","Bez problemów"]].forEach(function(d){var b=document.createElement("button");b.type="button";b.textContent=d[1];b.appendChild(document.createElement("b"));b.addEventListener("click",function(){state=d[0];apply();});btn[d[0]]=b;bar.appendChild(b);});
+  return {apply:apply,set:function(x){state=x;apply();}};
+}
+var FUS=null,FLIVE=null;
 function setSel(id){sel=id;lastIdx=-1;ROWS.forEach(function(s){$("sr-"+s.id).setAttribute("aria-pressed",s.id===id?"true":"false");$("mm-"+s.id).setAttribute("aria-pressed",s.id===id?"true":"false");});}
 function spark(s,idx){var W=200,H=54,d="",full="",lx=0;for(var i=0;i<N;i+=3){var px=(i/(N-1)*W).toFixed(1),py=(H-3-(s.v[i]/100)*(H-10)).toFixed(1);full+=(i?"L":"M")+px+" "+py;if(i<=idx){d+=(d?"L":"M")+px+" "+py;lx=px;}}
   return '<rect class="bd" x="'+(T.inc/TOTAL*W).toFixed(1)+'" y="0" width="'+((T.rec-T.inc)/TOTAL*W).toFixed(1)+'" height="'+H+'"/><path class="g" d="'+full+'"/>'+(d?'<path class="a" d="'+d+"L"+lx+" "+H+"L0 "+H+'Z"/><path class="l" d="'+d+'"/>':"");}
@@ -724,6 +764,8 @@ function updateDom(){
   $("us-num").textContent=realMode?"01 · DANE RZECZYWISTE":"01 · SYMULACJA";$("us-num").className=realMode?"real":"num sim";
   $("us-p").textContent=realMode?"Stan usług według Microsoft Service Health z tenantów testowych, zestawiony z własnymi sondami. Status wyznacza gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.";
   if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z degradacją</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
+  $("board").hidden=!realMode;
+  if(FUS)FUS.apply();
   if(live&&REAL)applyReal();
 }
 var REAL=null,INC=null;
@@ -736,7 +778,7 @@ function applyReal(){
   var degN=Object.keys(deg),crit=degN.some(function(n){return deg[n]==="crit";});
   if(q==="ok"&&degN.length){q=crit?"crit":"warn";setCls($("stage"),q);}
   $("headline").innerHTML=r.ok!==r.total?"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>":degN.length?"Microsoft zgłasza <em>"+(crit?"przerwę w działaniu":"degradację")+": "+degN.length+" usług</em>":"Wszystkie usługi <em>dostępne</em>";
-  $("lede").textContent="Sondy HTTP ("+r.when+" UTC): odpowiada "+r.ok+" z "+r.total+" punktów końcowych."+(tenants?" Service Health w "+tenants+" tenantach: "+(degN.length?"stan inny niż dostępny mają "+degN.slice(0,6).join(", ")+(degN.length>6?" i "+(degN.length-6)+" kolejne":"")+". Otwarte zgłoszenia: "+Object.keys(openIds).length+".":"wszystkie usługi dostępne."):"");
+  $("lede").textContent="Sondy HTTP ("+r.when+" UTC): odpowiada "+r.ok+" z "+r.total+" punktów końcowych."+(tenants?" Service Health z "+tenants+" tenantów: otwarte zgłoszenia "+Object.keys(openIds).length+".":"");
   setK("k-av","Dostępność Exchange Online",r.exo,"sondy HTTP, okno "+r.win);
   var since="brak wpisów",sub="rejestr incydentów";
   if(INC&&INC.length){var e=INC.map(function(i){return Date.parse(i.end||"");}).filter(function(x){return !isNaN(x);}).sort().pop();var open=INC.some(function(i){return !i.end;});
@@ -756,7 +798,7 @@ function frame(ts){var dt=Math.min(.1,(ts-prev)/1000||0);prev=ts;
   if(playing){pos+=dt*speed;if(pos>=TOTAL){pos=TOTAL;setPlaying(false);}}
   updateDom();if(vis.globe)drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
 
-buildDom();resize();setPlaying(false);
+buildDom();FUS=mkFilter("f-us",["rows","rows-real"]);FLIVE=mkFilter("f-live",["live-rows"]);resize();setPlaying(false);
 window.addEventListener("resize",resize);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(resize);
 function startReplay(){seek(T.inc-45);setPlaying(true);}
@@ -796,6 +838,7 @@ function renderLive(d){
     if(sv.id==="exo"){var o=0;ser.forEach(function(v){o+=v[0];});exoTxt=(o/ser.length*100).toFixed(1).replace(".",",")+"%";}});
   var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t),health:d.health||[]};REAL.table=renderRealTable(d);lastIdx=-1;
   renderHealth(d.health||[]);
+  if(FLIVE)FLIVE.apply();
   var g=new Date(d.generated),age=Math.round((Date.now()-g.getTime())/60000),first=d.samples[0].t,lastT=d.samples[d.samples.length-1].t;
   $("live-note").textContent="Ostatni pomiar: "+p2(g.getUTCDate())+"."+p2(g.getUTCMonth()+1)+" "+p2(g.getUTCHours())+":"+p2(g.getUTCMinutes())+" UTC ("+age+" min temu). Liczba pomiarów: "+d.samples.length+", okno: "+dur(lastT-first)+"."+(age>20?" Uwaga: harmonogram pomiarów jest opóźniony.":"");
 }
@@ -822,6 +865,12 @@ function renderRealTable(d){
     var ids=Object.keys(r.e.issues),h='<span class="ic"><svg viewBox="0 0 14 14" aria-hidden="true">'+ICON[r.q]+'</svg></span><span class="n">'+esc(r.e.name)+'</span><span class="pr">'+esc(r.probe)+'</span><span class="ms">'+esc(r.msTxt)+'</span><span class="vd">'+esc(LAB[r.q])+'</span>';
     if(ids.length)h+='<span class="wh">'+ids.slice(0,3).map(function(id){return '<span><b>'+esc(id)+':</b> '+esc(r.e.issues[id])+'</span>';}).join("")+(ids.length>3?'<span>oraz '+(ids.length-3)+' kolejne otwarte zgłoszenia</span>':"")+'</span>';
     el.innerHTML=h;box.appendChild(el);});
+  var bad=rows.filter(function(r){return r.q!=="ok";}),good=rows.filter(function(r){return r.q==="ok";});
+  $("bd-bad-t").textContent=bad.length?"Usługi z problemami: "+bad.length:"Brak usług z problemami";setCls($("bd-bad-t"),bad.some(function(r){return r.q==="crit";})?"crit":bad.length?"warn":"ok");
+  $("bd-bad").innerHTML=bad.map(function(r){return '<a class="bchip s-'+r.q+'" href="#uslugi" data-f="bad">'+esc(r.e.name)+'<b>'+esc(LAB[r.q])+'</b></a>';}).join("");
+  $("bd-ok-t").textContent="Usługi bez problemów: "+good.length;
+  $("bd-ok").innerHTML=good.map(function(r){return '<span class="bchip s-ok">'+esc(r.e.name)+'</span>';}).join("");
+  Array.prototype.forEach.call($("bd-bad").children,function(a){a.addEventListener("click",function(){if(FUS)FUS.set("bad");});});
   return {counts:counts};
 }
 function renderHealth(list){
