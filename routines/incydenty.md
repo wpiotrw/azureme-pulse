@@ -36,3 +36,9 @@ Najwyżej sześć linii: czy coś zmieniono, identyfikatory i tytuły dotknięty
 - Nie używać: „degradacja”, „komunikat doradczy”, „próbka” (jest: „pomiar”), nazw pól technicznych w rodzaju `resolved: false`.
 - Daty w formacie dd-mm-rrrr, godziny z dopiskiem UTC. Zdania do 25 słów, rejestr bezosobowy, bez ocen i wykrzykników.
 - Nazwy własne Microsoft w brzmieniu angielskim; skrót rozwinąć przy pierwszym użyciu.
+
+## Zgłoszenia powiązane
+
+- Jeden incydent Microsoft to jeden wpis. Lista usług z sekcji „More info” opisuje zakres incydentu i nie tworzy osobnych wpisów.
+- Pole `ids`: identyfikatory tego samego zdarzenia (na przykład zgłoszenie usługi i zgłoszenie pakietu Microsoft 365).
+- Pole `related`: identyfikatory zgłoszeń, które według treści komunikatów Microsoft są skutkiem tego incydentu. Pole `related_note`: jedno zdanie z uzasadnieniem. Nie dopisywać powiązań bez podstawy w komunikacie Microsoft.

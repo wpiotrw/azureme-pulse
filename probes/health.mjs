@@ -4,7 +4,7 @@
 // Tenant and client identifiers are never written to the output file; only the label is.
 
 import { htmlToText } from './azure.mjs';
-import { slimPost } from './mscloud.mjs';
+import { slimPost, postServices, postRefs } from './mscloud.mjs';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0/admin/serviceAnnouncement';
 const AUDIENCE = 'api://AzureADTokenExchange';
@@ -115,7 +115,10 @@ export function latestPost(i) {
   if (!posts.length) return {};
   posts.sort((a, b) => String(b.createdDateTime).localeCompare(String(a.createdDateTime)));
   const text = htmlToText(posts[0].description?.content, 8000);
-  return text ? { ...slimPost(text), updateAt: posts[0].createdDateTime || null, posts: posts.length } : {};
+  if (!text) return {};
+  const html = posts[0].description?.content;
+  const all = posts.map((p) => htmlToText(p.description?.content, 20000)).join(' ');
+  return { ...slimPost(text), updateAt: posts[0].createdDateTime || null, posts: posts.length, affected: postServices(html), refs: postRefs(all, i.id) };
 }
 
 export function slimMessage(m) {

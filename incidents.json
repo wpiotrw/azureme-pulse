@@ -43,7 +43,11 @@
           "url": "https://x.com/DougMadory"
         }
       ],
-      "own_probes": "Własne pomiary: sondy HTTP działają od 13-11-2026 19:22 UTC; do odczytu z 13-11-2026 22:09 UTC wszystkie punkty końcowe odpowiadały zgodnie z oczekiwaniem (0 nieudanych pomiarów). W czasie niedostępności portal nie miał jeszcze pomiarów. Wpis dodany ręcznie 13-11-2026, zaktualizowany 13-11-2026 22:14 UTC."
+      "own_probes": "Własne pomiary: sondy HTTP działają od 13-11-2026 19:22 UTC; do odczytu z 13-11-2026 22:09 UTC wszystkie punkty końcowe odpowiadały zgodnie z oczekiwaniem (0 nieudanych pomiarów). W czasie niedostępności portal nie miał jeszcze pomiarów. Wpis dodany ręcznie 13-11-2026, zaktualizowany 13-11-2026 22:14 UTC.",
+      "related": [
+        "TM1551945"
+      ],
+      "related_note": "TM1551945: porada Microsoft Teams, w której Microsoft wskazuje wzrost ruchu po niedostępności z 12-11-2026 jako przyczynę."
     }
   ]
 }
