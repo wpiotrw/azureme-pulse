@@ -34,3 +34,10 @@ Konfiguracja w sekrecie repozytorium `PULSE_NOTIFY`:
 - Aplikacja w tym tenancie wymaga uprawnienia aplikacyjnego `Mail.Send` (Microsoft Graph) ze zgodą administratora.
 - Adresy istnieją wyłącznie w sekrecie; nie trafiają do repozytorium, dziennika zadania ani pliku `status.json`.
 - Bez sekretu moduł niczego nie wysyła.
+
+## Skrypty konfiguracyjne (`tools/`)
+
+- `New-PulseReaderApp.ps1`: tworzy w tenancie aplikację „AzureMe Pulse Reader”, nadaje uprawnienia Microsoft Graph tylko do odczytu i dodaje poświadczenie federacyjne dla GitHub Actions.
+- `Set-PulseMailboxScope.ps1`: ogranicza w Exchange Online dostęp aplikacji (wysyłka poczty, odczyt ustawień skrzynki) do wskazanych skrzynek. Po jego uruchomieniu należy usunąć w Entra ID uprawnienia aplikacyjne `Mail.Send` i `MailboxSettings.Read`.
+
+Oba skrypty obsługują `-WhatIf` i są idempotentne.
