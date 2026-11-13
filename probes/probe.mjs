@@ -84,7 +84,7 @@ export function merge(prev, results, now = Date.now(), health = null, azure = nu
     generated: new Date(now).toISOString(),
     stepMin: 5,
     vantage: 'GitHub Actions (jedna lokalizacja)',
-    services: TARGETS.map(({ id, name, what }) => ({ id, name, what, last: results[id] })),
+    services: TARGETS.map(({ id, name, what, url, expect }) => ({ id, name, what, url, expect: expect ? expect.join(', ') : '2xx lub 3xx', last: results[id] })),
     health: health ?? prev.health ?? [],
     // Keep the last good Azure reading when the feed is unreachable.
     azure: azure?.ok ? azure : prev.azure ? { ...prev.azure, lastError: azure?.error || '' } : azure,
