@@ -22,7 +22,7 @@ Niezależny projekt. Nie jest powiązany z Microsoft.
 
 ## Powiadomienia e-mail (opcjonalne)
 
-Moduł `probes/notify.mjs` wysyła wiadomość przy zmianie stanu (dwa kolejne nieudane pomiary sondy, zmiana stanu w Service Health, nowe lub zamknięte zgłoszenie, nieudany odczyt przez Graph, nowe zdarzenie Azure Status) oraz raport dobowy po godzinie 06:00 UTC.
+Moduł `probes/notify.mjs` wysyła wiadomość przy zmianie stanu (dwa kolejne nieudane pomiary sondy, zmiana stanu w Service health, nowe lub zamknięte zgłoszenie, nieudany odczyt przez Graph, nowe zdarzenie Azure Status) oraz raport dobowy po godzinie 06:00 UTC.
 
 Konfiguracja w sekrecie repozytorium `PULSE_NOTIFY`:
 
@@ -40,4 +40,4 @@ Konfiguracja w sekrecie repozytorium `PULSE_NOTIFY`:
 - `New-PulseReaderApp.ps1`: tworzy w tenancie aplikację „AzureMe Pulse Reader”, nadaje uprawnienia Microsoft Graph tylko do odczytu i dodaje poświadczenie federacyjne dla GitHub Actions.
 - `Set-PulseMailboxScope.ps1`: ogranicza w Exchange Online dostęp aplikacji (wysyłka poczty, odczyt ustawień skrzynki) do wskazanych skrzynek. Po jego uruchomieniu należy usunąć w Entra ID uprawnienia aplikacyjne `Mail.Send` i `MailboxSettings.Read`.
 
-Oba skrypty obsługują `-WhatIf` i są idempotentne.
+Oba skrypty obsługują `-WhatIf` i można je bezpiecznie uruchamiać wielokrotnie.

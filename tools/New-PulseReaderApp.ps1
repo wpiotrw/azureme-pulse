@@ -3,7 +3,7 @@
     Tworzy w tenancie Microsoft Entra aplikację "AzureMe Pulse Reader" dla portalu https://pulse.azureme.pl.
 
 .DESCRIPTION
-    Skrypt jest idempotentny: istniejące obiekty wykorzystuje ponownie, brakujące tworzy.
+    Skrypt można bezpiecznie uruchamiać wielokrotnie: istniejące obiekty wykorzystuje ponownie, brakujące tworzy.
     Tworzy lub uzupełnia:
       1. rejestrację aplikacji (jeden tenant, bez sekretu i bez certyfikatu),
       2. jednostkę usługi (service principal),

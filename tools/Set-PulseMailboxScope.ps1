@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     Skrypt konfiguruje kontrolę dostępu opartą na rolach dla aplikacji w Exchange Online
-    (Role Based Access Control for Applications). Jest idempotentny: istniejące obiekty
-    wykorzystuje ponownie, brakujące tworzy.
+    (Role Based Access Control for Applications). Można go bezpiecznie uruchamiać wielokrotnie:
+    istniejące obiekty wykorzystuje ponownie, brakujące tworzy.
     Wykonuje kolejno:
       1. wskaźnik jednostki usługi w Exchange Online (New-ServicePrincipal),
       2. oznaczenie skrzynek atrybutem niestandardowym (Set-Mailbox),
