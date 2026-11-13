@@ -38,6 +38,13 @@
 .PARAMETER GitHubBranch
     Gałąź, z której uruchamiane jest zadanie GitHub Actions.
 
+.PARAMETER GitHubSubject
+    Dokładna wartość oświadczenia sub z tokenu OIDC zadania GitHub Actions.
+    GitHub wystawia ją dla tego repozytorium w formacie z identyfikatorami liczbowymi:
+    repo:<właściciel>@<id właściciela>/<repozytorium>@<id repozytorium>:ref:refs/heads/<gałąź>.
+    Gdy logowanie zadania kończy się błędem AADSTS700213, właściwą wartość podaje
+    pole błędu w pliku status.json na gałęzi data.
+
 .PARAMETER KeepConnection
     Pozostawia połączenie z Microsoft Graph po zakończeniu. Domyślnie skrypt rozłącza
     tylko połączenie, które sam nawiązał.
@@ -51,9 +58,11 @@
     Tworzy aplikację, nadaje uprawnienia i dodaje poświadczenie federacyjne.
 
 .NOTES
-    Wersja: 1.0.1 (13-11-2026)
+    Wersja: 1.1.0 (13-11-2026)
     Autor:  Piotr Wiśniewski - APN Promise S.A.
-    Zmiany: 1.0.1 - wynik i komunikaty podają nazwę aplikacji.
+    Zmiany: 1.1.0 - podmiot poświadczenia w formacie GitHub z identyfikatorami liczbowymi;
+                    istniejące poświadczenie o tej samej nazwie jest aktualizowane.
+            1.0.1 - wynik i komunikaty podają nazwę aplikacji.
             1.0.0 - pierwsza wersja.
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
@@ -63,6 +72,7 @@ param(
     [ValidatePattern('^[^/\s]+/[^/\s]+$')]
     [string]$GitHubRepository = 'wpiotrw/azureme-pulse',
     [string]$GitHubBranch = 'main',
+    [string]$GitHubSubject = 'repo:wpiotrw@37083541/azureme-pulse@1457006440:ref:refs/heads/main',
     [switch]$KeepConnection
 )
 
@@ -75,7 +85,7 @@ $GraphAppId      = '00000003-0000-0000-c000-000000000000'   # stały identyfikat
 $AppRoleNames    = @('ServiceHealth.Read.All', 'ServiceMessage.Read.All')
 $Issuer          = 'https://token.actions.githubusercontent.com'
 $Audience        = 'api://AzureADTokenExchange'
-$Subject         = "repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}"
+$Subject         = if ($GitHubSubject) { $GitHubSubject } else { "repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}" }
 $CredentialName  = 'github-actions-' + ($GitHubBranch -replace '[^A-Za-z0-9-]', '-')
 
 function Test-PulseModules {
@@ -173,8 +183,17 @@ try {
 
     # 5. Poświadczenie federacyjne dla GitHub Actions.
     $credentials = @(Get-MgApplicationFederatedIdentityCredential -ApplicationId $app.Id -All)
+    $existing = $credentials | Where-Object { $_.Name -eq $CredentialName } | Select-Object -First 1
     if ($credentials | Where-Object { $_.Issuer -eq $Issuer -and $_.Subject -eq $Subject }) {
         Write-Host "Poświadczenie federacyjne już istnieje: $Subject"
+    }
+    elseif ($existing) {
+        # Poświadczenie o tej nazwie istnieje z innym podmiotem (na przykład w starszym formacie): aktualizacja podmiotu.
+        if ($PSCmdlet.ShouldProcess("$($existing.Subject) -> $Subject", 'Aktualizacja podmiotu poświadczenia federacyjnego')) {
+            Update-MgApplicationFederatedIdentityCredential -ApplicationId $app.Id `
+                -FederatedIdentityCredentialId $existing.Id -Subject $Subject
+            Write-Host "Zaktualizowano poświadczenie federacyjne: $Subject"
+        }
     }
     elseif ($PSCmdlet.ShouldProcess($Subject, 'Dodanie poświadczenia federacyjnego')) {
         $credential = @{
