@@ -156,6 +156,15 @@ h3.sub{font-family:var(--f-display);font-weight:600;font-size:16px;margin:22px 0
 
 /* incident stepper */
 .reg{display:flex;flex-direction:column;gap:12px}
+.hc h4{font-family:var(--f-display);font-weight:600;font-size:16px;margin:0}
+.hc .hh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.hc .hm{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.hc ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column}
+.hc li{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:4px 12px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px;align-items:start}
+.hc li .i{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.hc li .t small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.hc .cnt{font-size:13.5px;color:#b6c4da;margin-top:8px}
+@media (max-width:720px){.hc li{grid-template-columns:minmax(0,1fr) auto}.hc li .i{grid-column:1/-1}}
 .rc{border-left:3px solid var(--sc)}
 .rc h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:6px 0 4px;text-wrap:balance}
 .rc .rt{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -276,6 +285,9 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
       <div id="live-rows"></div>
     </div>
     <p class="note" id="live-note"></p>
+    <h3 class="sub">Stan usług według Microsoft (Service Health)</h3>
+    <p class="note" style="margin-top:4px">Odczyt z Microsoft Graph w tenantach testowych, co około 5 minut. Pokazuje usługi w stanie innym niż dostępny oraz zgłoszenia otwarte lub zmienione w ostatnich 7 dniach.</p>
+    <div class="reg" id="health-box" style="margin-top:12px"><div class="card live-empty">Brak odczytu Service Health.</div></div>
   </section>
 
   <section id="rejestr">
@@ -763,8 +775,25 @@ function renderLive(d){
   var bad=[],okN=0,tot=0,exoTxt="brak";d.services.forEach(function(sv){var ser=d.samples.map(function(x){return x.r&&x.r[sv.id];}).filter(Boolean);if(!ser.length)return;tot++;if(ser[ser.length-1][0])okN++;else bad.push(sv.name);
     if(sv.id==="exo"){var o=0;ser.forEach(function(v){o+=v[0];});exoTxt=(o/ser.length*100).toFixed(1).replace(".",",")+"%";}});
   var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t)};lastIdx=-1;
+  renderHealth(d.health||[]);
   var g=new Date(d.generated),age=Math.round((Date.now()-g.getTime())/60000),first=d.samples[0].t,lastT=d.samples[d.samples.length-1].t;
   $("live-note").textContent="Ostatni pomiar: "+p2(g.getUTCDate())+"."+p2(g.getUTCMonth()+1)+" "+p2(g.getUTCHours())+":"+p2(g.getUTCMinutes())+" UTC ("+age+" min temu). Liczba pomiarów: "+d.samples.length+", okno: "+dur(lastT-first)+"."+(age>20?" Uwaga: harmonogram pomiarów jest opóźniony.":"");
+}
+var HST={serviceOperational:["Dostępna","ok"],investigating:["Analiza zgłoszenia","warn"],restoringService:["Przywracanie usługi","warn"],verifyingService:["Weryfikacja naprawy","warn"],serviceRestored:["Usługa przywrócona","ok"],postIncidentReviewPublished:["Opublikowano raport","ok"],serviceDegradation:["Degradacja usługi","warn"],serviceInterruption:["Przerwa w działaniu","crit"],extendedRecovery:["Wydłużone przywracanie","warn"],falsePositive:["Fałszywy alarm","ok"],investigationSuspended:["Analiza wstrzymana","warn"],resolved:["Rozwiązane","ok"],mitigated:["Złagodzone","ok"],mitigatedExternal:["Złagodzone zewnętrznie","ok"],resolvedExternal:["Rozwiązane zewnętrznie","ok"],confirmed:["Potwierdzone","warn"],reported:["Zgłoszone","warn"]};
+function hst(x){return HST[x]||[String(x||"brak danych"),"warn"];}
+function renderHealth(list){
+  var box=$("health-box");if(!list.length)return;box.textContent="";
+  list.forEach(function(h){
+    var bad=(h.services||[]).filter(function(s){return hst(s.status)[1]!=="ok";}),open=(h.issues||[]).filter(function(i){return !i.resolved;});
+    var q=!h.ok?"warn":bad.some(function(s){return hst(s.status)[1]==="crit";})?"crit":bad.length?"warn":"ok";
+    var c=document.createElement("article");c.className="card rc hc s-"+q;
+    var html='<div class="hh"><h4>'+esc(h.label)+'</h4><span class="hm">'+esc(h.ok?"odczyt "+fdt(h.fetched):"błąd odczytu: "+(h.error||""))+'</span></div>';
+    if(h.lastError)html+='<div class="own">Ostatnia próba nieudana ('+esc(fdt(h.lastErrorAt))+'): '+esc(h.lastError)+'. Pokazany jest poprzedni poprawny odczyt.</div>';
+    html+='<div class="cnt">Usługi: '+((h.services||[]).length-bad.length)+' z '+(h.services||[]).length+' w stanie „Dostępna”. Zgłoszenia otwarte: '+open.length+', zmienione w ostatnich 7 dniach: '+(h.issues||[]).length+'.</div>';
+    if(bad.length)html+='<ul>'+bad.map(function(s){var m=hst(s.status);return '<li class="s-'+m[1]+'"><span class="i">usługa</span><span class="t">'+esc(s.name)+'</span><span class="chip">'+esc(m[0])+'</span></li>';}).join("")+'</ul>';
+    var iss=(h.issues||[]).slice(0,10);
+    if(iss.length)html+='<ul>'+iss.map(function(i){var m=hst(i.status);return '<li class="s-'+(i.resolved?"ok":m[1])+'"><span class="i">'+esc(i.id)+'</span><span class="t">'+esc(i.title)+'<small>'+esc(i.service||"")+(i.start?" · od "+esc(fdt(i.start)):"")+(i.end?" · do "+esc(fdt(i.end)):"")+'</small></span><span class="chip">'+esc(m[0])+'</span></li>';}).join("")+'</ul>';
+    c.innerHTML=html;box.appendChild(c);});
 }
 function loadLive(){fetch(DATA_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(renderLive).catch(function(){if(!$("live-rows").children.length){$("live-empty").hidden=false;$("live-empty").textContent="Dane z sond nie są dostępne w tym podglądzie. Pomiary są widoczne w wersji opublikowanej pod adresem pulse.azureme.pl.";}});}
 loadLive();setInterval(loadLive,300000);

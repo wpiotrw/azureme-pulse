@@ -40,6 +40,12 @@ async function graphGet(url, token) {
   return { status: r.status, body: j };
 }
 
+// Label shown on the public page: the configured name plus the first four characters of the tenant id,
+// enough for the owner to tell tenants apart without publishing the identifier.
+export function publicLabel(tenant) {
+  return `${tenant.label} (${String(tenant.tenantId || '').slice(0, 4)}…)`;
+}
+
 export function slimIssue(i) {
   return {
     id: i.id,
@@ -88,7 +94,7 @@ async function loadIssues(token) {
 }
 
 async function readTenant(tenant, assertion) {
-  const out = { label: tenant.label, fetched: new Date().toISOString(), ok: false, error: '', services: [], issues: [], query: '' };
+  const out = { label: publicLabel(tenant), fetched: new Date().toISOString(), ok: false, error: '', services: [], issues: [], query: '' };
   try {
     const token = await graphToken(tenant, assertion);
     const ho = await graphGet(`${GRAPH}/healthOverviews`, token);
@@ -113,7 +119,7 @@ export async function readServiceHealth() {
   if (!Array.isArray(tenants) || tenants.length === 0) return [];
   let assertion;
   try { assertion = await githubOidcToken(); } catch (e) {
-    return tenants.map((t) => ({ label: t.label, fetched: new Date().toISOString(), ok: false, error: String(e.message).slice(0, 200), services: [], issues: [] }));
+    return tenants.map((t) => ({ label: publicLabel(t), fetched: new Date().toISOString(), ok: false, error: String(e.message).slice(0, 200), services: [], issues: [] }));
   }
   return Promise.all(tenants.map((t) => readTenant(t, assertion)));
 }
