@@ -41,3 +41,9 @@ Konfiguracja w sekrecie repozytorium `PULSE_NOTIFY`:
 - `Set-PulseMailboxScope.ps1`: ogranicza w Exchange Online dostęp aplikacji (wysyłka poczty, odczyt ustawień skrzynki) do wskazanych skrzynek. Po jego uruchomieniu należy usunąć w Entra ID uprawnienia aplikacyjne `Mail.Send` i `MailboxSettings.Read`.
 
 Oba skrypty obsługują `-WhatIf` i można je bezpiecznie uruchamiać wielokrotnie.
+
+## Motyw i język
+
+- Przełącznik motywu (jasny lub ciemny) oraz przełącznik języka (PL lub EN) znajdują się w polu „Aktualność danych”. Wybór jest zapisywany w przeglądarce.
+- Wersja angielska powstaje w przeglądarce ze słownika wbudowanego w `index.html`. Treść komunikatów Microsoft pozostaje w brzmieniu oryginalnym.
+- Wpisy rejestru incydentów mają pola angielskie z przyrostkiem `_en` (opis w `routines/incydenty.md`). Wiadomości e-mail są wysyłane po polsku.
