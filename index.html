@@ -64,6 +64,7 @@ h1 em{font-style:normal;color:var(--sc);text-shadow:0 0 34px color-mix(in srgb,v
 /* sections */
 section>header{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
 .num{font-family:var(--f-mono);font-size:12px;color:var(--flow);letter-spacing:.08em}
+.num.sim{color:var(--warn)}
 h2{font-family:var(--f-display);font-weight:600;font-size:clamp(21px,3vw,28px);letter-spacing:-.02em;margin:0;text-wrap:balance}
 section>header p{margin:0;color:var(--muted);font-size:14px;max-width:70ch}
 .card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
@@ -154,6 +155,14 @@ h3.sub{font-family:var(--f-display);font-weight:600;font-size:16px;margin:22px 0
 .scale i{width:120px;height:10px;border-radius:3px;background:linear-gradient(90deg,#1a2942,#2f6fd0,#7fe0ff)}
 
 /* incident stepper */
+.reg{display:flex;flex-direction:column;gap:12px}
+.rc{border-left:3px solid var(--sc)}
+.rc h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:6px 0 4px;text-wrap:balance}
+.rc .rt{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rc .id{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.rc p{margin:8px 0 0;color:#c3cfe2;font-size:14.5px;max-width:75ch}
+.rc .src{font-size:12.5px;display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:10px}
+.rc .own{font-size:12.5px;color:var(--muted);margin-top:8px}
 .inc{padding:0;overflow:hidden}
 .inc-h{padding:16px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--line)}
 .inc-h h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:0}
@@ -232,10 +241,10 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 <body>
 <div class="top"><div class="in">
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
-  <nav aria-label="Sekcje"><a href="#pomiary">Pomiary</a><a href="#uslugi">Dostępność</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Incydent</a></nav>
+  <nav aria-label="Sekcje"><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#uslugi">Dostępność</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Incydent</a></nav>
 </div></div>
 
-<div class="demo"><p><b>Wersja demonstracyjna.</b> Rzeczywiste dane pokazuje wyłącznie sekcja „Pomiary rzeczywiste”. Pozostałe sekcje są symulacją, a chronologia incydentu z 12–13 listopada 2026 pochodzi z publicznych źródeł.</p></div>
+<div class="demo"><p><b>Co jest rzeczywiste.</b> Nagłówek w widoku na żywo, „Pomiary rzeczywiste” i „Rejestr incydentów”. Sekcje oznaczone SYMULACJA odtwarzają incydent z 12–13 listopada 2026 na modelu: godziny i komunikaty pochodzą z publicznych źródeł, liczby nie są pomiarami.</p></div>
 
 <div class="wrap">
   <section class="stage s-ok" id="stage" aria-label="Przegląd">
@@ -269,8 +278,13 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     <p class="note" id="live-note"></p>
   </section>
 
+  <section id="rejestr">
+    <header><span class="real">DANE RZECZYWISTE</span><h2>Rejestr incydentów</h2><p>Incydenty potwierdzone w publicznych źródłach. Każdy wpis ma podane źródła i informację, czy portal miał wtedy własne pomiary.</p></header>
+    <div class="reg" id="reg"><div class="card live-empty" id="reg-empty">Wczytywanie rejestru…</div></div>
+  </section>
+
   <section id="uslugi">
-    <header><span class="num">01</span><h2>Dostępność usług</h2><p>Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
+    <header><span class="num sim">01 · SYMULACJA</span><h2>Dostępność usług</h2><p>Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
     <div class="sum" id="sum"></div>
     <div class="card st">
       <div class="st-h"><span></span><span>Usługa</span><span>Dostępność</span><span>Producent</span><span style="justify-self:end">Status</span></div>
@@ -285,7 +299,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   </section>
 
   <section id="ruch">
-    <header><span class="num">02</span><h2>Analiza wolumenu ruchu</h2><p>Ruch rzeczywisty zestawiony z wartością oczekiwaną (baseline), czyli profilem z poprzedniej doby. Krzywa jest symulowana na podstawie wartości podanych przez Kentik.</p></header>
+    <header><span class="num sim">02 · SYMULACJA</span><h2>Analiza wolumenu ruchu</h2><p>Ruch rzeczywisty zestawiony z wartością oczekiwaną (baseline), czyli profilem z poprzedniej doby. Krzywa jest symulowana na podstawie wartości podanych przez Kentik.</p></header>
     <div class="card s-ok" id="tcard">
       <div class="chart-h"><h3>Exchange Online: ruch względem wartości oczekiwanej</h3><span class="dev">odchylenie: <b id="dev">…</b></span></div>
       <canvas id="traffic" role="img" aria-label="Wykres wolumenu ruchu Exchange Online względem wartości oczekiwanej"></canvas>
@@ -296,18 +310,18 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   </section>
 
   <section id="sciezka">
-    <header><span class="num">03</span><h2>Topologia zależności usług</h2><p>Uproszczony graf zależności (dependency graph). Szerokość pasma odpowiada udziałowi ruchu. Włókna obrazują strumień żądań: niebieskie zakończone powodzeniem, czerwone zakończone błędem.</p></header>
+    <header><span class="num sim">03 · SYMULACJA</span><h2>Topologia zależności usług</h2><p>Uproszczony graf zależności (dependency graph). Szerokość pasma odpowiada udziałowi ruchu. Włókna obrazują strumień żądań: niebieskie zakończone powodzeniem, czerwone zakończone błędem.</p></header>
     <div class="card pipe" id="pipe"><canvas id="pipec" aria-hidden="true"></canvas></div>
   </section>
 
   <section id="lokalizacje">
-    <header><span class="num">04</span><h2>Aktywność centrów danych</h2><p>Stan obsługi ruchu Exchange Online w każdej lokalizacji. Podział na grupy według analizy Kentik, przebieg w wierszach jest symulowany.</p></header>
+    <header><span class="num sim">04 · SYMULACJA</span><h2>Aktywność centrów danych</h2><p>Stan obsługi ruchu Exchange Online w każdej lokalizacji. Podział na grupy według analizy Kentik, przebieg w wierszach jest symulowany.</p></header>
     <div class="card"><canvas id="heat" role="img" aria-label="Oś stanu obsługi ruchu dla każdego centrum danych"></canvas>
       <div class="lkey"><span><i style="--c:#2c4d80"></i>ruch nominalny</span><span><i style="--c:#ffb547"></i>ruch częściowy</span><span><i style="--c:#d9484d"></i>brak ruchu</span><span><i style="--c:#7fe0ff"></i>przejęcie ruchu</span></div></div>
   </section>
 
   <section id="zdarzenia">
-    <header><span class="num">05</span><h2>Oś czasu incydentu</h2><p>Chronologia komunikatów producenta i obserwacji zewnętrznych. Wybór punktu ustawia cały portal na dany moment.</p></header>
+    <header><span class="num sim">05 · SYMULACJA NA OSI ZDARZEŃ ZE ŹRÓDEŁ PUBLICZNYCH</span><h2>Oś czasu incydentu</h2><p>Chronologia komunikatów producenta i obserwacji zewnętrznych. Wybór punktu ustawia cały portal na dany moment.</p></header>
     <div class="card inc">
       <div class="inc-h">
         <h3>EX1550543 · Exchange Online i usługi zależne</h3>
@@ -648,8 +662,9 @@ function updateDom(){
   else if(pos<T.rec){ps="crit";phase="incydent aktywny";head="Exchange Online: <em>niedostępność globalna</em>";lede="Większość centrów danych nie obsługuje ruchu. Usługi zależne działają w trybie ograniczonym.";}
   else if(open){ps="warn";phase="przywracanie usługi";head="Exchange Online: <em>przywracanie usługi</em>";lede="Ruch wraca do głównych centrów danych. Część lokalizacji pozostaje nieaktywna.";}
   else{ps="ok";phase="po incydencie";head="Wszystkie usługi <em>dostępne</em>";lede="Od zakończenia ostatniego incydentu upłynęło "+dur(pos-end)+". "+(alive===SITES.length?"Ruch obsługują wszystkie monitorowane centra danych.":"Część centrów danych pozostaje nieaktywna.");}
-  setCls($("stage"),ps);$("phase").textContent=live?"Na żywo":"Odtwarzanie: "+phase;$("headline").innerHTML=head;$("lede").textContent=lede;
+  setCls($("stage"),ps);$("phase").textContent=live?"Widok bieżący: symulacja":"Odtwarzanie symulacji: "+phase;$("headline").innerHTML=head;$("lede").textContent=lede;
   $("replay").hidden=!live;$("golive").hidden=live;$("live").classList.toggle("on",live);
+  $("k-av").previousElementSibling.textContent="Dostępność Exchange Online";$("k-av").nextElementSibling.textContent="symulacja sond, 5 min";$("k-si").previousElementSibling.textContent="Aktywne centra danych";$("k-si").nextElementSibling.textContent="symulacja";$("k-le").previousElementSibling.textContent="Wyprzedzenie względem producenta";
   $("k-av").textContent=ex.toFixed(1).replace(".",",")+"%";$("k-si").textContent=alive+" z "+SITES.length;
   if(pos<detect){$("k-du-k").textContent="Czas trwania incydentu";$("k-du").textContent="brak";$("k-du-s").textContent="brak aktywnego incydentu";$("k-le").textContent="brak";$("k-le-s").textContent="brak aktywnego incydentu";}
   else{
@@ -680,6 +695,24 @@ function updateDom(){
     $("ev-prev").disabled=cur<=0;$("ev-next").disabled=cur>=EV.length-1;}
   $("when").textContent=live?"Na żywo":fmt(pos);$("when-s").textContent=live?fmt(pos)+" UTC":"czas UTC";
   $("track").setAttribute("aria-valuenow",Math.round(pos/TOTAL*100));$("track").setAttribute("aria-valuetext",fmt(pos)+" UTC");
+  if(live&&REAL)applyReal();
+}
+var REAL=null,INC=null;
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function setK(id,k,v,sub){var el=$(id);el.previousElementSibling.textContent=k;el.textContent=v;el.nextElementSibling.textContent=sub;}
+function applyReal(){
+  var r=REAL,q=r.ok===r.total?"ok":r.ok>=r.total-1?"warn":"crit",age=Math.max(0,Math.round((Date.now()-r.gen)/60000));
+  setCls($("stage"),q);$("phase").textContent="Na żywo: dane rzeczywiste";
+  $("headline").innerHTML=q==="ok"?"Wszystkie punkty końcowe <em>dostępne</em>":"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>";
+  $("lede").textContent="Ostatni pomiar sond HTTP: "+r.when+" UTC. Odpowiada "+r.ok+" z "+r.total+" monitorowanych punktów końcowych Microsoft.";
+  setK("k-av","Dostępność Exchange Online",r.exo,"sondy HTTP, okno "+r.win);
+  var since="brak wpisów",sub="rejestr incydentów";
+  if(INC&&INC.length){var e=INC.map(function(i){return Date.parse(i.end||"");}).filter(function(x){return !isNaN(x);}).sort().pop();var open=INC.some(function(i){return !i.end;});
+    if(open){since="trwa";sub="otwarty incydent w rejestrze";}else if(e){since=dur((Date.now()-e)/60000);sub="według rejestru incydentów";}}
+  setK("k-du","Czas od ostatniego incydentu",since,sub);
+  setK("k-si","Punkty końcowe dostępne",r.ok+" z "+r.total,"ostatni pomiar");
+  setK("k-le","Wiek ostatniego pomiaru",age+" min","cykl około 5 min");
+  $("when-s").textContent=r.when+" UTC";
 }
 function setPlaying(p){playing=p;lastIdx=-1;$("play").setAttribute("aria-label",p?"Pauza":"Odtwórz");$("play-i").innerHTML=p?'<path d="M3 2h4v12H3zM9 2h4v12H9z"/>':'<path d="M4 2l10 6-10 6z"/>';}
 function resize(){$("heat").style.height=heatH()+"px";buildPipe();["globe","pipec","chart","traffic","mini","heat"].forEach(fit);}
@@ -727,11 +760,27 @@ function renderLive(d){
     var av=document.createElement("span");av.className="av";av.textContent=(okc/n*100).toFixed(n>=100?2:1).replace(".",",")+"%";
     var vd=document.createElement("span");vd.className="vd";vd.textContent=LAB[q];
     [ic,nm,sp,ms,av,vd].forEach(function(e){row.appendChild(e);});box.appendChild(row);});
+  var bad=[],okN=0,tot=0,exoTxt="brak";d.services.forEach(function(sv){var ser=d.samples.map(function(x){return x.r&&x.r[sv.id];}).filter(Boolean);if(!ser.length)return;tot++;if(ser[ser.length-1][0])okN++;else bad.push(sv.name);
+    if(sv.id==="exo"){var o=0;ser.forEach(function(v){o+=v[0];});exoTxt=(o/ser.length*100).toFixed(1).replace(".",",")+"%";}});
+  var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t)};lastIdx=-1;
   var g=new Date(d.generated),age=Math.round((Date.now()-g.getTime())/60000),first=d.samples[0].t,lastT=d.samples[d.samples.length-1].t;
   $("live-note").textContent="Ostatni pomiar: "+p2(g.getUTCDate())+"."+p2(g.getUTCMonth()+1)+" "+p2(g.getUTCHours())+":"+p2(g.getUTCMinutes())+" UTC ("+age+" min temu). Liczba pomiarów: "+d.samples.length+", okno: "+dur(lastT-first)+"."+(age>20?" Uwaga: harmonogram pomiarów jest opóźniony.":"");
 }
 function loadLive(){fetch(DATA_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(renderLive).catch(function(){if(!$("live-rows").children.length){$("live-empty").hidden=false;$("live-empty").textContent="Dane z sond nie są dostępne w tym podglądzie. Pomiary są widoczne w wersji opublikowanej pod adresem pulse.azureme.pl.";}});}
 loadLive();setInterval(loadLive,300000);
+function fdt(iso){var x=new Date(iso);return isNaN(x)?"brak danych":p2(x.getUTCDate())+"."+p2(x.getUTCMonth()+1)+"."+x.getUTCFullYear()+" "+p2(x.getUTCHours())+":"+p2(x.getUTCMinutes())+" UTC";}
+function renderReg(d){
+  if(!d||!Array.isArray(d.incidents))throw new Error("bad");INC=d.incidents;lastIdx=-1;var box=$("reg");box.textContent="";
+  if(!INC.length){var e=document.createElement("div");e.className="card live-empty";e.textContent="Rejestr nie zawiera jeszcze wpisów.";box.appendChild(e);return;}
+  INC.slice().sort(function(a,b){return String(b.start).localeCompare(String(a.start));}).forEach(function(i){
+    var c=document.createElement("article");c.className="card rc "+(i.end?"s-ok":"s-crit");
+    var h='<div class="rt"><span class="chip">'+esc(i.end?"Zakończony":"Trwa")+'</span><span class="id">'+esc((i.ids||[]).join(", "))+'</span></div><h3>'+esc(i.title)+'</h3>';
+    h+='<dl class="facts"><div><dt>Początek</dt><dd>'+esc(fdt(i.start))+'</dd></div><div><dt>Koniec</dt><dd>'+esc(i.end?fdt(i.end):"trwa")+'</dd></div><div><dt>Czas trwania</dt><dd>'+esc(i.duration||"brak danych")+'</dd></div><div><dt>Usługi</dt><dd>'+esc((i.services||[]).join(", "))+'</dd></div></dl>';
+    h+='<p>'+esc(i.summary||"")+'</p>';
+    h+='<div class="src">'+(i.sources||[]).filter(function(x){return /^https:\/\//.test(x.url);}).map(function(x){return '<a rel="noopener" href="'+esc(x.url)+'">Źródło: '+esc(x.name)+'</a>';}).join("")+'</div>';
+    h+='<div class="own">'+esc(i.own_probes||"")+'</div>';c.innerHTML=h;box.appendChild(c);});
+}
+fetch("incidents.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(renderReg).catch(function(){$("reg-empty").textContent="Rejestr incydentów jest dostępny w wersji opublikowanej pod adresem pulse.azureme.pl.";});
 })();
 </script>
 </body>
