@@ -2,6 +2,8 @@
 // Usage: node probes/probe.mjs <previous status.json> <output status.json>
 import { readFileSync, writeFileSync } from 'node:fs';
 import { readServiceHealth } from './health.mjs';
+import { readAzureStatus } from './azure.mjs';
+import { notify } from './notify.mjs';
 
 const [, , prevPath, outPath] = process.argv;
 const UA = 'azureme-pulse-probe/0.1 (+https://pulse.azureme.pl)';
@@ -58,7 +60,7 @@ async function probe(t) {
   return second.ok ? { ...second, retried: true } : second;
 }
 
-export function merge(prev, results, now = Date.now(), health = null) {
+export function merge(prev, results, now = Date.now(), health = null, azure = null) {
   const samples = Array.isArray(prev.samples) ? prev.samples.slice() : [];
   const r = {};
   for (const [id, v] of Object.entries(results)) r[id] = [v.ok ? 1 : 0, v.ms, v.code];
@@ -82,6 +84,9 @@ export function merge(prev, results, now = Date.now(), health = null) {
     vantage: 'GitHub Actions (jedna lokalizacja)',
     services: TARGETS.map(({ id, name, what }) => ({ id, name, what, last: results[id] })),
     health: health ?? prev.health ?? [],
+    // Keep the last good Azure reading when the feed is unreachable.
+    azure: azure?.ok ? azure : prev.azure ? { ...prev.azure, lastError: azure?.error || '' } : azure,
+    notify: prev.notify || {},
     samples,
     days,
   };
@@ -101,5 +106,9 @@ if (prevPath && outPath) {
   // Keep the previous reading for a tenant whose read failed, so one failed login does not blank the page.
   const prevHealth = Array.isArray(prev.health) ? prev.health : [];
   const merged = health.map((h) => (h.ok ? h : { ...(prevHealth.find((p) => p.label === h.label && p.ok) || h), lastError: h.error, lastErrorAt: h.fetched }));
-  writeFileSync(outPath, JSON.stringify(merge(prev, results, Date.now(), health.length ? merged : null)));
+  const azure = await readAzureStatus();
+  console.log(`${azure.ok ? 'OK  ' : 'FAIL'} azure-status items=${azure.items.length} ${azure.error}`);
+  const next = merge(prev, results, Date.now(), health.length ? merged : null, azure);
+  next.notify = await notify(prev, next);
+  writeFileSync(outPath, JSON.stringify(next));
 }

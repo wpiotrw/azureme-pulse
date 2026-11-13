@@ -3,6 +3,8 @@
 // Configuration: env PULSE_TENANTS = JSON array of { "label": "...", "tenantId": "...", "clientId": "..." }.
 // Tenant and client identifiers are never written to the output file; only the label is.
 
+import { htmlToText } from './azure.mjs';
+
 const GRAPH = 'https://graph.microsoft.com/v1.0/admin/serviceAnnouncement';
 const AUDIENCE = 'api://AzureADTokenExchange';
 const GRAPH_ROOT = 'https://graph.microsoft.com/v1.0';
@@ -47,7 +49,7 @@ export async function runChecks(tenant, token, fetchImpl = fetch) {
 const RECENT_DAYS = 7;
 const MAX_ISSUES = 40;
 
-async function githubOidcToken() {
+export async function githubOidcToken() {
   const url = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
   const token = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
   if (!url || !token) throw new Error('brak tokenu OIDC (zadanie nie ma uprawnienia id-token: write)');
@@ -56,7 +58,7 @@ async function githubOidcToken() {
   return (await r.json()).value;
 }
 
-async function graphToken(tenant, assertion) {
+export async function graphToken(tenant, assertion) {
   const body = new URLSearchParams({
     client_id: tenant.clientId,
     scope: 'https://graph.microsoft.com/.default',
@@ -100,7 +102,53 @@ export function slimIssue(i) {
     end: i.endDateTime || null,
     modified: i.lastModifiedDateTime || null,
     resolved: !!i.isResolved,
+    ...latestPost(i),
   };
+}
+
+// Latest Microsoft update on the issue, as plain text. Only a short excerpt is published.
+export function latestPost(i) {
+  const posts = Array.isArray(i.posts) ? i.posts.slice() : [];
+  if (!posts.length) return {};
+  posts.sort((a, b) => String(b.createdDateTime).localeCompare(String(a.createdDateTime)));
+  const text = htmlToText(posts[0].description?.content, 700);
+  return text ? { update: text, updateAt: posts[0].createdDateTime || null, posts: posts.length } : {};
+}
+
+export function slimMessage(m) {
+  return {
+    id: m.id,
+    title: String(m.title || '').slice(0, 240),
+    services: Array.isArray(m.services) ? m.services.slice(0, 6) : [],
+    category: m.category || '',
+    major: !!m.isMajorChange,
+    actionBy: m.actionRequiredByDateTime || null,
+    modified: m.lastModifiedDateTime || null,
+  };
+}
+
+const MESSAGE_DAYS = 14;
+const MAX_MESSAGES = 20;
+
+// Message Center: announcements changed in the last 14 days. Runs only when the token carries ServiceMessage.Read.All.
+async function loadMessages(token) {
+  if (!tokenRoles(token).includes('ServiceMessage.Read.All')) return { state: 'noperm', list: [] };
+  const since = new Date(Date.now() - MESSAGE_DAYS * 86400000).toISOString().replace(/\.\d+Z$/, 'Z');
+  const attempts = [
+    `${GRAPH}/messages?$filter=${encodeURIComponent(`lastModifiedDateTime ge ${since}`)}&$top=100`,
+    `${GRAPH}/messages?$top=100`,
+  ];
+  for (const url of attempts) {
+    const r = await graphGet(url, token);
+    if (r.status !== 200) continue;
+    const list = (r.body.value || [])
+      .filter((m) => Date.parse(m.lastModifiedDateTime || '') >= Date.parse(since))
+      .sort((a, b) => String(b.lastModifiedDateTime).localeCompare(String(a.lastModifiedDateTime)))
+      .slice(0, MAX_MESSAGES)
+      .map(slimMessage);
+    return { state: 'ok', list };
+  }
+  return { state: 'fail', list: [] };
 }
 
 export function isRelevant(i, now = Date.now()) {
@@ -150,6 +198,8 @@ async function readTenant(tenant, assertion) {
       .slice(0, MAX_ISSUES)
       .map(slimIssue);
     out.ok = true;
+    // Message Center is supplementary: its failure must not invalidate the Service Health reading.
+    try { const mc = await loadMessages(token); out.messages = mc.list; out.messagesState = mc.state; } catch { out.messagesState = 'fail'; }
   } catch (e) {
     out.error = String(e.message || e).slice(0, 200);
   }
