@@ -1,0 +1,18 @@
+name: Explore
+on:
+  push:
+    branches: [scratch-atlas]
+permissions: {}
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - run: |
+          B="https://atlas.ripe.net/api/v2/measurements/"
+          for q in office365 microsoftonline office.com outlook teams.microsoft graph.microsoft sharepoint azure.com; do
+            for t in ping http sslcert traceroute; do
+              echo "== $q $t"
+              curl -s -m 25 "$B?status=2&is_public=true&type=$t&target__contains=$q&page_size=8&sort=-participant_count&fields=id,type,target,interval,participant_count,af,is_oneoff,description" | jq -c '{count, r: [.results[]? | [.id,.target,.interval,.participant_count,.af,(.description|tostring|.[0:50])]]}' || echo ERR
+            done
+          done
