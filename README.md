@@ -58,5 +58,6 @@ Oba skrypty obsługują `-WhatIf` i można je bezpiecznie uruchamiać wielokrotn
 ## Sygnały zewnętrzne
 
 - `probes/signals.mjs` odczytuje co około 15 minut dwa pośrednie wskaźniki stanu sieci Microsoft (AS8075): widoczność tras BGP z RIPEstat (bez klucza) oraz ruch widziany przez Cloudflare Radar.
+- RIPE Atlas (bez klucza): publiczny pomiar ping nr 177421582 do `www.office.com`; portal odczytuje wyniki około 1000 sond-kotwic w ponad 100 krajach i liczy udział sond, które uzyskały odpowiedź, osobno także dla Polski.
 - Cloudflare Radar wymaga sekretu repozytorium `PULSE_CLOUDFLARE_TOKEN` z tokenem o uprawnieniu Account > Radar > Read. Bez sekretu to źródło jest pomijane.
 - Wskaźniki nie mierzą ruchu użytkowników do Microsoft 365. Zmiana oceny trafia do dziennika zmian i do karty analizy trwającego incydentu.
