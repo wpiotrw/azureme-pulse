@@ -10,9 +10,11 @@ jobs:
     steps:
       - run: |
           B="https://atlas.ripe.net/api/v2/measurements/"
-          echo "== raw1"; curl -s -m 25 "$B?status=2&type=ping&target__contains=office365&page_size=3" | head -c 700; echo
-          echo "== raw2"; curl -s -m 25 "$B?status=2&type=ping&target=outlook.office365.com&page_size=3" | head -c 700; echo
-          echo "== raw3"; curl -s -m 25 "$B?status=2&search=office365&page_size=3" | head -c 700; echo
-          echo "== raw4"; curl -s -m 25 "$B?status=2&description__contains=office365&page_size=3" | head -c 500; echo
-          echo "== asn"; curl -s -m 25 "$B?status=2&target_asn=8075&type=ping&page_size=3" | head -c 900; echo
-          echo "== asn-http"; curl -s -m 25 "$B?status=2&target_asn=8075&type=http&page_size=3" | head -c 500; echo
+          for t in ping sslcert http traceroute dns; do
+            echo "== asn8075 $t"
+            curl -s -m 30 "$B?status=2&is_public=true&target_asn=8075&type=$t&page_size=100" | jq -c '.count as $c | [.results[] | {id,target,interval,p:.participant_count,af,st:.start_time}] | sort_by(-.p) | {c:$c, top:.[0:12]}'
+          done
+          for h in outlook.office365.com login.microsoftonline.com graph.microsoft.com teams.microsoft.com www.office.com portal.azure.com; do
+            echo "== target $h"
+            curl -s -m 30 "$B?status=2&is_public=true&target=$h&page_size=100" | jq -c '.count as $c | [.results[] | {id,type,interval,p:.participant_count,af}] | sort_by(-.p) | {c:$c, top:.[0:6]}'
+          done
