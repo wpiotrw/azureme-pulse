@@ -294,12 +294,62 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 .rg-i small{color:var(--muted);font-size:12px}
 .rg-i .r{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
 .rg-i.home{border-color:var(--flow)}
+[hidden]{display:none!important}
+.side{position:fixed;left:0;top:0;bottom:0;width:236px;z-index:40;background:#060c17;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:18px;padding:18px 12px;overflow-y:auto}
+.side .logo{padding:0 8px}
+.side nav{display:flex;flex-direction:column;gap:2px;margin:0;flex-wrap:nowrap}
+.side nav{order:0!important;width:auto!important;overflow:visible!important;white-space:normal!important}
+.side .sf{order:1}
+#headline{font-size:clamp(28px,3.3vw,44px);line-height:1.12}
+.side nav a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:9px;font-size:14.5px;color:var(--muted);text-decoration:none;border-left:3px solid transparent}
+.side nav a:hover{color:var(--ink);background:var(--panel2)}
+.side nav a[aria-current="page"]{color:var(--ink);background:rgba(86,204,255,.1);border-left-color:var(--flow);font-weight:600}
+.side nav a.sep{margin-top:12px}
+.side .bdg{font-family:var(--f-mono);font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.side .bdg.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.side .bdg.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 55%,transparent)}
+.side .bdg.crit{color:var(--crit);border-color:var(--crit)}
+.side .sf{margin-top:auto;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--muted);padding:0 8px}
+.side .sf a{color:var(--flow)}
+.top{display:none}
+.top .vt{margin-left:auto;font-size:13.5px;color:var(--muted)}
+.mbtn{appearance:none;border:1px solid var(--line);background:var(--panel);border-radius:9px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer}
+.mbtn svg{width:20px;height:20px;stroke:var(--ink);stroke-width:1.8;fill:none;stroke-linecap:round}
+.scrim{position:fixed;inset:0;z-index:35;background:rgba(2,5,10,.6)}
+body{padding-left:236px}
+.dock{left:236px}
+body:not([data-view="model"]){padding-bottom:24px}
+body:not([data-view="model"]) .dock{display:none}
+.wrap{padding-top:22px}
+#model-globe .globe{margin:0 auto}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-left:3px solid var(--sc,var(--line));border-radius:12px;background:var(--panel);padding:14px 16px;text-decoration:none;color:var(--ink);min-height:118px}
+.tile:hover{background:var(--panel2)}
+.tile:focus-visible{outline:2px solid var(--flow);outline-offset:2px}
+.tile .tk{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile .tv{font-family:var(--f-display);font-weight:600;font-size:22px;line-height:1.2;color:var(--sc,var(--ink))}
+.tile .ts{font-size:13px;color:var(--muted);line-height:1.45}
+.tile .go{margin-top:auto;font-size:12.5px;color:var(--flow)}
+@media (max-width:980px){
+  body{padding-left:0}
+  .dock{left:0}
+  .top{display:block}
+  .wrap{padding-top:14px}
+  .side{transform:translateX(-105%);transition:transform .2s ease;width:min(300px,86vw);box-shadow:0 0 40px rgba(0,0,0,.6)}
+  .side.open{transform:none}
+}
+.lr .sp .ar{fill:rgba(86,204,255,.13);stroke:none}
+.lr .sp .gr{stroke:rgba(159,178,204,.16);stroke-width:1;vector-effect:non-scaling-stroke;fill:none}
+.lr .sp .dt{stroke:#d7f3ff;stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke;fill:none}
+.lr .sp .er{stroke:var(--crit);stroke-width:2;vector-effect:non-scaling-stroke;fill:none}
+.lr .sp{height:34px}
 .hist{padding:14px 16px;overflow-x:auto}
 .hi-r{display:grid;grid-template-columns:170px minmax(300px,1fr) 70px 70px;gap:12px;align-items:center;padding:6px 0;font-size:14px}
 .hi-r.h{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .hi-r .n{font-weight:600}
 .hi-c{display:grid;grid-template-columns:repeat(30,1fr);gap:3px}
-.hi-c i{height:22px;border-radius:3px;background:#18243a}
+.hi-c i{height:22px;border-radius:3px;border:1px dashed #2a3a55}
+.hi-c i.ok,.hi-c i.warn,.hi-c i.crit{border:0}
 .hi-c i.ok{background:var(--ok)}.hi-c i.warn{background:var(--warn)}.hi-c i.crit{background:var(--crit)}
 .hi-r .p{font-family:var(--f-mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:720px){.hi-r{grid-template-columns:minmax(0,1fr) 62px 62px;gap:4px 10px}.hi-r .hi-c{grid-column:1/-1;grid-row:2}.hi-r.h span:nth-child(2){display:none}}
@@ -352,9 +402,16 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 </head>
 <body>
 <div class="top"><div class="in">
+  <button class="mbtn" id="menu-btn" type="button" aria-controls="side" aria-expanded="false" aria-label="Menu"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
   <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
-  <nav aria-label="Sekcje"><a href="#biezace">Bieżące incydenty</a><a href="#sygnaly">Sygnały</a><a href="#uslugi">Stan usług</a><a href="#regiony">Regiony Azure</a><a href="#pomiary">Pomiary</a><a href="#rejestr">Incydenty</a><a href="#model">Model incydentu</a><a href="#ruch">Ruch</a><a href="#sciezka">Topologia</a><a href="#lokalizacje">Centra danych</a><a href="#zdarzenia">Oś czasu</a></nav>
+  <span class="vt" id="view-title"></span>
 </div></div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="side" id="side" aria-label="Menu główne">
+  <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M1 14h6l2.5-8 4.5 15 3-10 1.5 3H25"/></svg>AzureMe Pulse</div>
+  <nav id="menu" aria-label="Widoki"></nav>
+  <div class="sf"><span id="side-when">Ostatni pomiar: brak danych</span><span>Oficjalne strony stanu:<br><a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365</a> · <a href="https://azure.status.microsoft/status" rel="noopener">Azure</a></span></div>
+</aside>
 
 <div class="wrap">
   <section class="stage s-ok" id="stage" aria-label="Przegląd">
@@ -386,6 +443,10 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     </div>
   </section>
 
+  <section id="home-tiles" aria-label="Podsumowanie">
+    <div class="tiles" id="tiles"><div class="card live-empty">Wczytywanie pomiarów…</div></div>
+  </section>
+
   <section id="biezace">
     <header><span class="real">DANE RZECZYWISTE</span><h2>Bieżące incydenty według Microsoft</h2><p>Otwarte zgłoszenia z Microsoft Service Health (odczyt przez Microsoft Graph w tenantach testowych) oraz bieżący wpis z publicznej strony stanu status.cloud.microsoft. Odczyt co około 5 minut. Treść komunikatów w brzmieniu Microsoft, w skrócie.</p></header>
     <div class="reg" id="cur-box"><div class="card live-empty">Wczytywanie zgłoszeń…</div></div>
@@ -402,7 +463,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     <div class="lkey" style="margin-top:12px"><span><b class="led ok" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>sprawdzenie poprawne</span><span><b class="led warn" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>degradacja, odmowa lub pojedynczy błąd</span><span><b class="led crit" style="display:inline-block;vertical-align:-2px;margin-right:8px;animation:none"></b>błąd w dwóch kolejnych pomiarach lub przerwa</span><span><b class="led off" style="display:inline-block;vertical-align:-2px;margin-right:8px"></b>sprawdzenie nieaktywne</span></div>
   </section>
 
-  <div class="demo" style="margin:0;padding:0"><p><b>Co jest rzeczywiste.</b> Nagłówek w widoku na żywo, „Pomiary rzeczywiste” i „Rejestr incydentów”. Sekcje oznaczone SYMULACJA odtwarzają incydent z 12–13 listopada 2026 na modelu: godziny i komunikaty pochodzą z publicznych źródeł, liczby nie są pomiarami.</p></div>
+  <div class="demo" id="demo-b" style="margin:0;padding:0"><p><b>Co jest rzeczywiste.</b> Nagłówek w widoku na żywo, „Pomiary rzeczywiste” i „Rejestr incydentów”. Sekcje oznaczone SYMULACJA odtwarzają incydent z 12–13 listopada 2026 na modelu: godziny i komunikaty pochodzą z publicznych źródeł, liczby nie są pomiarami.</p></div>
 
   <section id="uslugi">
     <header><span class="num sim" id="us-num">01 · SYMULACJA</span><h2>Dostępność usług</h2><p id="us-p">Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
@@ -437,9 +498,13 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     </div>
     <p class="note" id="live-note"></p>
     <h3 class="sub">Dostępność dzienna sond (30 dni)</h3>
-    <p class="note" style="margin-top:4px">Jeden prostokąt to jedna doba (UTC), najnowsza po prawej. Zielony: co najmniej 99,9% poprawnych pomiarów, pomarańczowy: co najmniej 99%, czerwony: poniżej 99%, szary: brak pomiarów. Historia jest zbierana od dnia uruchomienia sond.</p>
+    <p class="note" style="margin-top:4px">Jeden prostokąt to jedna doba (UTC), najnowsza po prawej. Zielony: co najmniej 99,9% poprawnych pomiarów, pomarańczowy: co najmniej 99%, czerwony: poniżej 99%. Prostokąt z przerywanym obrysem oznacza dobę bez pomiarów. <b id="hist-since"></b></p>
     <div class="card hist" style="margin-top:12px"><div class="hi-r h"><span>Usługa</span><span>Doby</span><span style="text-align:right">7 dni</span><span style="text-align:right">30 dni</span></div><div id="hist-rows"></div></div>
-    <h3 class="sub">Stan usług według Microsoft (Service Health)</h3>
+  </section>
+
+  <section id="zrodla">
+    <header><span class="real">DANE RZECZYWISTE</span><h2>Komunikaty Microsoft</h2><p>Stan usług według Microsoft Service Health w tenantach testowych, publiczny kanał stanu Azure oraz Centrum wiadomości Microsoft 365.</p></header>
+    <h3 class="sub" style="margin-top:0">Stan usług według Microsoft (Service Health)</h3>
     <p class="note" style="margin-top:4px">Odczyt z Microsoft Graph w tenantach testowych, co około 5 minut. Pokazuje usługi w stanie innym niż dostępny oraz zgłoszenia otwarte lub zmienione w ostatnich 7 dniach.</p>
     <div class="reg" id="health-box" style="margin-top:12px"><div class="card live-empty">Brak odczytu Service Health.</div></div>
     <h3 class="sub">Stan platformy Azure</h3>
@@ -460,6 +525,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
     <h2>Odtworzenie incydentu z 12–13 listopada 2026</h2>
     <p>Poniższe sekcje nie pokazują pomiarów. To model, który odtwarza przebieg incydentu: godziny i komunikaty pochodzą z publicznych źródeł, wartości liczbowe są symulowane. Uruchom go przyciskiem odtwarzania na dolnym pasku.</p>
   </div>
+  <div id="model-globe"></div>
 
   <section id="ruch">
     <header><span class="num sim">02 · SYMULACJA</span><h2>Analiza wolumenu ruchu</h2><p>Ruch rzeczywisty zestawiony z wartością oczekiwaną (baseline), czyli profilem z poprzedniej doby. Krzywa jest symulowana na podstawie wartości podanych przez Kentik.</p></header>
@@ -963,13 +1029,32 @@ function frame(ts){var dt=Math.min(.1,(ts-prev)/1000||0);prev=ts;
   if(playing){pos+=dt*speed;if(pos>=TOTAL){pos=TOTAL;setPlaying(false);}}
   updateDom();if(vis.globe&&VIEW==="globe")drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.map&&VIEW==="map")drawMap(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
 
+var VIEWS=[["home","Przegląd",["stage","home-tiles"]],["incydenty","Incydenty",["biezace","rejestr"]],["sygnaly","Panel sygnalizacyjny",["sygnaly"]],["uslugi","Stan usług",["uslugi"]],["regiony","Regiony Azure",["regiony"]],["pomiary","Sondy i dostępność",["pomiary"]],["microsoft","Komunikaty Microsoft",["zrodla"]],["model","Model incydentu",["demo-b","model","model-globe","ruch","sciezka","lokalizacje","zdarzenia"]]],CURV="";
+function setBadge(v,t,q){var b=$("bdg-"+v);if(!b)return;b.textContent=t;b.className="bdg"+(q?" "+q:"");b.hidden=!t;}
+function showView(v,anchor){
+  if(!VIEWS.some(function(x){return x[0]===v;}))v="home";
+  if(CURV==="model"&&v!=="model")goLive();
+  CURV=v;document.body.setAttribute("data-view",v);
+  VIEWS.forEach(function(x){x[2].forEach(function(id){$(id).hidden=x[0]!==v;});var a=$("mi-"+x[0]);if(x[0]===v){a.setAttribute("aria-current","page");$("view-title").textContent=x[1];}else a.removeAttribute("aria-current");});
+  var g=document.querySelector(".globe");if(v==="model"){if(g.parentNode!==$("model-globe"))$("model-globe").appendChild(g);}else if(g.parentNode!==$("stage"))$("stage").appendChild(g);
+  $("side").classList.remove("open");$("scrim").hidden=true;$("menu-btn").setAttribute("aria-expanded","false");
+  if(location.hash!=="#/"+v&&!anchor){try{history.replaceState(null,"","#/"+v);}catch(e){}}
+  resize();lastIdx=-1;
+  if(anchor&&$(anchor))$(anchor).scrollIntoView();else window.scrollTo(0,0);
+}
+function route(){var h=location.hash.replace(/^#\/?/,"");var byId=VIEWS.filter(function(x){return x[2].indexOf(h)>=0;})[0];if(byId&&VIEWS.every(function(x){return x[0]!==h;}))showView(byId[0],byId[0]==="home"?null:h);else showView(h||"home");}
+(function(){var m=$("menu");VIEWS.forEach(function(x){var a=document.createElement("a");a.href="#/"+x[0];a.id="mi-"+x[0];if(x[0]==="model")a.className="sep";a.innerHTML="<span>"+x[1]+'</span><span class="bdg" id="bdg-'+x[0]+'" hidden></span>';m.appendChild(a);});
+  $("menu-btn").addEventListener("click",function(){var o=!$("side").classList.contains("open");$("side").classList.toggle("open",o);$("scrim").hidden=!o;this.setAttribute("aria-expanded",o);});
+  $("scrim").addEventListener("click",function(){$("side").classList.remove("open");$("scrim").hidden=true;$("menu-btn").setAttribute("aria-expanded","false");});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("side").classList.contains("open"))$("scrim").click();});
+  window.addEventListener("hashchange",route);})();
 buildDom();FUS=mkFilter("f-us",["rows","rows-real"]);FLIVE=mkFilter("f-live",["live-rows"]);resize();setPlaying(false);
 window.addEventListener("resize",resize);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(resize);
 function startReplay(){seek(T.inc-45);setPlaying(true);}
 function goLive(){seek(TOTAL);setPlaying(false);}
 $("play").addEventListener("click",function(){if(!playing&&pos>=TOTAL)startReplay();else setPlaying(!playing);});
-$("replay").addEventListener("click",startReplay);$("golive").addEventListener("click",goLive);$("live").addEventListener("click",goLive);
+$("replay").addEventListener("click",function(){showView("model");startReplay();});$("golive").addEventListener("click",goLive);$("live").addEventListener("click",goLive);
 (function(){var tr=$("track"),down=false;function at(ev){var r=tr.getBoundingClientRect();seek((ev.clientX-r.left)/r.width*TOTAL);}
   tr.addEventListener("pointerdown",function(ev){down=true;tr.setPointerCapture(ev.pointerId);at(ev);});tr.addEventListener("pointermove",function(ev){if(down)at(ev);});
   tr.addEventListener("pointerup",function(){down=false;});tr.addEventListener("pointercancel",function(){down=false;});
@@ -1002,6 +1087,7 @@ $("replay").addEventListener("click",startReplay);$("golive").addEventListener("
   var saved="globe";try{saved=localStorage.getItem("pulse-view")||"globe";}catch(e){}
   if(saved==="map")setView("map");else touch();
 })();
+route();
 requestAnimationFrame(frame);
 
 /* ---------- live probes (real data from the repository's data branch) ---------- */
@@ -1011,6 +1097,7 @@ function renderLive(d){
   try{renderCurrent(d);}catch(e){}
   try{renderRegions(d.regions);}catch(e){}
   try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
+  try{renderTiles(d);}catch(e){}
   var box=$("live-rows");box.textContent="";$("live-empty").hidden=true;
   d.services.forEach(function(sv){
     var ser=d.samples.map(function(x){return x.r&&x.r[sv.id];}).filter(Boolean),n=ser.length;if(!n)return;
@@ -1018,9 +1105,13 @@ function renderLive(d){
     var row=document.createElement("div");row.className="lr s-"+q;
     var ic=document.createElement("span");ic.className="ic";ic.innerHTML='<svg viewBox="0 0 14 14" aria-hidden="true">'+ICON[q]+"</svg>";
     var nm=document.createElement("span");nm.className="n";nm.textContent=sv.name;var sm=document.createElement("small");sm.textContent=sv.what||"";nm.appendChild(sm);
-    var tail=ser.slice(-144),mx=1;tail.forEach(function(v){if(v[1]>mx)mx=v[1];});var dpath="";tail.forEach(function(v,i){dpath+=(i?"L":"M")+(tail.length>1?i/(tail.length-1)*150:75).toFixed(1)+" "+(24-(v[1]/mx)*20).toFixed(1);});
-    var sp=document.createElementNS("http://www.w3.org/2000/svg","svg");sp.setAttribute("class","sp");sp.setAttribute("viewBox","0 0 150 26");sp.setAttribute("preserveAspectRatio","none");sp.setAttribute("aria-hidden","true");
-    var pa=document.createElementNS("http://www.w3.org/2000/svg","path");pa.setAttribute("d",dpath);sp.appendChild(pa);
+    var tail=ser.slice(-144),mx=1;tail.forEach(function(v){if(v[0]&&v[1]>mx)mx=v[1];});mx*=1.18;
+    var P=tail.map(function(v,i){return [tail.length>1?i/(tail.length-1)*150:75,v[0]?31-(v[1]/mx)*27:31,v[0]];});
+    var dpath="M"+P[0][0].toFixed(1)+" "+P[0][1].toFixed(1);
+    for(var pi=1;pi<P.length;pi++){var a0=P[pi-1],a1=P[pi],cxm=((a0[0]+a1[0])/2).toFixed(1);dpath+="C"+cxm+" "+a0[1].toFixed(1)+" "+cxm+" "+a1[1].toFixed(1)+" "+a1[0].toFixed(1)+" "+a1[1].toFixed(1);}
+    var sp=document.createElementNS("http://www.w3.org/2000/svg","svg");sp.setAttribute("class","sp");sp.setAttribute("viewBox","0 0 150 34");sp.setAttribute("preserveAspectRatio","none");sp.setAttribute("aria-hidden","true");
+    var lp=P[P.length-1],errs="";P.forEach(function(q){if(!q[2])errs+="M"+q[0].toFixed(1)+" 4V31";});
+    sp.innerHTML='<path class="gr" d="M0 31H150M0 17.5H150M0 4H150"/><path class="ar" d="'+dpath+'L'+lp[0].toFixed(1)+' 33L'+P[0][0].toFixed(1)+' 33Z"/><path d="'+dpath+'"/>'+(errs?'<path class="er" d="'+errs+'"/>':"")+'<path class="dt" d="M'+lp[0].toFixed(1)+" "+lp[1].toFixed(1)+'l.01 0"/>';
     var ms=document.createElement("span");ms.className="ms";ms.textContent=last[0]?last[1]+" ms":"kod "+(last[2]||"brak");
     var av=document.createElement("span");av.className="av";av.textContent=(okc/n*100).toFixed(n>=100?2:1).replace(".",",")+"%";
     var vd=document.createElement("span");vd.className="vd";vd.textContent=LAB[q];
@@ -1108,6 +1199,7 @@ function renderSignals(d){
     var el=document.createElement("details");el.className="sg-r"+(worst==="off"?"":" s-"+worst);el.dataset.n=row.n;el.open=!!SGOPEN[row.n];
     el.innerHTML='<summary class="sg-g"><span class="sg-n">'+esc(row.n)+'</span><span class="sg-l ga" data-l="Punkty końcowe">'+(a||"<em>brak sondy</em>")+'</span><span class="sg-l gb" data-l="Odczyt przez Graph">'+(b||"<em>brak sprawdzenia</em>")+'</span><span class="sg-l gc" data-l="Stan wg Microsoft">'+(c||"<em>"+(row.sh?"brak odczytu":"nie dotyczy")+"</em>")+'</span><span class="sg-v">'+esc(worst==="off"?"Brak danych":LAB[worst])+'</span></summary><ul class="sg-d">'+det+'</ul>';
     box.appendChild(el);});
+  SGT=tot;
   $("sg-sum").innerHTML='<span><b class="led ok"></b>poprawne: <b>'+tot.ok+'</b></span><span><b class="led warn"></b>ostrzeżenia: <b>'+tot.warn+'</b></span><span><b class="led crit" style="animation:none"></b>błędy: <b>'+tot.crit+'</b></span><span><b class="led off"></b>nieaktywne: <b>'+tot.off+'</b></span><span>ostatni pomiar: <b>'+esc(fdt(d.generated))+'</b></span>';
 }
 var PST={"Service degradation":["Degradacja usługi","warn"],"Service interruption":["Przerwa w działaniu","crit"],"Available":["Dostępna","ok"],"Operational":["Dostępna","ok"],"Investigating":["Analiza zgłoszenia","warn"],"Restoring service":["Przywracanie usługi","warn"],"Extended recovery":["Wydłużone przywracanie","warn"],"Service restored":["Usługa przywrócona","ok"]};
@@ -1126,9 +1218,36 @@ function renderCurrent(d){
   if(!cards.length)h='<div class="card live-empty">'+(read?"Brak otwartych zgłoszeń w Service Health i brak wpisu na publicznej stronie stanu.":"Brak odczytu Service Health.")+'</div>';
   box.innerHTML=h;
 }
+function renderTiles(d){
+  var H=(d.health||[]).filter(function(h){return h.ok;}),seen={},open=[],deg={},t=[];
+  H.forEach(function(h){(h.issues||[]).forEach(function(i){if(!i.resolved&&!seen[i.id]){seen[i.id]=1;open.push(i);}});(h.services||[]).forEach(function(x){var m=hst(x.status);if(m[1]!=="ok"&&deg[x.name]!=="crit")deg[x.name]=m[1];});});
+  open.sort(function(a,b){return String(b.updateAt||b.modified).localeCompare(String(a.updateAt||a.modified));});
+  function tile(v,k,q,val,sub,go){t.push('<a class="tile'+(q?" s-"+q:"")+'" href="#/'+v+'"><span class="tk">'+esc(k)+'<b class="led '+(q||"off")+'" style="animation:none"></b></span><span class="tv">'+esc(val)+'</span><span class="ts">'+sub+'</span><span class="go">'+esc(go)+' →</span></a>');}
+  var o=open[0],iq=open.some(function(i){return hst(i.status)[1]==="crit";})?"crit":open.length?"warn":H.length?"ok":"";
+  tile("incydenty","Bieżące incydenty",iq,H.length?(open.length?"Otwarte zgłoszenia: "+open.length:"Brak otwartych zgłoszeń"):"Brak odczytu",o?esc(o.id+": "+String(o.title).slice(0,90))+(o.next||o.nextRaw?"<br>Następna aktualizacja: "+nextTxt(o):""):"Microsoft Service Health","Szczegóły zgłoszeń");
+  setBadge("incydenty",open.length?String(open.length):"",iq);
+  var dn=Object.keys(deg),dq=dn.some(function(n){return deg[n]==="crit";})?"crit":dn.length?"warn":H.length?"ok":"";
+  tile("uslugi","Stan usług według Microsoft",dq,H.length?(dn.length?"Usługi z problemami: "+dn.length:"Wszystkie usługi dostępne"):"Brak odczytu",esc(dn.slice(0,4).join(", ")+(dn.length>4?" oraz "+(dn.length-4)+" kolejne":"")),"Tabela usług");
+  setBadge("uslugi",dn.length?String(dn.length):"",dq);
+  var sq=SGT.crit?"crit":SGT.warn?"warn":"ok";
+  tile("sygnaly","Panel sygnalizacyjny",sq,"Poprawne sprawdzenia: "+SGT.ok,"Ostrzeżenia: "+SGT.warn+" · błędy: "+SGT.crit+" · nieaktywne: "+SGT.off,"Wszystkie kontrolki");
+  setBadge("sygnaly",SGT.crit?String(SGT.crit):SGT.warn?String(SGT.warn):"",sq);
+  var bad=d.services.filter(function(x){return !x.last||!x.last.ok;}),pq=bad.length?"crit":"ok";
+  tile("pomiary","Sondy HTTP",pq,(d.services.length-bad.length)+" z "+d.services.length+" odpowiada",bad.length?esc("Brak odpowiedzi: "+bad.map(function(x){return x.name;}).join(", ")):"Ostatni pomiar: "+esc(fdt(d.generated)),"Sondy i dostępność");
+  setBadge("pomiary",(d.services.length-bad.length)+"/"+d.services.length,pq);
+  var rl=(d.regions&&d.regions.list)||[];if(rl.length){var rb=rl.filter(function(r){return !r.ok;}),rq=!rb.length?"ok":rb.some(function(r){return r.fails>=2;})?"crit":"warn",pl=rl.filter(function(r){return r.id==="polandcentral";})[0];
+    tile("regiony","Regiony Azure",rq,(rl.length-rb.length)+" z "+rl.length+" odpowiada",rb.length?esc("Bez odpowiedzi: "+rb.map(function(r){return r.name;}).join(", ")):(pl?"Poland Central (Warszawa): "+(pl.ok?pl.ms+" ms":"brak odpowiedzi"):""),"Lista regionów");
+    setBadge("regiony",(rl.length-rb.length)+"/"+rl.length,rq);}
+  var az=d.azure&&d.azure.ok?d.azure.items.length:null,mc={};H.forEach(function(h){(h.messages||[]).forEach(function(m){mc[m.id]=1;});});
+  tile("microsoft","Komunikaty Microsoft",az?"warn":az===0?"ok":"",az===null?"Azure Status: brak odczytu":az?"Azure Status: zdarzenia "+az:"Azure Status: brak zdarzeń","Message Center: "+Object.keys(mc).length+" wiadomości z ostatnich 14 dni","Komunikaty i tenanty");
+  $("tiles").innerHTML=t.join("");
+  $("side-when").textContent="Ostatni pomiar: "+fdt(d.generated);
+}
+var SGT={ok:0,warn:0,crit:0,off:0};
 function renderHist(d){
   var days=d.days||{},keys=[],now=Date.now(),g={},order=[];for(var k=29;k>=0;k--)keys.push(new Date(now-k*86400000).toISOString().slice(0,10));
   d.services.forEach(function(sv){if(!g[sv.name]){g[sv.name]=[];order.push(sv.name);}g[sv.name].push(sv.id);});
+  var have=Object.keys(days).sort();$("hist-since").textContent=have.length?"Pomiary od "+have[0].split("-").reverse().join(".")+": liczba dób z danymi "+have.length+".":"";
   var box=$("hist-rows");box.textContent="";
   order.forEach(function(n){var cells="",a7=[0,0],a30=[0,0];
     keys.forEach(function(day,ix){var ok=0,tot=0;g[n].forEach(function(id){var v=(days[day]||{})[id];if(v){ok+=v[0];tot+=v[1];}});
