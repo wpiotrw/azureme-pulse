@@ -10,9 +10,9 @@ jobs:
     steps:
       - run: |
           B="https://atlas.ripe.net/api/v2/measurements/"
-          for q in office365 microsoftonline office.com outlook teams.microsoft graph.microsoft sharepoint azure.com; do
-            for t in ping http sslcert traceroute; do
-              echo "== $q $t"
-              curl -s -m 25 "$B?status=2&is_public=true&type=$t&target__contains=$q&page_size=8&sort=-participant_count&fields=id,type,target,interval,participant_count,af,is_oneoff,description" | jq -c '{count, r: [.results[]? | [.id,.target,.interval,.participant_count,.af,(.description|tostring|.[0:50])]]}' || echo ERR
-            done
-          done
+          echo "== raw1"; curl -s -m 25 "$B?status=2&type=ping&target__contains=office365&page_size=3" | head -c 700; echo
+          echo "== raw2"; curl -s -m 25 "$B?status=2&type=ping&target=outlook.office365.com&page_size=3" | head -c 700; echo
+          echo "== raw3"; curl -s -m 25 "$B?status=2&search=office365&page_size=3" | head -c 700; echo
+          echo "== raw4"; curl -s -m 25 "$B?status=2&description__contains=office365&page_size=3" | head -c 500; echo
+          echo "== asn"; curl -s -m 25 "$B?status=2&target_asn=8075&type=ping&page_size=3" | head -c 900; echo
+          echo "== asn-http"; curl -s -m 25 "$B?status=2&target_asn=8075&type=http&page_size=3" | head -c 500; echo
