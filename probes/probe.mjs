@@ -122,7 +122,7 @@ if (prevPath && outPath) {
   console.log(`${down.length ? 'FAIL' : 'OK  '} regions ${next.regions.list.length - down.length}/${next.regions.list.length} ${down.map((r) => r.id).join(',')}`);
   try { next.signals = await readSignals(prev.signals); } catch (e) { next.signals = prev.signals || {}; console.log(`FAIL signals ${e.message}`); }
   console.log(`${next.signals.bgp?.ok ? 'OK  ' : 'FAIL'} bgp AS8075 v4=${next.signals.bgp?.v4?.seen}/${next.signals.bgp?.v4?.total} prefixes=${next.signals.bgp?.v4?.prefixes} state=${next.signals.bgp?.state} ${next.signals.bgp?.error || ''}`);
-  console.log(next.signals.radar?.configured ? `${next.signals.radar.ok ? 'OK  ' : 'FAIL'} radar points=${next.signals.radar.values?.length} dev=${next.signals.radar.dev} state=${next.signals.radar.state} ${next.signals.radar.error || ''}` : 'SKIP radar: PULSE_CF_TOKEN not set');
+  console.log(next.signals.radar?.configured ? `${next.signals.radar.ok ? 'OK  ' : 'FAIL'} radar points=${next.signals.radar.values?.length} dev=${next.signals.radar.dev} state=${next.signals.radar.state} ${next.signals.radar.error || ''}` : 'SKIP radar: secret PULSE_CLOUDFLARE_TOKEN not set');
   // Change log shown on the page: state changes detected between this run and the previous one, newest first.
   const hasPrev = Array.isArray(prev.samples) && prev.samples.length > 0;
   const fresh = hasPrev ? [...diffEvents(prev, next), ...signalEvents(prev.signals, next.signals)].map((e) => ({ t: next.generated, sev: e.sev, kind: e.kind, title: String(e.title).slice(0, 200), text: String(e.text || '').slice(0, 300) })) : [];
