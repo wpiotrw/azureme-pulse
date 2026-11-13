@@ -29,3 +29,10 @@ Cel: utrzymywać `incidents.json` na gałęzi `main`. Strona https://pulse.azure
 ## Odpowiedź
 
 Najwyżej sześć linii: czy coś zmieniono, identyfikatory i tytuły dotkniętych wpisów, wartości SHA przed i po, źródła niedostępne w tym przebiegu.
+
+## Zasady językowe wpisów (obowiązkowe)
+
+- Terminologia Microsoft według polskiego interfejsu Service health (Kondycja usługi): typ zgłoszenia „incydent (incident)” albo „porada (advisory)”; stany: „Badanie”, „Obniżenie wydajności usługi”, „Przerwa w świadczeniu usługi”, „Przywracanie usługi”, „Przedłużone odzyskiwanie usługi”, „Usługa została przywrócona”.
+- Nie używać: „degradacja”, „komunikat doradczy”, „próbka” (jest: „pomiar”), nazw pól technicznych w rodzaju `resolved: false`.
+- Daty w formacie dd-mm-rrrr, godziny z dopiskiem UTC. Zdania do 25 słów, rejestr bezosobowy, bez ocen i wykrzykników.
+- Nazwy własne Microsoft w brzmieniu angielskim; skrót rozwinąć przy pierwszym użyciu.

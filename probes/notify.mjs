@@ -8,7 +8,7 @@ const SITE = 'https://pulse.azureme.pl/';
 const DAILY_HOUR_UTC = 6;
 const OK_STATUS = new Set(['serviceOperational', 'serviceRestored', 'postIncidentReviewPublished', 'falsePositive', 'resolved', 'mitigated', 'mitigatedExternal', 'resolvedExternal']);
 const RANK = { ok: 0, warn: 1, crit: 2 };
-const WORD = { ok: 'dostępna', warn: 'degradacja', crit: 'przerwa w działaniu' };
+const WORD = { ok: 'w dobrej kondycji', warn: 'obniżenie wydajności', crit: 'przerwa w świadczeniu usługi' };
 
 export const statusClass = (s) => (OK_STATUS.has(s) ? 'ok' : s === 'serviceInterruption' ? 'crit' : 'warn');
 const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -55,7 +55,7 @@ export function diffEvents(prev, next) {
     const b = healthMap(next);
     for (const [name, c] of b) {
       const p = a.get(name);
-      if (p && p !== c) ev.push({ sev: c, kind: 'Service Health', title: `${name}: ${WORD[c]}`, text: `Zmiana stanu deklarowanego przez Microsoft: ${WORD[p]} → ${WORD[c]}.` });
+      if (p && p !== c) ev.push({ sev: c, kind: 'Service health', title: `${name}: ${WORD[c]}`, text: `Zmiana stanu deklarowanego przez Microsoft: ${WORD[p]} → ${WORD[c]}.` });
     }
     const pa = allIssues(prev);
     const po = openIssues(prev);
@@ -98,7 +98,7 @@ function fdt(iso) {
   const x = new Date(iso);
   if (Number.isNaN(x.getTime())) return 'brak danych';
   const p = (n) => String(n).padStart(2, '0');
-  return `${p(x.getUTCDate())}.${p(x.getUTCMonth() + 1)}.${x.getUTCFullYear()} ${p(x.getUTCHours())}:${p(x.getUTCMinutes())} UTC`;
+  return `${p(x.getUTCDate())}-${p(x.getUTCMonth() + 1)}-${x.getUTCFullYear()} ${p(x.getUTCHours())}:${p(x.getUTCMinutes())} UTC`;
 }
 
 // Per-service metrics from the stored samples (last 24 h): availability, median response time, current state.
@@ -134,10 +134,10 @@ export function buildMail(st, events, daily, now = Date.now()) {
   const probesDown = m.reduce((a, g) => a + g.down, 0);
   const probesAll = m.reduce((a, g) => a + g.probes, 0);
   const worst = probesDown || notOk.some(([, c]) => c === 'crit') || events.some((e) => e.sev === 'crit') ? 'crit' : notOk.length || events.some((e) => e.sev === 'warn') ? 'warn' : 'ok';
-  const headline = worst === 'crit' ? 'Wykryto przerwę w działaniu' : worst === 'warn' ? 'Usługi z degradacją' : 'Wszystkie usługi dostępne';
+  const headline = worst === 'crit' ? 'Wykryto przerwę w świadczeniu usług' : worst === 'warn' ? 'Usługi z obniżoną wydajnością' : 'Wszystkie usługi dostępne';
   const first = events[0];
   const subject = daily && !events.length
-    ? `[AzureMe Pulse] Raport dobowy ${daily.split('-').reverse().join('.')}: ${headline.toLowerCase()}`
+    ? `[AzureMe Pulse] Raport dobowy ${daily.split('-').reverse().join('-')}: ${headline.toLowerCase()}`
     : `[AzureMe Pulse] ${first.title.slice(0, 110)}${events.length > 1 ? ` (+${events.length - 1})` : ''}`;
   const td = 'padding:9px 12px;border-bottom:1px solid #e5e9f0;font-size:14px;color:#1f2937';
   const th = 'padding:8px 12px;border-bottom:2px solid #d5dbe5;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#64748b;text-align:left';
@@ -146,7 +146,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
   let h = `<!doctype html><html lang="pl"><body style="margin:0;background:#f3f5f9;font-family:Segoe UI,Arial,sans-serif;color:#1f2937"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5f9"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e9f0">`;
   h += `<tr><td style="background:#07111f;padding:18px 24px;border-bottom:4px solid ${COL[worst]}"><div style="font-size:12px;letter-spacing:.12em;color:#8fb7e8">AZUREME PULSE</div><div style="font-size:20px;font-weight:600;color:#ffffff;margin-top:4px">${esc(daily && !events.length ? 'Raport dobowy' : 'Zmiana stanu usług')}</div><div style="font-size:13px;color:#b6c4d8;margin-top:2px">${esc(fdt(new Date(now).toISOString()))}</div></td></tr>`;
   h += `<tr><td style="padding:18px 24px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG[worst]};border-radius:8px"><tr><td style="padding:12px 16px;font-size:16px;font-weight:600;color:${COL[worst]}">${dot(worst)}${esc(headline)}</td></tr></table></td></tr>`;
-  h += `<tr><td style="padding:6px 18px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${tile(`${probesAll - probesDown} z ${probesAll}`, 'punkty końcowe odpowiadają', probesDown ? COL.crit : COL.ok)}${tile(String(notOk.length), 'usługi z degradacją według Microsoft', notOk.length ? COL.warn : COL.ok)}${tile(String(open.length), 'otwarte zgłoszenia Service Health', open.length ? COL.warn : COL.ok)}</tr></table></td></tr>`;
+  h += `<tr><td style="padding:6px 18px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${tile(`${probesAll - probesDown} z ${probesAll}`, 'punkty końcowe odpowiadają', probesDown ? COL.crit : COL.ok)}${tile(String(notOk.length), 'usługi z obniżoną wydajnością według Microsoft', notOk.length ? COL.warn : COL.ok)}${tile(String(open.length), 'otwarte zgłoszenia Service health', open.length ? COL.warn : COL.ok)}</tr></table></td></tr>`;
   if (events.length) {
     h += `<tr><td style="padding:14px 24px 0"><div style="font-size:15px;font-weight:600">Zdarzenia od poprzedniego pomiaru</div></td></tr><tr><td style="padding:8px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">`;
     for (const e of events.slice(0, 15)) h += `<tr><td style="${td};border-left:4px solid ${COL[e.sev]}"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#64748b">${esc(e.kind)}</div><div style="font-weight:600;margin:2px 0">${esc(e.title)}</div><div style="font-size:13px;color:#475569">${esc(String(e.text || '').slice(0, 500))}</div></td></tr>`;
@@ -160,7 +160,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
   }
   h += `</table></td></tr>`;
   if (notOk.length || open.length) {
-    h += `<tr><td style="padding:14px 24px 0"><div style="font-size:15px;font-weight:600">Microsoft Service Health</div></td></tr><tr><td style="padding:8px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">`;
+    h += `<tr><td style="padding:14px 24px 0"><div style="font-size:15px;font-weight:600">Microsoft Service health</div></td></tr><tr><td style="padding:8px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">`;
     for (const [name, c] of notOk) h += `<tr><td style="${td}">${dot(c)}${esc(name)}</td><td style="${td};text-align:right;color:${COL[c]};font-weight:600">${esc(WORD[c])}</td></tr>`;
     for (const i of open.slice(0, 8)) h += `<tr><td colspan="2" style="${td}"><span style="font-family:Consolas,monospace;font-size:12px;color:#64748b">${esc(i.id)}</span> ${esc(i.title)}</td></tr>`;
     if (open.length > 8) h += `<tr><td colspan="2" style="${td}">Pozostałe otwarte zgłoszenia: ${open.length - 8}.</td></tr>`;
@@ -168,7 +168,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
   }
   if (st.azure?.ok) h += `<tr><td style="padding:10px 24px 0;font-size:14px">${dot(st.azure.items.length ? 'warn' : 'ok')}Azure Status: ${st.azure.items.length ? `aktywne zdarzenia: ${st.azure.items.length}` : 'brak aktywnych zdarzeń'}</td></tr>`;
   h += `<tr><td style="padding:20px 24px"><a href="${SITE}" style="display:inline-block;background:#0b63ce;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 20px;border-radius:8px">Otwórz portal AzureMe Pulse</a></td></tr>`;
-  h += `<tr><td style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e5e9f0;font-size:12px;color:#64748b">Wiadomość wygenerowana automatycznie. Sondy HTTP działają z jednej lokalizacji (GitHub Actions); stan Service Health pochodzi z tenantów testowych. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.</td></tr></table></td></tr></table></body></html>`;
+  h += `<tr><td style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e5e9f0;font-size:12px;color:#64748b">Wiadomość wygenerowana automatycznie. Sondy HTTP działają z jednej lokalizacji (GitHub Actions); stan Service health pochodzi z tenantów testowych. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.</td></tr></table></td></tr></table></body></html>`;
   return { subject, html: h };
 }
 
