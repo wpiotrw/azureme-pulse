@@ -66,9 +66,10 @@
     Tworzy aplikację, nadaje uprawnienia i dodaje poświadczenie federacyjne.
 
 .NOTES
-    Wersja: 1.2.0 (13-11-2026)
+    Wersja: 1.2.1 (13-11-2026)
     Autor:  Piotr Wiśniewski - APN Promise S.A.
-    Zmiany: 1.2.0 - uprawnienia sond funkcjonalnych; dopisywanie brakujących uprawnień do istniejącej aplikacji.
+    Zmiany: 1.2.1 - kolory komunikatów: zielony dla stanu zastanego, żółty dla zmian.
+            1.2.0 - uprawnienia sond funkcjonalnych; dopisywanie brakujących uprawnień do istniejącej aplikacji.
             1.1.0 - podmiot poświadczenia w formacie GitHub z identyfikatorami liczbowymi;
                     istniejące poświadczenie o tej samej nazwie jest aktualizowane.
             1.0.1 - wynik i komunikaty podają nazwę aplikacji.
@@ -136,6 +137,7 @@ $connectedHere = Connect-PulseGraph
 
 try {
     $organization = Get-MgContext
+    Write-Host "Legenda: zielony = już istniało, żółty = zmienione w tym uruchomieniu." -ForegroundColor DarkGray
     Write-Host "Tenant docelowy: $($organization.TenantId)"
     Write-Host "Nazwa aplikacji: $DisplayName"
 
@@ -152,7 +154,7 @@ try {
     $app = Get-MgApplication -Filter "displayName eq '$($DisplayName -replace "'", "''")'" -All
     if (@($app).Count -gt 1) { throw "Istnieje więcej niż jedna aplikacja o nazwie '$DisplayName'. Usuń duplikat albo podaj inną nazwę." }
     if ($app) {
-        Write-Host "Aplikacja już istnieje: $($app.AppId)"
+        Write-Host "Aplikacja już istnieje: $($app.AppId)" -ForegroundColor Green
         # Uzupełnienie listy wymaganych uprawnień o brakujące role; wpisy innych interfejsów pozostają bez zmian.
         $current  = @($app.RequiredResourceAccess)
         $graphRra = $current | Where-Object { $_.ResourceAppId -eq $GraphAppId } | Select-Object -First 1
@@ -166,7 +168,7 @@ try {
                 })
             $newRra += @{ ResourceAppId = $GraphAppId; ResourceAccess = $access }
             Update-MgApplication -ApplicationId $app.Id -RequiredResourceAccess $newRra
-            Write-Host "Dopisano wymagane uprawnienia: $(($missing | ForEach-Object { $_.Value }) -join ', ')"
+            Write-Host "Dopisano wymagane uprawnienia: $(($missing | ForEach-Object { $_.Value }) -join ', ')" -ForegroundColor Yellow
         }
     }
     elseif ($PSCmdlet.ShouldProcess($DisplayName, 'Utworzenie rejestracji aplikacji')) {
@@ -177,7 +179,7 @@ try {
         $app = New-MgApplication -DisplayName $DisplayName -SignInAudience 'AzureADMyOrg' `
             -Description 'Odczyt stanu usług Microsoft 365 dla portalu pulse.azureme.pl. Logowanie wyłącznie poświadczeniem federacyjnym GitHub Actions.' `
             -RequiredResourceAccess @($resourceAccess)
-        Write-Host "Utworzono aplikację: $($app.AppId)"
+        Write-Host "Utworzono aplikację: $($app.AppId)" -ForegroundColor Yellow
     }
     if (-not $app) {
         Write-Host 'Tryb -WhatIf: aplikacja nie istnieje, dalsze kroki zostały pominięte.'
@@ -187,11 +189,11 @@ try {
     # 3. Jednostka usługi.
     $sp = Get-MgServicePrincipal -Filter "appId eq '$($app.AppId)'"
     if ($sp) {
-        Write-Host "Jednostka usługi już istnieje: $($sp.Id)"
+        Write-Host "Jednostka usługi już istnieje: $($sp.Id)" -ForegroundColor Green
     }
     elseif ($PSCmdlet.ShouldProcess($DisplayName, 'Utworzenie jednostki usługi')) {
         $sp = New-MgServicePrincipal -AppId $app.AppId
-        Write-Host "Utworzono jednostkę usługi: $($sp.Id)"
+        Write-Host "Utworzono jednostkę usługi: $($sp.Id)" -ForegroundColor Yellow
     }
 
     # 4. Zgoda administratora na uprawnienia aplikacyjne.
@@ -199,12 +201,12 @@ try {
         $assigned = @(Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $sp.Id -All)
         foreach ($role in $roles) {
             if ($assigned | Where-Object { $_.AppRoleId -eq $role.Id -and $_.ResourceId -eq $graphSp.Id }) {
-                Write-Host "Uprawnienie już nadane: $($role.Value)"
+                Write-Host "Uprawnienie już nadane: $($role.Value)" -ForegroundColor Green
             }
             elseif ($PSCmdlet.ShouldProcess($role.Value, 'Nadanie uprawnienia aplikacyjnego ze zgodą administratora')) {
                 $null = New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $sp.Id `
                     -PrincipalId $sp.Id -ResourceId $graphSp.Id -AppRoleId $role.Id
-                Write-Host "Nadano uprawnienie: $($role.Value)"
+                Write-Host "Nadano uprawnienie: $($role.Value)" -ForegroundColor Yellow
             }
         }
     }
@@ -213,14 +215,14 @@ try {
     $credentials = @(Get-MgApplicationFederatedIdentityCredential -ApplicationId $app.Id -All)
     $existing = $credentials | Where-Object { $_.Name -eq $CredentialName } | Select-Object -First 1
     if ($credentials | Where-Object { $_.Issuer -eq $Issuer -and $_.Subject -eq $Subject }) {
-        Write-Host "Poświadczenie federacyjne już istnieje: $Subject"
+        Write-Host "Poświadczenie federacyjne już istnieje: $Subject" -ForegroundColor Green
     }
     elseif ($existing) {
         # Poświadczenie o tej nazwie istnieje z innym podmiotem (na przykład w starszym formacie): aktualizacja podmiotu.
         if ($PSCmdlet.ShouldProcess("$($existing.Subject) -> $Subject", 'Aktualizacja podmiotu poświadczenia federacyjnego')) {
             Update-MgApplicationFederatedIdentityCredential -ApplicationId $app.Id `
                 -FederatedIdentityCredentialId $existing.Id -Subject $Subject
-            Write-Host "Zaktualizowano poświadczenie federacyjne: $Subject"
+            Write-Host "Zaktualizowano poświadczenie federacyjne: $Subject" -ForegroundColor Yellow
         }
     }
     elseif ($PSCmdlet.ShouldProcess($Subject, 'Dodanie poświadczenia federacyjnego')) {
@@ -232,7 +234,7 @@ try {
             description = "GitHub Actions: $GitHubRepository, gałąź $GitHubBranch"
         }
         $null = New-MgApplicationFederatedIdentityCredential -ApplicationId $app.Id -BodyParameter $credential
-        Write-Host "Dodano poświadczenie federacyjne: $Subject"
+        Write-Host "Dodano poświadczenie federacyjne: $Subject" -ForegroundColor Yellow
     }
 
     # 6. Wartości do wpisania w repozytorium GitHub (Settings > Secrets and variables > Actions > Variables).
