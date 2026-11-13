@@ -1,22 +1,49 @@
 {
   "schema": 1,
-  "updated": "2026-11-13T19:40:00Z",
+  "updated": "2026-11-13T20:15:00Z",
   "incidents": [
     {
-      "ids": ["EX1550543", "MO1550821"],
-      "title": "Exchange Online i usługi zależne: niedostępność globalna",
-      "start": "2026-11-12T16:17:00Z",
-      "end": "2026-11-13T11:20:00Z",
-      "duration": "około 19 h",
-      "services": ["Exchange Online", "Teams", "SharePoint", "Microsoft 365 Copilot", "Intune", "Defender for Office 365", "Defender XDR i Purview", "Microsoft Graph"],
-      "summary": "Użytkownicy utracili dostęp do skrzynek Exchange Online przez przeglądarkę, klienta na komputerze, urządzenia mobilne i REST. Microsoft otworzył drugi incydent dla usług zależnych od Exchange Online. Według Kentik ruch spadł o około 85% względem wartości oczekiwanej i zaczął wracać 13.11 około 11:20 UTC. Koniec podany w tym wpisie to chwila powrotu ruchu według Kentik. Formalnego zamknięcia incydentu przez Microsoft ani przyczyny źródłowej w źródłach nie znaleziono.",
-      "sources": [
-        {"name": "StatusStack", "url": "https://statusstack.com/blog/microsoft-365-exchange-online-outage-november-12-2026"},
-        {"name": "azureblog.co.uk", "url": "https://azureblog.co.uk/posts/microsoft-365-outage-12-november-2026/"},
-        {"name": "On-Site Technology", "url": "https://www.on-sitetechnology.com/microsoft-365-outage-november-2026/"},
-        {"name": "Kentik (Doug Madory)", "url": "https://x.com/DougMadory"}
+      "ids": [
+        "EX1550543",
+        "MO1550821"
       ],
-      "own_probes": "Własne pomiary: brak. Sondy portalu uruchomiono 13.11.2026 o 19:22 UTC, po zakończeniu incydentu. Wpis dodany ręcznie 13.11.2026."
+      "title": "Exchange Online i usługi zależne: niedostępność globalna, degradacja nadal otwarta",
+      "start": "2026-11-12T16:17:00Z",
+      "duration": "niedostępność około 19 h; zgłoszenie MO1550821 nadal otwarte",
+      "services": [
+        "Exchange Online",
+        "Teams",
+        "SharePoint",
+        "Microsoft 365 Copilot",
+        "Intune",
+        "Defender for Office 365",
+        "Defender XDR i Purview",
+        "Microsoft Graph"
+      ],
+      "summary": "Użytkownicy utracili dostęp do skrzynek Exchange Online przez przeglądarkę, klienta na komputerze, urządzenia mobilne i REST. Microsoft otworzył zgłoszenie MO1550821 dla usług zależnych od Exchange Online. Według Kentik ruch spadł o około 85% względem wartości oczekiwanej i zaczął wracać 13.11 około 11:20 UTC. Microsoft nie zamknął incydentu: odczyt Service Health z 13.11.2026 20:11 UTC w obu tenantach testowych pokazuje MO1550821 w stanie degradacji usługi, z ostatnią zmianą o 20:01 UTC. Zgłoszenie EX1550543 nie występuje w Service Health tenantów testowych. Przyczyny źródłowej w źródłach nie podano.",
+      "sources": [
+        {
+          "name": "Microsoft Service Health (odczyt portalu, sekcja Pomiary rzeczywiste)",
+          "url": "https://pulse.azureme.pl/#pomiary"
+        },
+        {
+          "name": "StatusStack",
+          "url": "https://statusstack.com/blog/microsoft-365-exchange-online-outage-november-12-2026"
+        },
+        {
+          "name": "azureblog.co.uk",
+          "url": "https://azureblog.co.uk/posts/microsoft-365-outage-12-november-2026/"
+        },
+        {
+          "name": "On-Site Technology",
+          "url": "https://www.on-sitetechnology.com/microsoft-365-outage-november-2026/"
+        },
+        {
+          "name": "Kentik (Doug Madory)",
+          "url": "https://x.com/DougMadory"
+        }
+      ],
+      "own_probes": "Własne pomiary: sondy HTTP działają od 13.11.2026 19:22 UTC i od tego czasu wszystkie punkty końcowe odpowiadają. W czasie niedostępności portal nie miał jeszcze pomiarów. Wpis dodany ręcznie 13.11.2026, zaktualizowany 13.11.2026 20:15 UTC."
     }
   ]
 }
