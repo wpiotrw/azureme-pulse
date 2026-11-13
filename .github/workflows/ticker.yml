@@ -1,0 +1,32 @@
+name: Ticker
+
+# Starts the Probes workflow every 5 minutes from inside GitHub Actions.
+# One run lasts about 5.5 hours (the job limit is 6 hours) and starts its successor before it ends.
+# The hourly schedule is only a watchdog that restarts the chain if a run was lost.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  actions: write
+
+concurrency:
+  group: ticker
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Dispatch Probes every 5 minutes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          end=$(( $(date +%s) + 330 * 60 ))
+          while [ "$(date +%s)" -lt "$end" ]; do
+            gh workflow run probes.yml --repo "$GITHUB_REPOSITORY" --ref main || echo "dispatch failed at $(date -u +%T)"
+            sleep 300
+          done
+          gh workflow run ticker.yml --repo "$GITHUB_REPOSITORY" --ref main
