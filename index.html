@@ -564,6 +564,33 @@ body.rail .side nav::-webkit-scrollbar{display:none}
 .gstate{position:absolute;left:0;top:0;display:flex;align-items:center;gap:9px;max-width:46%;font-size:12px;line-height:1.35;color:var(--ink);border:1px solid color-mix(in srgb,var(--sc) 50%,transparent);border-radius:10px;background:rgba(5,10,19,.72);padding:7px 10px;pointer-events:none;z-index:2}
 @media (min-width:721px){.globe.is-map .vnote{display:none}}
 @media (max-width:720px){.gstate{position:static;max-width:none;margin:44px 0 6px}.globe.is-map .gstate{margin-top:8px}}
+.fresh{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 16px;margin-bottom:-32px;animation:vin .3s ease both}
+.fresh .fh{grid-column:1/-1;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
+.fresh .ft{display:inline-flex;align-items:center;gap:9px;font:600 14px var(--f-display)}
+.fresh .seg button{padding:4px 10px;font-size:12px}
+.fresh .fa{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.fresh .fa b{color:var(--ink);font-weight:600}
+.fresh .fr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 18px;margin:0}
+.fresh .fr dt{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fresh .fr dd{margin:2px 0 0;font:500 13.5px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.fresh .fr small{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.fbtn{appearance:none;display:flex;align-items:center;gap:10px;border:1px solid color-mix(in srgb,var(--flow) 55%,transparent);border-radius:11px;background:linear-gradient(90deg,rgba(86,204,255,.2),rgba(86,204,255,.08));color:var(--ink);font:600 13.5px var(--f-display);padding:10px 14px;cursor:pointer;white-space:nowrap}
+.fbtn:hover{background:rgba(86,204,255,.28)}
+.fbtn small{font:500 11.5px var(--f-mono);padding:1px 8px;border-radius:999px;background:rgba(5,10,19,.5);color:#c9d6e8}
+.fbtn small:empty{display:none}
+.fbtn b{font-size:17px;line-height:1;color:var(--flow)}
+@media (max-width:1100px){.fresh{grid-template-columns:minmax(0,1fr)}.fresh .fr{grid-template-columns:repeat(2,minmax(0,1fr))}.fbtn{justify-content:space-between}}
+@media (max-width:860px){.fresh{margin-bottom:-24px}}
+@media (max-width:480px){.fresh .fr{grid-template-columns:minmax(0,1fr)}.fresh .fr>div{display:grid;grid-template-columns:158px minmax(0,1fr);gap:0 8px;align-items:baseline}.fresh .fr dt{font-size:11px;letter-spacing:.04em}.fresh .fr small{grid-column:2}.fresh .fa{margin-left:0;width:100%}}
+.evl{list-style:none;margin:0;padding:0}
+.evl li{display:grid;grid-template-columns:13px 112px minmax(0,1fr);gap:4px 12px;padding:11px 0;border-top:1px solid var(--line);align-items:start}
+.evl li:first-child{border-top:0}
+.evl .tm{font:500 12.5px var(--f-mono);color:var(--muted)}
+.evl .kd{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.evl b.t{display:block;font-weight:600}
+.evl small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.evl .led{margin-top:4px}
+@media (max-width:560px){.evl li{grid-template-columns:13px minmax(0,1fr)}.evl .tm{grid-column:2}.evl li>span:last-child{grid-column:2}}
 </style>
 </head>
 <body>
@@ -585,7 +612,17 @@ body.rail .side nav::-webkit-scrollbar{display:none}
 </aside>
 
 <div class="wrap">
-  <div class="meta" id="meta"><span class="mu"><b class="led off" id="upd-led" style="animation:none"></b><span>Ostatnia aktualizacja danych: <b id="upd">wczytywanie…</b></span></span><span class="ma">Autor: <b>Piotr Wiśniewski</b></span></div>
+  <div class="fresh" id="meta">
+    <div class="fh"><span class="ft"><b class="led off" id="upd-led" style="animation:none"></b>Aktualność danych</span><span class="seg" role="group" aria-label="Format godziny"><button type="button" data-tf="24" aria-pressed="true">24 h</button><button type="button" data-tf="12" aria-pressed="false">12 h</button></span><button type="button" class="lnk" id="fresh-about">Objaśnienie</button><span class="fa">Autor: <b>Piotr Wiśniewski</b></span></div>
+    <dl class="fr">
+      <div title="Czas ostatniego zakończonego pomiaru sond HTTP i regionów Azure"><dt>Pomiar sond</dt><dd id="fr-probe">wczytywanie…</dd><small id="fr-probe-a"></small></div>
+      <div title="Czas ostatniego odczytu Microsoft Service health przez Microsoft Graph"><dt>Service health</dt><dd id="fr-sh">brak danych</dd><small id="fr-sh-a"></small></div>
+      <div title="Czas ostatniej zmiany pliku rejestru incydentów"><dt>Rejestr incydentów</dt><dd id="fr-reg">brak danych</dd><small>aktualizacja co godzinę</small></div>
+      <div title="Czas zbudowania tej wersji strony i jej oznaczenie"><dt>Kod strony</dt><dd id="fr-build">brak danych</dd><small id="fr-build-v"></small></div>
+    </dl>
+    <button type="button" class="fbtn" id="fresh-log"><span>Co się zmieniło</span><small id="fresh-n"></small><b aria-hidden="true">›</b></button>
+    <span id="upd" hidden></span>
+  </div>
   <section class="stage s-ok" id="stage" aria-label="Przegląd">
     <div>
       <div class="head">
@@ -1462,7 +1499,7 @@ function renderTiles(d){
   tile("microsoft","Komunikaty Microsoft",az?"warn":az===0?"ok":"",az===null?"Azure Status: brak odczytu":az?"Azure Status: zdarzenia "+az:"Azure Status: brak zdarzeń","Message Center: "+Object.keys(mc).length+" wiadomości z ostatnich 14 dni","Szczegóły komunikatów");
   $("tiles").innerHTML=t.join("");
   var gd=new Date(d.generated),pl="";try{pl=new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(gd).replace(",","").replace(/\./g,"-")+" czasu polskiego · ";}catch(e){}
-  var ageM=Math.max(0,Math.round((Date.now()-gd.getTime())/60000));$("upd").textContent=pl+p2(gd.getUTCHours())+":"+p2(gd.getUTCMinutes())+" UTC ("+(ageM<1?"przed chwilą":ageM+" min temu")+")";$("upd-led").className="led "+(ageM<=15?"ok":ageM<=60?"warn":"crit");$("side-led").className=$("upd-led").className;$("side-when").innerHTML=esc(pl?pl.replace(" czasu polskiego · ",""):fdt(d.generated))+"<small>"+(ageM<1?"przed chwilą":ageM+" min temu")+"</small>";
+  var ageM=Math.max(0,Math.round((Date.now()-gd.getTime())/60000));$("upd").textContent=pl+p2(gd.getUTCHours())+":"+p2(gd.getUTCMinutes())+" UTC ("+(ageM<1?"przed chwilą":ageM+" min temu")+")";$("upd-led").className="led "+(ageM<=15?"ok":ageM<=60?"warn":"crit");$("side-led").className=$("upd-led").className;renderFresh();$("side-when").innerHTML=esc(pl?pl.replace(" czasu polskiego · ",""):fdt(d.generated))+"<small>"+(ageM<1?"przed chwilą":ageM+" min temu")+"</small>";
 }
 var SGT={ok:0,warn:0,crit:0,off:0};
 function renderHist(d){
@@ -1541,7 +1578,23 @@ function probeDetail(id){
   var last=pts[pts.length-1],fails=pts.filter(function(p){return !p.ok;});
   openDlg(sv.name+": "+(sv.what||""),'<dl class="facts"><div><dt>Ostatni wynik</dt><dd>'+esc(last.ok?"poprawny, "+last.ms+" ms":"błąd")+'</dd></div><div><dt>Kod odpowiedzi</dt><dd>'+esc(last.code||"brak odpowiedzi")+(sv.expect?" (oczekiwany: "+esc(sv.expect)+")":"")+'</dd></div><div><dt>Dostępność</dt><dd>'+(pts.length?(okp.length/pts.length*100).toFixed(2).replace(".",",")+"%":"brak")+" ("+okp.length+" z "+pts.length+')</dd></div><div><dt>Okno pomiarów</dt><dd>'+esc(tm(t0)+" – "+tm(t1)+" UTC")+'</dd></div><div><dt>Najkrótszy czas</dt><dd>'+(ms.length?ms[0]+" ms":"brak")+'</dd></div><div><dt>Mediana</dt><dd>'+pct(.5)+'</dd></div><div><dt>95. percentyl</dt><dd>'+pct(.95)+'</dd></div><div><dt>Najdłuższy czas</dt><dd>'+(ms.length?ms[ms.length-1]+" ms":"brak")+'</dd></div></dl>'+(sv.url?'<p><b>Sprawdzany adres:</b> <code>'+esc(sv.url)+'</code></p>':"")+'<p><b>Czas odpowiedzi w milisekundach</b> (czas UTC; czerwona linia oznacza nieudany pomiar)</p><svg class="big" viewBox="0 0 '+W+" "+Hh+'" role="img" aria-label="Wykres czasu odpowiedzi">'+g+(area?'<path d="'+area+'" fill="rgba(86,204,255,.14)"/>':"")+'<path d="'+line+'" fill="none" stroke="#56ccff" stroke-width="1.8" stroke-linejoin="round"/>'+er+dots+'</svg><p><b>Nieudane pomiary w oknie:</b> '+(fails.length?fails.slice(-8).map(function(p){return esc(tm(p.t)+" UTC (kod "+(p.code||"brak odpowiedzi")+")");}).join(", "):"brak")+'</p><p class="note">Pomiar z jednej lokalizacji (GitHub Actions). Czas obejmuje zestawienie połączenia i pobranie odpowiedzi.</p>');
 }
-var LASTD=null,TABC={};
+var LASTD=null,TABC={},BUILD={t:"2026-11-13T22:35:57Z",v:"50za"},TF="24",FRREG=null;
+try{TF=localStorage.getItem("pulse-tf")==="12"?"12":"24";}catch(e){}
+function ftm(iso){var x=new Date(iso);if(isNaN(x))return "brak danych";try{var p={};new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(x).forEach(function(q){p[q.type]=q.value;});var h=+p.hour%24,sfx="";if(TF==="12"){sfx=h<12?" AM":" PM";h=h%12||12;}return p.day+"-"+p.month+"-"+p.year+" "+p2(h)+":"+p.minute+sfx;}catch(e){return fdt(iso);}}
+function ago(iso){var m=Math.max(0,Math.round((Date.now()-Date.parse(iso))/60000));return isNaN(m)?"":m<1?"przed chwilą":m<120?m+" min temu":Math.round(m/60)+" godz. temu";}
+function renderFresh(){
+  Array.prototype.forEach.call(document.querySelectorAll("[data-tf]"),function(b){b.setAttribute("aria-pressed",b.dataset.tf===TF);});
+  var d=LASTD;if(d){$("fr-probe").textContent=ftm(d.generated);$("fr-probe-a").textContent=ago(d.generated);
+    var sh=(d.health||[]).filter(function(h){return h.ok&&h.fetched;}).map(function(h){return h.fetched;}).sort().pop();$("fr-sh").textContent=sh?ftm(sh):"brak odczytu";$("fr-sh-a").textContent=sh?ago(sh):"";
+    var ev=d.events||[],day=Date.now()-86400000,n=ev.filter(function(e){return Date.parse(e.t)>=day;}).length;$("fresh-n").textContent=ev.length?n+" w 24 h":"";}
+  $("fr-reg").textContent=FRREG?ftm(FRREG):"brak danych";
+  if(BUILD){$("fr-build").textContent=ftm(BUILD.t);$("fr-build-v").textContent="wersja "+BUILD.v;}
+}
+function showLog(){var ev=(LASTD&&LASTD.events)||[];
+  openDlg("Zmiany stanu zarejestrowane przez portal",ev.length?'<p class="note" style="margin:0 0 6px">Zdarzenia wykryte przez porównanie kolejnych pomiarów, od najnowszego. Godziny w czasie polskim.</p><ul class="evl">'+ev.map(function(e){var q=e.sev==="crit"?"crit":e.sev==="ok"?"ok":"warn";return '<li><b class="led '+q+'" style="animation:none"></b><span class="tm">'+esc(ftm(e.t))+'</span><span><span class="kd">'+esc(e.kind)+'</span><b class="t">'+esc(e.title)+'</b><small>'+esc(e.text||"")+'</small></span></li>';}).join("")+'</ul>':'<p>Od uruchomienia dziennika zmian portal nie zarejestrował żadnej zmiany stanu.</p><p class="note">Dziennik obejmuje: dwa kolejne nieudane pomiary sondy, zmianę stanu usługi w Service health, nowe i zamknięte zgłoszenia, nieudany odczyt przez Microsoft Graph, brak odpowiedzi regionu Azure oraz nowe zdarzenia w kanale Azure Status.</p>');}
+function showAbout(){openDlg("Aktualność danych: objaśnienie",'<dl class="facts"><div><dt>Pomiar sond</dt><dd>co około 5 minut</dd></div><div><dt>Service health</dt><dd>co około 5 minut</dd></div><div><dt>Rejestr incydentów</dt><dd>co godzinę</dd></div><div><dt>Odświeżanie strony</dt><dd>co 5 minut, bez przeładowania</dd></div></dl><p><b>Pomiar sond.</b> Czas zakończenia ostatniego przebiegu sond HTTP i sond regionów Azure w GitHub Actions.</p><p><b>Service health.</b> Czas ostatniego poprawnego odczytu stanu usług i zgłoszeń przez Microsoft Graph w tenantach testowych.</p><p><b>Rejestr incydentów.</b> Czas ostatniej zmiany pliku rejestru. Wpisy opracowuje zaplanowane zadanie na podstawie pomiarów i źródeł publicznych.</p><p><b>Kod strony.</b> Czas zbudowania wyświetlanej wersji portalu i jej oznaczenie.</p><p class="note">Plik z danymi jest buforowany przez GitHub do 5 minut, dlatego portal pokazuje stan sprzed kilku minut. Kontrolka przy tytule jest zielona, gdy ostatni pomiar ma najwyżej 15 minut, pomarańczowa do 60 minut, a potem czerwona. Wszystkie godziny w tym polu są podane w czasie polskim.</p>');}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-tf]");if(b){TF=b.dataset.tf;try{localStorage.setItem("pulse-tf",TF);}catch(x){}renderFresh();}});
+$("fresh-log").addEventListener("click",showLog);$("fresh-about").addEventListener("click",showAbout);
 function setTabCount(sec,tab,n){TABC[sec+"/"+tab]=n;var b=document.querySelector('.tabs button[data-s="'+sec+'"][data-t="'+tab+'"] .c');if(b){b.textContent=n;b.hidden=false;}}
 function initTabs(){Array.prototype.forEach.call(document.querySelectorAll("section[data-tabs]"),function(sec){
   var panes=sec.querySelectorAll(":scope > .tabp"),bar=document.createElement("div");bar.className="tabs";bar.setAttribute("role","tablist");
@@ -1552,7 +1605,7 @@ document.addEventListener("click",function(e){var t=e.target.closest("[data-iss]
 $("sh-all").addEventListener("click",function(){SHALL=!SHALL;if(LASTD)renderHealth(LASTD.health||[]);});
 $("dlg-x").addEventListener("click",function(){$("dlg").close();});
 $("dlg").addEventListener("click",function(e){if(e.target===$("dlg"))$("dlg").close();});
-initTabs();
+initTabs();renderFresh();setInterval(renderFresh,60000);
 function loadLive(){fetch(DATA_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(renderLive).catch(function(){if(!$("live-rows").children.length){$("live-empty").hidden=false;$("live-empty").textContent="Dane z sond nie są dostępne w tym podglądzie. Pomiary są widoczne w wersji opublikowanej pod adresem pulse.azureme.pl.";}});}
 loadLive();setInterval(loadLive,300000);
 function fdt(iso){var x=new Date(iso);return isNaN(x)?"brak danych":p2(x.getUTCDate())+"-"+p2(x.getUTCMonth()+1)+"-"+x.getUTCFullYear()+" "+p2(x.getUTCHours())+":"+p2(x.getUTCMinutes())+" UTC";}
@@ -1569,7 +1622,7 @@ function renderReg(d){
   $("reg-open-w").hidden=!n.o;
   if(!n.c){var e=document.createElement("div");e.className="card live-empty";e.textContent="Rejestr nie zawiera jeszcze zakończonych incydentów.";box.appendChild(e);}
 }
-fetch("incidents.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(renderReg).catch(function(){if($("reg-empty"))$("reg-empty").textContent="Rejestr incydentów jest dostępny w wersji opublikowanej pod adresem pulse.azureme.pl.";});
+fetch("incidents.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);var lm=r.headers.get("last-modified");if(lm&&!isNaN(Date.parse(lm))){FRREG=new Date(lm).toISOString();renderFresh();}return r.json();}).then(renderReg).catch(function(){if($("reg-empty"))$("reg-empty").textContent="Rejestr incydentów jest dostępny w wersji opublikowanej pod adresem pulse.azureme.pl.";});
 })();
 </script>
 </body>
