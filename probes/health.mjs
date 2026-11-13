@@ -5,6 +5,45 @@
 
 const GRAPH = 'https://graph.microsoft.com/v1.0/admin/serviceAnnouncement';
 const AUDIENCE = 'api://AzureADTokenExchange';
+const GRAPH_ROOT = 'https://graph.microsoft.com/v1.0';
+const CHECK_TIMEOUT_MS = 15000;
+
+// Functional checks: one cheap read per service, each behind the narrowest application permission
+// that Microsoft documents for that call. A check runs only when the token carries its permission.
+// Response bodies are discarded; only the outcome, HTTP code and duration are stored.
+export const CHECKS = [
+  { id: 'dir', service: 'Microsoft Entra', name: 'odczyt organizacji z katalogu', role: 'Organization.Read.All', path: () => '/organization?$select=id' },
+  { id: 'exo', service: 'Exchange Online', name: 'odczyt ustawień skrzynki testowej', role: 'MailboxSettings.Read', needs: 'mailboxUser', path: (t) => `/users/${encodeURIComponent(t.mailboxUser)}/mailboxSettings` },
+  { id: 'spo', service: 'SharePoint Online', name: 'odczyt ustawień SharePoint tenanta', role: 'SharePointTenantSettings.Read.All', path: () => '/admin/sharepoint/settings' },
+  { id: 'intune', service: 'Microsoft Intune', name: 'odczyt konfiguracji rejestracji urządzeń', role: 'DeviceManagementServiceConfig.Read.All', path: () => '/deviceManagement/deviceEnrollmentConfigurations?$top=1&$select=id' },
+  { id: 'teams', service: 'Microsoft Teams', name: 'odczyt listy zespołów', role: 'Team.ReadBasic.All', path: () => '/teams?$top=1&$select=id' },
+];
+
+export function tokenRoles(token) {
+  try { return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()).roles || []; } catch { return []; }
+}
+
+export async function runChecks(tenant, token, fetchImpl = fetch) {
+  const roles = tokenRoles(token);
+  return Promise.all(CHECKS.map(async (c) => {
+    const base = { id: c.id, service: c.service, name: c.name, role: c.role };
+    if (!roles.includes(c.role)) return { ...base, state: 'noperm', code: 0, ms: 0 };
+    if (c.needs && !tenant[c.needs]) return { ...base, state: 'noconfig', code: 0, ms: 0 };
+    const t0 = performance.now();
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), CHECK_TIMEOUT_MS);
+    try {
+      const r = await fetchImpl(GRAPH_ROOT + c.path(tenant), { signal: ac.signal, headers: { authorization: `Bearer ${token}`, accept: 'application/json' } });
+      await r.arrayBuffer().catch(() => {});
+      // 403 after the role check means the service itself refused (for example no licence), not an outage.
+      const state = r.status === 200 ? 'ok' : r.status === 403 ? 'denied' : 'fail';
+      return { ...base, state, code: r.status, ms: Math.round(performance.now() - t0) };
+    } catch (e) {
+      return { ...base, state: 'fail', code: 0, ms: Math.round(performance.now() - t0), err: e.name === 'AbortError' ? 'timeout' : 'sieć' };
+    } finally { clearTimeout(timer); }
+  }));
+}
+
 const RECENT_DAYS = 7;
 const MAX_ISSUES = 40;
 
@@ -97,9 +136,10 @@ async function loadIssues(token) {
 }
 
 async function readTenant(tenant, assertion) {
-  const out = { label: publicLabel(tenant), fetched: new Date().toISOString(), ok: false, error: '', services: [], issues: [], query: '' };
+  const out = { label: publicLabel(tenant), fetched: new Date().toISOString(), ok: false, error: '', services: [], issues: [], checks: [], query: '' };
   try {
     const token = await graphToken(tenant, assertion);
+    out.checks = await runChecks(tenant, token);
     const ho = await graphGet(`${GRAPH}/healthOverviews`, token);
     if (ho.status !== 200) throw new Error(`healthOverviews: HTTP ${ho.status} ${ho.body?.error?.code || ''}`.trim());
     out.services = (ho.body.value || []).map((s) => ({ id: s.id, name: s.service, status: s.status }));

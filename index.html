@@ -103,6 +103,17 @@ section>header p{margin:0;color:var(--muted);font-size:14px;max-width:70ch}
 .sr .vd{grid-area:vd;justify-self:end;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--sc)}
 .sr .wh{grid-area:wh;font-size:13.5px;color:#b6c4da;line-height:1.5}
 .sr .wh b{color:var(--ink);font-weight:600}
+div.sr{cursor:default}
+div.sr:hover{background:none}
+.sr .wh span{display:block}
+details.fold{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+details.fold summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--flow);list-style:none;display:flex;align-items:center;gap:8px}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::before{content:"+";font-family:var(--f-mono);width:14px;display:inline-block}
+details.fold[open] summary::before{content:"−"}
+.chk{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chk span{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:2px 9px;color:#b6c4da}
+.chk span b{font-weight:600;color:var(--sc)}
 .note{font-size:12px;color:var(--muted);margin:10px 2px 0}
 .chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;color:var(--sc);background:color-mix(in srgb,var(--sc) 14%,transparent);border:1px solid color-mix(in srgb,var(--sc) 45%,transparent);white-space:nowrap}
 #chart{display:block;width:100%;height:250px;cursor:crosshair;touch-action:pan-y;margin-top:10px}
@@ -233,7 +244,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
 @media (max-width:720px){
   .st-h{display:none}
   .sr{grid-template-columns:28px minmax(0,1fr) auto;grid-template-areas:"ic n vd" ". pr pr" ". ms ms" ". wh wh"}
-  .sr .pr::before{content:"Dostępność: ";font-family:var(--f-body);color:var(--muted)}
+  .sr .pr::before{content:"Sondy: ";font-family:var(--f-body);color:var(--muted)}
   .sr .ms::before{content:"Producent: ";color:var(--muted)}
   #traffic{height:250px}
   .lr.h{display:none}
@@ -296,14 +307,15 @@ footer{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padd
   </section>
 
   <section id="uslugi">
-    <header><span class="num sim">01 · SYMULACJA</span><h2>Dostępność usług</h2><p>Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
+    <header><span class="num sim" id="us-num">01 · SYMULACJA</span><h2>Dostępność usług</h2><p id="us-p">Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.</p></header>
     <div class="sum" id="sum"></div>
     <div class="card st">
-      <div class="st-h"><span></span><span>Usługa</span><span>Dostępność</span><span>Producent</span><span style="justify-self:end">Status</span></div>
+      <div class="st-h"><span></span><span>Usługa</span><span>Sondy</span><span>Producent</span><span style="justify-self:end">Status</span></div>
       <div id="rows"></div>
+      <div id="rows-real" hidden></div>
     </div>
-    <p class="note">Zakres wpływu według komunikatu MO1550821 w opracowaniu <a href="https://azureblog.co.uk/posts/microsoft-365-outage-12-november-2026/" rel="noopener">azureblog.co.uk</a>. Wartości dostępności są symulowane.</p>
-    <div class="card" style="margin-top:12px">
+    <p class="note" id="us-note">Zakres wpływu według komunikatu MO1550821 w opracowaniu <a href="https://azureblog.co.uk/posts/microsoft-365-outage-12-november-2026/" rel="noopener">azureblog.co.uk</a>. Wartości dostępności są symulowane.</p>
+    <div class="card" style="margin-top:12px" id="us-chart">
       <div class="chart-h"><h3 id="chart-t">…</h3><span>odsetek udanych testów, średnie 5-minutowe, czas UTC</span></div>
       <div class="h60"><span>ostatnie 60 dni</span><svg id="h60" viewBox="0 0 180 14" preserveAspectRatio="none" aria-hidden="true"></svg></div>
       <canvas id="chart" role="img" aria-label="Wykres dostępności wybranej usługi"></canvas>
@@ -707,6 +719,11 @@ function updateDom(){
     $("ev-prev").disabled=cur<=0;$("ev-next").disabled=cur>=EV.length-1;}
   $("when").textContent=live?"Na żywo":fmt(pos);$("when-s").textContent=live?fmt(pos)+" UTC":"czas UTC";
   $("track").setAttribute("aria-valuenow",Math.round(pos/TOTAL*100));$("track").setAttribute("aria-valuetext",fmt(pos)+" UTC");
+  var realMode=!!(live&&REAL&&REAL.table);
+  $("rows").hidden=realMode;$("rows-real").hidden=!realMode;$("us-chart").hidden=realMode;$("us-note").hidden=realMode;
+  $("us-num").textContent=realMode?"01 · DANE RZECZYWISTE":"01 · SYMULACJA";$("us-num").className=realMode?"real":"num sim";
+  $("us-p").textContent=realMode?"Stan usług według Microsoft Service Health z tenantów testowych, zestawiony z własnymi sondami. Status wyznacza gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Status każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Producent” pokazuje, czy Microsoft potwierdził incydent w Service Health.";
+  if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z degradacją</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
   if(live&&REAL)applyReal();
 }
 var REAL=null,INC=null;
@@ -777,13 +794,36 @@ function renderLive(d){
     [ic,nm,sp,ms,av,vd].forEach(function(e){row.appendChild(e);});box.appendChild(row);});
   var bad=[],okN=0,tot=0,exoTxt="brak";d.services.forEach(function(sv){var ser=d.samples.map(function(x){return x.r&&x.r[sv.id];}).filter(Boolean);if(!ser.length)return;tot++;if(ser[ser.length-1][0])okN++;else bad.push(sv.name);
     if(sv.id==="exo"){var o=0;ser.forEach(function(v){o+=v[0];});exoTxt=(o/ser.length*100).toFixed(1).replace(".",",")+"%";}});
-  var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t),health:d.health||[]};lastIdx=-1;
+  var gg=new Date(d.generated);REAL={ok:okN,total:tot,bad:bad,exo:exoTxt,gen:gg.getTime(),when:p2(gg.getUTCDate())+"."+p2(gg.getUTCMonth()+1)+" "+p2(gg.getUTCHours())+":"+p2(gg.getUTCMinutes()),win:dur(d.samples[d.samples.length-1].t-d.samples[0].t),health:d.health||[]};REAL.table=renderRealTable(d);lastIdx=-1;
   renderHealth(d.health||[]);
   var g=new Date(d.generated),age=Math.round((Date.now()-g.getTime())/60000),first=d.samples[0].t,lastT=d.samples[d.samples.length-1].t;
   $("live-note").textContent="Ostatni pomiar: "+p2(g.getUTCDate())+"."+p2(g.getUTCMonth()+1)+" "+p2(g.getUTCHours())+":"+p2(g.getUTCMinutes())+" UTC ("+age+" min temu). Liczba pomiarów: "+d.samples.length+", okno: "+dur(lastT-first)+"."+(age>20?" Uwaga: harmonogram pomiarów jest opóźniony.":"");
 }
 var HST={serviceOperational:["Dostępna","ok"],investigating:["Analiza zgłoszenia","warn"],restoringService:["Przywracanie usługi","warn"],verifyingService:["Weryfikacja naprawy","warn"],serviceRestored:["Usługa przywrócona","ok"],postIncidentReviewPublished:["Opublikowano raport","ok"],serviceDegradation:["Degradacja usługi","warn"],serviceInterruption:["Przerwa w działaniu","crit"],extendedRecovery:["Wydłużone przywracanie","warn"],falsePositive:["Fałszywy alarm","ok"],investigationSuspended:["Analiza wstrzymana","warn"],resolved:["Rozwiązane","ok"],mitigated:["Złagodzone","ok"],mitigatedExternal:["Złagodzone zewnętrznie","ok"],resolvedExternal:["Rozwiązane zewnętrznie","ok"],confirmed:["Potwierdzone","warn"],reported:["Zgłoszone","warn"]};
 function hst(x){return HST[x]||[String(x||"brak danych"),"warn"];}
+var HTTPMAP=[[/Exchange/i,"exo"],[/Teams/i,"teams"],[/Intune/i,"intune"],[/Defender XDR/i,"defender"],[/Entra/i,"entra"],[/Copilot/i,"copilot"]];
+var CST={ok:"działa",fail:"błąd",noperm:"brak uprawnienia",noconfig:"brak konfiguracji",denied:"odmowa usługi"};
+function renderRealTable(d){
+  var H=(d.health||[]).filter(function(h){return h.ok;});if(!H.length)return null;
+  var map={},order=[];
+  H.forEach(function(h){(h.services||[]).forEach(function(sv){if(!map[sv.name]){map[sv.name]={name:sv.name,st:[],issues:{},checks:[],http:null};order.push(sv.name);}map[sv.name].st.push(sv.status);});});
+  H.forEach(function(h){(h.issues||[]).forEach(function(i){if(!i.resolved&&map[i.service])map[i.service].issues[i.id]=i.title;});(h.checks||[]).forEach(function(c){if(map[c.service])map[c.service].checks.push(c);});});
+  var last=d.samples[d.samples.length-1].r||{};
+  order.forEach(function(n){HTTPMAP.forEach(function(m){if(m[0].test(n)&&last[m[1]]&&!map[n].http)map[n].http=last[m[1]];});});
+  var rank={crit:0,warn:1,ok:2},rows=order.map(function(n){var e=map[n],worst=["","ok"],bad=0;
+    e.st.forEach(function(x){var m=hst(x);if(m[1]!=="ok")bad++;if(rank[m[1]]<rank[worst[1]]||!worst[0])worst=m;});
+    var q=worst[1],run=e.checks.filter(function(c){return c.state==="ok"||c.state==="fail";}),failed=run.filter(function(c){return c.state==="fail";});
+    if(failed.length||(e.http&&!e.http[0]))q="crit";
+    var probe=run.length?(failed.length?"Graph: błąd "+(failed[0].code||"sieci"):"Graph "+Math.round(run.reduce(function(a,c){return a+c.ms;},0)/run.length)+" ms"):e.http?(e.http[0]?"HTTP "+e.http[1]+" ms":"HTTP: kod "+(e.http[2]||"brak")):"brak sondy";
+    return {e:e,q:q,probe:probe,msTxt:worst[0]+(bad?" ("+bad+" z "+e.st.length+" tenantów)":"")};});
+  rows.sort(function(a,b){return rank[a.q]-rank[b.q]||a.e.name.localeCompare(b.e.name);});
+  var box=$("rows-real"),counts={ok:0,warn:0,crit:0};box.textContent="";
+  rows.forEach(function(r){counts[r.q]++;var el=document.createElement("div");el.className="sr s-"+r.q;
+    var ids=Object.keys(r.e.issues),h='<span class="ic"><svg viewBox="0 0 14 14" aria-hidden="true">'+ICON[r.q]+'</svg></span><span class="n">'+esc(r.e.name)+'</span><span class="pr">'+esc(r.probe)+'</span><span class="ms">'+esc(r.msTxt)+'</span><span class="vd">'+esc(LAB[r.q])+'</span>';
+    if(ids.length)h+='<span class="wh">'+ids.slice(0,3).map(function(id){return '<span><b>'+esc(id)+':</b> '+esc(r.e.issues[id])+'</span>';}).join("")+(ids.length>3?'<span>oraz '+(ids.length-3)+' kolejne otwarte zgłoszenia</span>':"")+'</span>';
+    el.innerHTML=h;box.appendChild(el);});
+  return {counts:counts};
+}
 function renderHealth(list){
   var box=$("health-box");if(!list.length)return;box.textContent="";
   list.forEach(function(h){
@@ -793,9 +833,12 @@ function renderHealth(list){
     var html='<div class="hh"><h4>'+esc(h.label)+'</h4><span class="hm">'+esc(h.ok?"odczyt "+fdt(h.fetched):"błąd odczytu: "+(h.error||""))+'</span></div>';
     if(h.lastError)html+='<div class="own">Ostatnia próba nieudana ('+esc(fdt(h.lastErrorAt))+'): '+esc(h.lastError)+'. Pokazany jest poprzedni poprawny odczyt.</div>';
     html+='<div class="cnt">Usługi: '+((h.services||[]).length-bad.length)+' z '+(h.services||[]).length+' w stanie „Dostępna”. Zgłoszenia otwarte: '+open.length+', zmienione w ostatnich 7 dniach: '+(h.issues||[]).length+'.</div>';
-    if(bad.length)html+='<ul>'+bad.map(function(s){var m=hst(s.status);return '<li class="s-'+m[1]+'"><span class="i">usługa</span><span class="t">'+esc(s.name)+'</span><span class="chip">'+esc(m[0])+'</span></li>';}).join("")+'</ul>';
-    var iss=(h.issues||[]).slice(0,10);
-    if(iss.length)html+='<ul>'+iss.map(function(i){var m=hst(i.status);return '<li class="s-'+(i.resolved?"ok":m[1])+'"><span class="i">'+esc(i.id)+'</span><span class="t">'+esc(i.title)+'<small>'+esc(i.service||"")+(i.start?" · od "+esc(fdt(i.start)):"")+(i.end?" · do "+esc(fdt(i.end)):"")+'</small></span><span class="chip">'+esc(m[0])+'</span></li>';}).join("")+'</ul>';
+    var li=function(i){var m=hst(i.status);return '<li class="s-'+(i.resolved?"ok":m[1])+'"><span class="i">'+esc(i.id)+'</span><span class="t">'+esc(i.title)+'<small>'+esc(i.service||"")+(i.start?" · od "+esc(fdt(i.start)):"")+(i.end?" · do "+esc(fdt(i.end)):"")+'</small></span><span class="chip">'+esc(m[0])+'</span></li>';};
+    if((h.checks||[]).length)html+='<div class="chk">'+h.checks.map(function(c){var cq=c.state==="ok"?"ok":c.state==="fail"?"crit":"warn";return '<span class="s-'+cq+'" title="'+esc(c.name+" ("+c.role+")")+'">'+esc(c.service)+': <b>'+esc(CST[c.state]||c.state)+(c.state==="ok"?" "+c.ms+" ms":"")+'</b></span>';}).join("")+'</div>';
+    if(open.length)html+='<details class="fold"><summary>Otwarte zgłoszenia ('+open.length+')</summary><ul>'+open.map(li).join("")+'</ul></details>';
+    var closed=(h.issues||[]).filter(function(i){return i.resolved;});
+    if(closed.length)html+='<details class="fold"><summary>Zamknięte w ostatnich 7 dniach ('+closed.length+')</summary><ul>'+closed.map(li).join("")+'</ul></details>';
+    if(bad.length)html+='<details class="fold"><summary>Usługi w stanie innym niż dostępny ('+bad.length+')</summary><ul>'+bad.map(function(s){var m=hst(s.status);return '<li class="s-'+m[1]+'"><span class="i">usługa</span><span class="t">'+esc(s.name)+'</span><span class="chip">'+esc(m[0])+'</span></li>';}).join("")+'</ul></details>';
     c.innerHTML=html;box.appendChild(c);});
 }
 function loadLive(){fetch(DATA_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(renderLive).catch(function(){if(!$("live-rows").children.length){$("live-empty").hidden=false;$("live-empty").textContent="Dane z sond nie są dostępne w tym podglądzie. Pomiary są widoczne w wersji opublikowanej pod adresem pulse.azureme.pl.";}});}
