@@ -42,3 +42,9 @@ Najwyżej sześć linii: czy coś zmieniono, identyfikatory i tytuły dotknięty
 - Jeden incydent Microsoft to jeden wpis. Lista usług z sekcji „More info” opisuje zakres incydentu i nie tworzy osobnych wpisów.
 - Pole `ids`: identyfikatory tego samego zdarzenia (na przykład zgłoszenie usługi i zgłoszenie pakietu Microsoft 365).
 - Pole `related`: identyfikatory zgłoszeń, które według treści komunikatów Microsoft są skutkiem tego incydentu. Pole `related_note`: jedno zdanie z uzasadnieniem. Nie dopisywać powiązań bez podstawy w komunikacie Microsoft.
+
+## Wersja angielska wpisu (obowiązkowa)
+
+- Portal ma przełącznik języka. Każde pole tekstowe wpisu ma odpowiednik angielski w polu z przyrostkiem `_en`: `title_en`, `duration_en`, `summary_en`, `own_probes_en`, `related_note_en`.
+- Przy każdej zmianie pola polskiego zaktualizować w tym samym zapisie pole `_en`. Portal dopasowuje tłumaczenie do dokładnego brzmienia pola polskiego, dlatego nieaktualne pole `_en` pokazuje czytelnikowi nieaktualną treść.
+- Tekst angielski jest wiernym przekładem tekstu polskiego, bez dodatkowych informacji. Stany Microsoft w brzmieniu angielskim: „Service degradation”, „Service interruption”, „Restoring service”, „Extended recovery”, „Service restored”. Typy zgłoszeń: „incident”, „advisory”. Daty w tym samym formacie co w tekście polskim.
