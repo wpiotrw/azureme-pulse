@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { readServiceHealth } from './health.mjs';
 import { readAzureStatus } from './azure.mjs';
-import { notify } from './notify.mjs';
+import { notify, diffEvents } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
 import { readPublicStatus } from './mscloud.mjs';
 
@@ -12,6 +12,7 @@ const UA = 'azureme-pulse-probe/0.1 (+https://pulse.azureme.pl)';
 const TIMEOUT_MS = 10000;
 const MAX_SAMPLES = 576; // 48 h at 5-minute cadence
 const MAX_DAYS = 60;
+const MAX_EVENTS = 80;
 
 // expect: explicit list of acceptable HTTP codes. Without it any 2xx/3xx final response counts.
 // A 401 from an API without a token still proves that the API front end answers.
@@ -117,6 +118,10 @@ if (prevPath && outPath) {
   next.regions = await probeRegions(prev.regions);
   const down = next.regions.list.filter((r) => !r.ok);
   console.log(`${down.length ? 'FAIL' : 'OK  '} regions ${next.regions.list.length - down.length}/${next.regions.list.length} ${down.map((r) => r.id).join(',')}`);
+  // Change log shown on the page: state changes detected between this run and the previous one, newest first.
+  const hasPrev = Array.isArray(prev.samples) && prev.samples.length > 0;
+  const fresh = hasPrev ? diffEvents(prev, next).map((e) => ({ t: next.generated, sev: e.sev, kind: e.kind, title: String(e.title).slice(0, 200), text: String(e.text || '').slice(0, 300) })) : [];
+  next.events = [...fresh, ...(Array.isArray(prev.events) ? prev.events : [])].slice(0, MAX_EVENTS);
   next.notify = await notify(prev, next);
   writeFileSync(outPath, JSON.stringify(next));
 }
