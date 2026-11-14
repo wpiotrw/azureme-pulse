@@ -45,7 +45,7 @@ nav a:hover{color:var(--ink);background:var(--panel2)}
 @keyframes beacon{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--sc) 70%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
 .s-ok{--sc:var(--ok)} .s-warn{--sc:var(--warn)} .s-crit{--sc:var(--crit)}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,5.2vw,56px);line-height:1.04;letter-spacing:-.03em;margin:12px 0 10px;text-wrap:balance}
-h1 em{font-style:normal;color:inherit}
+h1 em{font-style:normal;color:var(--sc);text-shadow:0 0 34px color-mix(in srgb,var(--sc) 55%,transparent)}
 .lede{color:var(--muted);max-width:46ch;margin:0 0 16px}
 [hidden]{display:none!important}
 .board{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px}
@@ -977,6 +977,26 @@ table.dt{font-size:14.5px}
 html[data-theme="light"] .kp>div,html[data-theme="light"] .how>div,html[data-theme="light"] .rg-i{box-shadow:1px 0 0 var(--line),0 1px 0 var(--line)}
 html[data-theme="light"] .rg-i.home{box-shadow:inset 0 0 0 2px var(--flow)}
 @media (max-width:760px){.how{grid-template-columns:1fr}.sum{display:flex;flex-wrap:wrap}.sum div{flex:1 1 auto;box-shadow:1px 0 0 var(--line),0 1px 0 var(--line)}}
+
+/* ===== pass 4: headline colour back; lists under the headline follow the board pattern ===== */
+#headline{font-size:clamp(30px,3.2vw,44px);max-width:20ch}
+html[data-theme="light"] h1 em{text-shadow:none}
+.brief{margin-top:4px}
+.bp{position:relative}
+.bp::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc)}
+.bp.s-ok::before{background:transparent}
+.bp>summary{grid-template-columns:34px minmax(0,1fr) 22px;gap:2px 10px;padding:14px 14px 14px 16px;align-items:start}
+.bp>summary .n,html[data-theme="light"] .bp>summary .n{background:none;color:var(--sc);padding:0;min-width:0;border-radius:0;text-align:left;font:600 24px/1.1 var(--f-display)}
+.bp>summary h3{font:600 16.5px/1.3 var(--f-display);padding-top:2px}
+.bp>summary .ch{grid-row:1/3;grid-column:3;align-self:center}
+.bp>summary .pv{grid-column:2/3;font-size:13.5px;line-height:1.45;white-space:normal;overflow:visible;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bp>summary:hover{background:var(--panel2)}
+.bp[open]>summary .pv{display:none}
+#bd-bad,#bd-ok{display:block}
+#bd-bad .bchip{display:flex;justify-content:space-between;gap:12px;align-items:baseline;border:0;border-top:1px solid var(--line);border-radius:0;background:none;padding:10px 2px;font-size:14.5px;color:var(--ink);text-decoration:none}
+#bd-bad .bchip b{font-weight:600;font-size:13.5px;white-space:nowrap}
+#bd-bad .bchip:hover{background:var(--panel2)}
+#bd-bad-t{font:600 16px var(--f-display)}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -2111,7 +2131,7 @@ function probeDetail(id){
   var last=pts[pts.length-1],fails=pts.filter(function(p){return !p.ok;});
   openDlg(sv.name+": "+(sv.what||""),'<dl class="facts"><div><dt>Ostatni wynik</dt><dd>'+esc(last.ok?"poprawny, "+last.ms+" ms":"błąd")+'</dd></div><div><dt>Kod odpowiedzi</dt><dd>'+esc(last.code||"brak odpowiedzi")+(sv.expect?" (oczekiwany: "+esc(sv.expect)+")":"")+'</dd></div><div><dt>Dostępność</dt><dd>'+(pts.length?(okp.length/pts.length*100).toFixed(2).replace(".",",")+"%":"brak")+" ("+okp.length+" z "+pts.length+')</dd></div><div><dt>Okno pomiarów</dt><dd>'+esc(tm(t0)+" – "+tm(t1)+" UTC")+'</dd></div><div><dt>Najkrótszy czas</dt><dd>'+(ms.length?ms[0]+" ms":"brak")+'</dd></div><div><dt>Mediana</dt><dd>'+pct(.5)+'</dd></div><div><dt>95. percentyl</dt><dd>'+pct(.95)+'</dd></div><div><dt>Najdłuższy czas</dt><dd>'+(ms.length?ms[ms.length-1]+" ms":"brak")+'</dd></div></dl>'+(sv.url?'<p><b>Sprawdzany adres:</b> <code>'+esc(sv.url)+'</code></p>':"")+'<p><b>Czas odpowiedzi w milisekundach</b> (czas UTC; czerwona linia oznacza nieudany pomiar)</p><svg class="big" viewBox="0 0 '+W+" "+Hh+'" role="img" aria-label="Wykres czasu odpowiedzi">'+g+(area?'<path d="'+area+'" fill="rgba(86,204,255,.14)"/>':"")+'<path d="'+line+'" fill="none" stroke="#56ccff" stroke-width="1.8" stroke-linejoin="round"/>'+er+dots+'</svg><p><b>Nieudane pomiary w oknie:</b> '+(fails.length?fails.slice(-8).map(function(p){return esc(tm(p.t)+" UTC (kod "+(p.code||"brak odpowiedzi")+")");}).join(", "):"brak")+'</p><p class="note">Pomiar z jednej lokalizacji (GitHub Actions). Czas obejmuje zestawienie połączenia i pobranie odpowiedzi.</p>');
 }
-var LASTD=null,TABC={},BUILD={t:"2026-11-14T08:24:33Z",v:"t47b"},TF="24",FRREG=null;
+var LASTD=null,TABC={},BUILD={t:"2026-11-14T08:48:03Z",v:"7v01"},TF="24",FRREG=null;
 try{TF=localStorage.getItem("pulse-tf")==="12"?"12":"24";}catch(e){}
 function ftm(iso){var x=new Date(iso);if(isNaN(x))return "brak danych";try{var p={};new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(x).forEach(function(q){p[q.type]=q.value;});var h=+p.hour%24,sfx="";if(TF==="12"){sfx=h<12?" AM":" PM";h=h%12||12;}return p.day+"-"+p.month+"-"+p.year+" "+p2(h)+":"+p.minute+sfx;}catch(e){return fdt(iso);}}
 function ago(iso){var m=Math.max(0,Math.round((Date.now()-Date.parse(iso))/60000));return isNaN(m)?"":m<1?"przed chwilą":m<120?m+" min temu":m<2880?Math.round(m/60)+" godz. temu":Math.round(m/1440)+" dni temu";}
