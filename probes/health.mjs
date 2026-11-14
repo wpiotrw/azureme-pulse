@@ -38,10 +38,18 @@ export async function runChecks(tenant, token, fetchImpl = fetch) {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), CHECK_TIMEOUT_MS);
     try {
-      const r = await fetchImpl(GRAPH_ROOT + c.path(tenant), { signal: ac.signal, headers: { authorization: `Bearer ${token}`, accept: 'application/json' } });
+      const call = () => fetchImpl(GRAPH_ROOT + c.path(tenant), { signal: ac.signal, headers: { authorization: `Bearer ${token}`, accept: 'application/json' } });
+      let r = await call();
       await r.arrayBuffer().catch(() => {});
+      // 429 is Microsoft Graph throttling of the test application, not a service failure: wait as asked and try once more.
+      if (r.status === 429) {
+        const wait = Math.min(Math.max(Number(r.headers?.get?.('retry-after')) || 2, 1), 8);
+        await new Promise((res) => setTimeout(res, wait * 1000));
+        r = await call();
+        await r.arrayBuffer().catch(() => {});
+      }
       // 403 after the role check means the service itself refused (for example no licence), not an outage.
-      const state = r.status === 200 ? 'ok' : r.status === 403 ? 'denied' : 'fail';
+      const state = r.status === 200 ? 'ok' : r.status === 403 ? 'denied' : r.status === 429 ? 'throttled' : 'fail';
       return { ...base, state, code: r.status, ms: Math.round(performance.now() - t0) };
     } catch (e) {
       return { ...base, state: 'fail', code: 0, ms: Math.round(performance.now() - t0), err: e.name === 'AbortError' ? 'timeout' : 'sieć' };

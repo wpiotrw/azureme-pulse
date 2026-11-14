@@ -61,3 +61,10 @@ Oba skrypty obsługują `-WhatIf` i można je bezpiecznie uruchamiać wielokrotn
 - RIPE Atlas (bez klucza): publiczny pomiar ping nr 177421582 do `www.office.com`; portal odczytuje wyniki około 1000 sond-kotwic w ponad 100 krajach i liczy udział sond, które uzyskały odpowiedź, osobno także dla Polski.
 - Cloudflare Radar wymaga sekretu repozytorium `PULSE_CLOUDFLARE_TOKEN` z tokenem o uprawnieniu Account > Radar > Read. Bez sekretu to źródło jest pomijane.
 - Wskaźniki nie mierzą ruchu użytkowników do Microsoft 365. Zmiana oceny trafia do dziennika zmian i do karty analizy trwającego incydentu.
+
+## Wiadomości e-mail
+
+- Portal wysyła wiadomość tylko w tych przypadkach: nowy incydent Microsoft, aktualizacja Microsoft do otwartego incydentu, zamknięcie incydentu, brak odpowiedzi wykryty przez własną sondę HTTP (dwa kolejne nieudane pomiary) i jego ustąpienie, duże odchylenie sygnału zewnętrznego oraz raport dobowy po 06:00 UTC.
+- Porady (advisory), zmiany stanu pojedynczych usług, wyniki odczytów przez Microsoft Graph i stan regionów Azure nie powodują wysyłki; są w dzienniku zmian portalu i w raporcie dobowym. Wiadomości o nowych poradach włącza pole `"advisories": true` w sekrecie `PULSE_NOTIFY`.
+- Powtórny brak odpowiedzi tej samej sondy nie powoduje kolejnej wiadomości przez 3 godziny.
+- Odpowiedź 429 z Microsoft Graph oznacza ograniczenie liczby żądań aplikacji testowej, a nie awarię usługi: sprawdzenie jest ponawiane raz, a potem oznaczane jako ograniczone.
