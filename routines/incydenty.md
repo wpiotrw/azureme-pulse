@@ -52,7 +52,7 @@ Najwyżej sześć linii: czy coś zmieniono, identyfikatory i tytuły dotknięty
 ## Obserwacje zewnętrzne do karty analizy (pole `timeline`)
 
 - Portal sam prowadzi kartę analizy każdego incydentu (plik `cases.json` w gałęzi `data`): komunikaty Microsoft i własne pomiary. Zadanie nie zmienia tego pliku.
-- Rolą zadania jest uzupełnienie karty o to, czego portal sam nie zmierzy: obserwacje innych podmiotów, na przykład dane o wolumenie ruchu (Kentik, Cloudflare Radar), zasięgu (ThousandEyes, Downdetector) lub przyczynie (raport Microsoft po zdarzeniu).
+- Rolą zadania jest uzupełnienie karty o to, czego portal sam nie zmierzy: obserwacje innych podmiotów, na przykład dane o wolumenie ruchu (Cloudflare Radar), zasięgu (ThousandEyes, Downdetector) lub przyczynie (raport Microsoft po zdarzeniu).
 - Obserwacje zapisywać we wpisie rejestru w polu `timeline` jako listę obiektów: `t` (czas zdarzenia w formacie ISO 8601, UTC), `source` (nazwa źródła), `url` (adres https), `title` (jedno zdanie), `text` (jedno lub dwa zdania z liczbami podanymi przez źródło) oraz `title_en` i `text_en`.
 - Portal dopasowuje wpis rejestru do karty analizy po identyfikatorach z pól `ids` i `related`, dlatego identyfikator Microsoft musi być we wpisie.
 - Każda obserwacja musi mieć źródło, które da się otworzyć. Nie zapisywać liczb szacowanych samodzielnie ani obserwacji bez adresu źródła. Jeżeli źródła podają różne wartości, zapisać każdą osobno z nazwą źródła.
