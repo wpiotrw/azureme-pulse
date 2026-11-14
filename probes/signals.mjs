@@ -67,6 +67,28 @@ export function radarState(values) {
   return { state, dev };
 }
 
+// Weekly baseline: the last complete hour compared with the same hour one week earlier (traffic follows
+// a daily and weekly cycle). Falls back to the same hour on previous days when the series is shorter.
+export function radarWeekly(timestamps, values) {
+  const pts = timestamps.map((t, i) => [Date.parse(t), Number(values[i])]).filter((p) => Number.isFinite(p[0]) && Number.isFinite(p[1]));
+  if (pts.length < 26) return null;
+  const [ct, cur] = pts[pts.length - 2];
+  const H = 3600000;
+  const near = (t) => pts.filter((p) => Math.abs(p[0] - t) <= H).map((p) => p[1]);
+  let ref = near(ct - 168 * H);
+  let basis = 'week';
+  if (!ref.length) {
+    basis = 'days';
+    ref = [];
+    for (let d = 1; d <= 13; d += 1) { const v = pts.find((p) => p[0] === ct - d * 24 * H); if (v) ref.push(v[1]); }
+    if (ref.length < 2) return null;
+  }
+  const base = basis === 'week' ? ref.reduce((a, b) => a + b, 0) / ref.length : median(ref);
+  if (!(base > 0)) return null;
+  const ratio = Math.round((cur / base) * 100);
+  return { ratio, basis, at: new Date(ct).toISOString(), state: ratio < 40 ? 'crit' : ratio < 70 ? 'warn' : 'ok' };
+}
+
 export async function readRadar(prev, now = Date.now(), get = getJson, token = process.env.PULSE_CF_TOKEN) {
   if (!token) return { configured: false };
   if (fresh(prev, now) && prev.configured) return prev;
@@ -82,6 +104,19 @@ export async function readRadar(prev, now = Date.now(), get = getJson, token = p
     out.to = serie.timestamps[serie.timestamps.length - 1];
     Object.assign(out, radarState(values));
     out.ok = true;
+    try {
+      const w = await get(`https://api.cloudflare.com/client/v4/radar/netflows/timeseries?asn=${ASN}&dateRange=14d&aggInterval=1h&format=json`, { authorization: `Bearer ${token}` });
+      const ws = w.body?.result && Object.values(w.body.result).find((v) => v && Array.isArray(v.timestamps) && Array.isArray(v.values));
+      if (w.status !== 200 || !ws) throw new Error(`HTTP ${w.status}`);
+      const wk = radarWeekly(ws.timestamps, ws.values);
+      if (wk) {
+        out.week = wk;
+        const rank = { ok: 0, warn: 1, crit: 2 };
+        if (rank[wk.state] > rank[out.state]) out.state = wk.state;
+      }
+    } catch (e) {
+      out.weekError = String(e.message || e).slice(0, 80);
+    }
   } catch (e) {
     out.error = String(e.message || e).slice(0, 160);
     if (prev?.values) { out.values = prev.values; out.from = prev.from; out.to = prev.to; out.state = prev.state; out.dev = prev.dev; out.staleSince = prev.staleSince || prev.fetched; }
