@@ -91,7 +91,7 @@ export function radarWeekly(timestamps, values) {
 
 export async function readRadar(prev, now = Date.now(), get = getJson, token = process.env.PULSE_CF_TOKEN) {
   if (!token) return { configured: false };
-  if (fresh(prev, now) && prev.configured) return prev;
+  if (fresh(prev, now) && prev.configured && (prev.week || prev.weekError)) return prev;
   const out = { configured: true, ok: false, source: 'Cloudflare Radar', asn: ASN, fetched: new Date(now).toISOString() };
   try {
     const r = await get(`https://api.cloudflare.com/client/v4/radar/netflows/timeseries?asn=${ASN}&dateRange=1d&aggInterval=15m&format=json`, { authorization: `Bearer ${token}` });
