@@ -216,10 +216,9 @@ export function summary(st, now = Date.now()) {
   const probesAll = m.reduce((n, g) => n + g.probes, 0);
   const probesDown = m.reduce((n, g) => n + g.down, 0);
   const regions = st.regions?.list || [];
-  const dayAgo = new Date(now - 86400000).toISOString();
   return {
     open, incidents: open.filter(isIncident), advisories: open.filter((i) => !isIncident(i)),
-    closed24: all.filter((i) => i.resolved && isIncident(i) && String(i.end || i.modified || '') > dayAgo),
+    closed: all.filter((i) => i.resolved && isIncident(i)).sort((x, y) => String(y.updateAt || y.modified || '').localeCompare(String(x.updateAt || x.modified || ''))),
     m, probesAll, probesDown, regionsAll: regions.length, regionsDown: regions.filter((r) => !r.ok).length,
     healthRead: (st.health || []).some((h) => h.ok),
   };
@@ -300,9 +299,18 @@ export function buildMail(st, events, daily, now = Date.now()) {
     if (rest.length > 10) h += `<tr><td style="padding:6px 24px;font-size:13px;color:#475569">Pozostałe zgłoszenia: ${rest.length - 10}. ${a(LINK.issues, 'Pełna lista w portalu')}.</td></tr>`;
   } else if (!events.length && S.healthRead) h += `<tr><td style="padding:14px 24px 0;font-size:14px;color:#334155">${dot('ok')}Microsoft nie zgłasza otwartych incydentów ani porad w tenantach testowych.</td></tr>`;
 
-  if (daily && S.closed24.length) {
-    h += h2(`Incydenty zamknięte w ostatnich 24 godzinach (${S.closed24.length})`);
-    for (const i of S.closed24.slice(0, 5)) h += issueCard(i, '', 'ok', false);
+  const closedList = S.closed.filter((i) => !shown.has(i.id)).slice(0, 3);
+  if (closedList.length) {
+    h += `<tr><td style="padding:18px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG.ok};border:1px solid #bfe5cd;border-left:4px solid ${COL.ok};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:15px;font-weight:700;color:${COL.ok}">${esc(closedList.length === 1 ? 'Ostatnio zamknięty incydent Microsoft' : `Ostatnio zamknięte incydenty Microsoft (${S.closed.filter((i) => !shown.has(i.id)).length} z ostatnich 7 dni)`)}</div>`;
+    for (const i of closedList) {
+      const cl = i.updateAt || i.modified;
+      const st = Date.parse(i.start);
+      const en = Date.parse(i.end || cl);
+      const mins = !Number.isNaN(st) && !Number.isNaN(en) && en > st ? Math.round((en - st) / 60000) : null;
+      const dur = mins === null ? '' : mins >= 1440 ? `${Math.floor(mins / 1440)} d ${Math.floor((mins % 1440) / 60)} h` : `${Math.floor(mins / 60)} h ${String(mins % 60).padStart(2, '0')} min`;
+      h += `<div style="margin-top:9px;font-size:13px;line-height:1.5;color:#1f2937;overflow-wrap:anywhere"><a href="${esc(LINK.admin(i.id))}" style="font-family:Consolas,Menlo,monospace;font-weight:700;color:#0b63ce">${esc(i.id)}</a> ${esc(cut(i.title, 130))}<br><span style="color:#475569">Zamknięty przez Microsoft: ${esc(both(cl))}.${i.end ? ` Koniec wpływu na użytkowników według Microsoft: ${esc(fdt(i.end))}.` : ''}${dur ? ` Czas trwania: ${dur}.` : ''} Stan: ${esc(hstWord(i.status))}.</span></div>`;
+    }
+    h += links([[LINK.analysis, 'Karty analizy zamkniętych incydentów'], [LINK.issues, 'Rejestr incydentów']]) + `</td></tr></table></td></tr>`;
   }
 
   h += h2('Pomiary własne portalu');
