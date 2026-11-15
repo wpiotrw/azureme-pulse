@@ -396,3 +396,41 @@ Widoczność w kolektorach|Visibility in collectors
 początek|start
 wpis Microsoft|Microsoft post
 zakończenie|end
+Niebieska linia to mediana czasu odpowiedzi wszystkich sond: im niżej, tym szybciej odpowiadają usługi.|The blue line is the median response time of all probes: the lower it is, the faster the services respond.
+Jaśniejszy pas pokazuje rozrzut między sondami (od 10. do 90. percentyla). Szeroki pas oznacza, że część usług odpowiada dużo wolniej niż pozostałe.|The lighter band shows the spread between probes (10th to 90th percentile). A wide band means some services respond much more slowly than the others.
+Przerywana linia to mediana całego okna, czyli poziom zwykły. Pojedyncze szczyty są normalne; niepokojący jest dłuższy odcinek wyraźnie powyżej tej linii.|The dashed line is the median of the whole window, that is the usual level. Single peaks are normal; a longer stretch clearly above this line is a concern.
+Zakreskowane pole oznacza pomiar, w którym sonda nie odpowiedziała: pomarańczowe jedną, czerwone co najmniej dwie.|A hatched area marks a measurement in which a probe did not respond: orange for one, red for at least two.
+Pasek pod osią czasu powtarza stan każdego pomiaru: zielony poprawny, pomarańczowy lub czerwony z błędem. Przerwa w pasku to brak pomiaru.|The strip under the time axis repeats the state of every measurement: green is successful, orange or red has an error. A gap in the strip means no measurement.
+Trójkąt z pionową linią oznacza chwilę, w której Microsoft otworzył, zaktualizował lub zamknął zgłoszenie.|A triangle with a vertical line marks the moment Microsoft opened, updated or closed an issue.
+Niebieska linia to czas odpowiedzi tej jednej sondy; przerywana linia to jej mediana.|The blue line is the response time of this single probe; the dashed line is its median.
+Czerwone zakreskowane pole oznacza nieudany pomiar. Pojedyncze wąskie pole to zakłócenie chwilowe, szerokie to trwałe.|A red hatched area marks a failed measurement. A single narrow area is a transient disruption, a wide one is sustained.
+Pasek pod osią czasu pokazuje stan każdego pomiaru, a trójkąty chwile wpisów Microsoft.|The strip under the time axis shows the state of every measurement, and the triangles the moments of Microsoft posts.
+Linia pokazuje wartość sygnału w czasie; przerywana linia, jeśli jest, to poziom zwykły.|The line shows the signal value over time; the dashed line, if present, is the usual level.
+Nagły, utrzymujący się spadek jednocześnie z błędami sond wskazuje na problem po stronie sieci, a nie pojedynczej usługi.|A sudden, lasting drop together with probe errors points to a network-side problem rather than a single service.
+Trójkąty oznaczają chwile wpisów Microsoft.|Triangles mark the moments of Microsoft posts.
+Jak czytać ten wykres|How to read this chart
+Przy dłuższym zakresie jeden punkt łączy kilka kolejnych pomiarów: linia pokazuje ich medianę, a pas wartość najmniejszą i największą. Krótszy zakres pokazuje każdy pomiar osobno.|Over a longer range one point combines several consecutive measurements: the line shows their median and the band the lowest and highest value. A shorter range shows every measurement separately.
+6 godz.|6 h
+24 godz.|24 h
+Całość|All
+Zakres czasu|Time range
+Przykład: jak wygląda awaria na wykresie|Example: what an outage looks like on the chart
+dane przykładowe, nie pomiar|sample data, not a measurement
+Spowolnienie.|Slowdown.
+Linia i pas rozrzutu rosną wyraźnie ponad przerywaną linię zwykłego poziomu i utrzymują się tam przez kilka pomiarów.|The line and the spread band rise clearly above the dashed line of the usual level and stay there for several measurements.
+Pierwsze błędy.|First errors.
+Pomarańczowe zakreskowane pole: jedna sonda przestała odpowiadać.|Orange hatched area: one probe stopped responding.
+Awaria.|Outage.
+Czerwone zakreskowane pole i przerwa w linii: co najmniej dwie sondy nie odpowiadają, więc nie ma czasu odpowiedzi do narysowania. Pasek pod osią czasu jest w tym miejscu czerwony.|Red hatched area and a break in the line: at least two probes do not respond, so there is no response time to draw. The strip under the time axis is red at this point.
+Wpis Microsoft.|Microsoft post.
+Trójkąt z pionową linią pokazuje, kiedy Microsoft opublikował zgłoszenie. Tutaj pojawia się kilkanaście minut po pierwszych błędach sond.|A triangle with a vertical line shows when Microsoft published the issue. Here it appears a dozen or so minutes after the first probe errors.
+Powrót.|Recovery.
+Linia wraca do zwykłego poziomu, pasek stanu znów jest zielony, a zielony trójkąt oznacza zamknięcie zgłoszenia.|The line returns to the usual level, the state strip is green again, and the green triangle marks the closing of the issue.
+Gdy wykres wygląda tak jak teraz na co dzień, czyli linia blisko przerywanej linii, pojedyncze krótkie szczyty, brak zakreskowanych pól i zielony pasek, usługi odpowiadają poprawnie.|When the chart looks the way it does day to day, that is the line close to the dashed line, single short peaks, no hatched areas and a green strip, the services respond correctly.
+Przykładowy przebieg awarii|Sample outage run
+Przykładowy wykres awarii|Sample outage chart
+zwykły poziom|usual level
+(przykład)|(example)
+sondy nie odpowiadają|probes not responding
+Przykładowe zgłoszenie Microsoft: początek|Sample Microsoft issue: start
+Przykładowe zgłoszenie Microsoft: zakończenie|Sample Microsoft issue: end
