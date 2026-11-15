@@ -1,0 +1,504 @@
+0|(UTC time; a red line marks a failed measurement)
+1|(deadline passed)
+3|01 · REAL DATA
+4|04 · SIMULATION
+5|05 · SIMULATION ON A TIMELINE OF EVENTS FROM PUBLIC SOURCES
+9|30 days
+12|95th percentile
+24|Azure Status: no active events
+25|Time of the last Microsoft Service health read through Microsoft Graph
+26|Time of the last completed measurement of HTTP probes and Azure regions
+27|Time of the last change to the incident register file
+28|Build time of this version of the page and its identifier
+29|Daily availability
+31|Probe state filter
+32|Service state filter
+33|Issue type filter
+34|Issue filter
+35|Time format
+36|Globe with traffic arcs between user regions and Microsoft data centers
+37|Incidents
+38|Language
+39|Microsoft messages
+41|World map with traffic flow and Azure region state
+42|Menu
+43|Main menu
+44|Incident model
+45|Next
+46|Graph read
+47|Play
+49|Timeline of traffic handling state for each data center
+50|Signal panel
+51|Start
+52|Show active incidents
+53|Show active advisories
+54|Zoom in
+55|Zoom
+56|Overview
+57|Switch between light and dark theme
+58|Endpoints
+59|Azure regions
+61|Type
+62|View type
+63|Abbreviation
+64|HTTP probes
+65|State
+66|Service state
+67|Microsoft state
+68|Glossary
+69|Tenants
+70|Act by
+71|Initial view
+72|Explanation
+73|Availability chart of the selected service
+74|Chart of Exchange Online traffic volume against the expected value
+75|The announced time has already passed
+76|Issues
+77|Collapse or expand the menu
+86|Incidents API, response without a token
+87|Network address of the service to which the probe sends its request.
+88|Data freshness
+89|Data freshness: explanation
+90|Active Microsoft incidents
+93|Data center activity
+95|Analysis
+96|Traffic volume analysis
+97|Autodiscover v2, JSON response
+98|Automated check run about every 5 minutes: an HTTP request or a read through Microsoft Graph.
+99|Author:
+100|Author: Piotr Wiśniewski
+101|Author: Piotr Wiśniewski. Independent project. Not affiliated with Microsoft. Service names belong to their respective owners.
+103|Azure Status: no events
+104|No issues
+105|Current incidents
+106|Current incidents according to Microsoft
+107|Current status:
+109|No active events with broad impact
+110|No correlation with a change
+111|Chronology of vendor communications and external observations. Selecting a point sets the whole portal to that moment.
+112|What is real.
+113|What changed
+114|Time since the last incident
+115|Response time in milliseconds
+116|Response time, trend
+117|Time of the last successful read of service state and issues through Microsoft Graph in the test tenants.
+118|Time of the last change to the register file. Entries are prepared by a scheduled task based on measurements and public sources.
+119|Duration
+120|End time of the last run of the HTTP probes and Azure region probes in GitHub Actions.
+121|Build time of the displayed portal version and its identifier.
+122|How an incident differs from an advisory
+123|REAL DATA
+124|Days with measurements
+125|Available
+126|Availability
+127|Exchange Online availability
+128|Availability by service
+129|The log covers: two consecutive failed probe measurements, a service state change in Service health, new and closed issues, a failed read through Microsoft Graph, no response from an Azure region and new events in the Azure Status feed.
+130|Jakarta
+131|EX1550543 · Exchange Online and dependent services
+133|Exchange Online: traffic against the expected value
+134|News feed format; Azure publishes current events in this format.
+135|GitHub Actions runs a measurement about every 5 minutes from a single location.
+136|3D globe
+137|Identifier of a message in the Microsoft 365 Message Center.
+138|Incident identifiers
+139|Incident
+140|Incident
+141|An incident is a critical problem: a service or one of its main functions is unavailable. An advisory is a problem with limited impact, during which the service remains available. Microsoft shows each tenant only the issues that affect it, so the same issue may be visible in one tenant and not in another. For every issue the portal states in how many tenants it is visible.
+143|The incident has not started yet
+144|The incident covers services that depend on Exchange Online.
+145|Programming interface of a service, to which the probes send requests.
+146|Exchange Online web services interface checked by a probe.
+147|One bar is one day (UTC) in which the probes took measurements. Colour: green from 99.9% successful measurements, orange from 99%, red below 99%.
+148|One indicator light corresponds to one check. Each service is assessed with three independent methods. The first is the response of a public endpoint to an HTTP (Hypertext Transfer Protocol) request. The second is a data read through Microsoft Graph in a test tenant. The third is the state declared by Microsoft in Service health. A row can be expanded to see the individual checks.
+149|Every public Azure region has its own regional Azure Resource Manager endpoint. A probe sends a request to it about every 5 minutes from a single location (GitHub Actions). It records the result and the response time. Response time depends on the distance between the region and the measurement location, so it is meant for comparisons over time, not between regions.
+150|Click a row to open the probe details: address, expected code, statistics and the full response time chart.
+151|Response code
+152|Page source code
+153|Page source code.
+154|Vendor communication
+155|Number of updates
+156|The list describes the scope of a single issue. The items are not separate issues.
+157|MAPI over HTTP (Outlook), response without a token
+158|DEMONSTRATION MODEL
+159|2D map
+160|Median
+161|Message Center
+163|Microsoft confirms mailbox access problems in the Americas.
+164|Microsoft pauses deployments, reroutes traffic and restarts servers.
+165|Microsoft reports
+166|Live
+167|Live: real data
+168|The header in the live view, “Real measurements” and “Incident register”. Sections marked SIMULATION replay the incident of 12–13 November 2026 on a model: times and communications come from public sources, the numbers are not measurements.
+169|Longest time
+170|Shortest time
+171|Next update
+173|Next ›
+174|Failed measurements in the window:
+175|Explanation
+176|Service degradation
+178|Degraded
+179|Assessment
+180|Portal assessment: a single failed measurement or a state other than “Healthy” in Service health.
+181|Data loss prevention in Microsoft Purview.
+182|Since the change log was started the portal has not recorded any state change.
+185|The link requires signing in with an administrator account of a tenant in which the issue is visible. Message text in Microsoft's wording, abridged.
+186|Replay of the incident of 12–13 November 2026
+187|Replay the course of the incident
+188|Page refresh
+189|Official status pages
+190|Official status pages:
+191|Measurement window
+192|OpenID Connect UserInfo, response without a token
+194|Reachability of public Microsoft endpoints, measured about every 5 minutes from a single location (GitHub Actions). An unauthenticated probe confirms that the service entry point responds. It does not check operations performed after sign-in.
+195|Last
+198|Last result
+199|Last update
+201|Incident MO1550821 opened
+202|Open
+203|Open issues
+204|Open issues from Microsoft Service health, read through Microsoft Graph in the test tenants about every 5 minutes. Each issue is counted once. Message text is given in Microsoft's wording, abridged.
+205|Open the issue in the Microsoft 365 admin center ↗
+206|They denote the service: Exchange Online, Intune, Microsoft 365 (suite), Microsoft Purview, Microsoft Teams.
+207|Incident timeline
+208|Probe signal panel
+209|Paris
+210|First public communication
+212|The data file is cached by GitHub for up to 5 minutes, so the portal shows the state from a few minutes ago. The indicator next to the title is green when the last measurement is at most 15 minutes old, orange up to 60 minutes and red after that. All times in this box are given in Polish time.
+213|Start (Microsoft)
+214|Start (UTC)
+215|Start according to sources
+216|Terms
+217|Term
+218|Show only services with issues
+220|Probe measurement
+221|Probe measurement.
+222|Measurement from a single location (GitHub Actions). The time covers connection setup and downloading the response.
+224|The sections below do not show measurements. This is a model that replays the course of the incident: times and communications come from public sources, numeric values are simulated. Start it with the play button on the bottom bar.
+226|Advisory
+227|Advisory
+229|Advisories
+231|The relation follows from the text of Microsoft communications or from the portal register.
+232|Connections are distributed to systems in the remaining regions.
+233|Outlook protocol for communication with Exchange Online.
+234|Authentication protocol; the probes check its metadata document and the UserInfo endpoint.
+235|Protocol the probes use to send requests to endpoints.
+236|Root cause
+237|Traffic restored (external analysis)
+238|Public Azure status feed (azure.status.microsoft), read about every 5 minutes. The feed covers only events with broad impact; events affecting a single subscription are visible only in Azure Service Health in the portal.
+239|Endpoint
+240|Endpoint
+241|Endpoints (HTTP)
+242|Endpoints available
+243|Azure region
+244|Azure regions: reachability
+245|Incident register
+246|Register of incidents confirmed in public sources. An ongoing incident is shown at the top of this view. Each entry lists its sources and states whether the portal had its own measurements at the time.
+247|Incident register.
+248|The register does not contain any closed incidents yet.
+249|Incident EX1550543 begins
+250|Impact extended to all regions
+251|Expansion
+252|Traffic to Exchange Online drops against the expected value.
+253|Traffic above the expected value
+254|Actual traffic compared with the expected value (baseline), that is the profile from the previous day. The curve is simulated from values from an external network traffic analysis.
+255|Service health
+256|Abbreviations and terms used in the portal.
+257|Probe
+259|Traffic volume drops by about 85%
+260|Checked address:
+261|Exchange Online traffic handling state at each location. The list of locations and their grouping come from an external network traffic analysis of the incident of 12 November 2026. It is not a complete list of Microsoft data centers, and the course shown in the rows is simulated. The actual state of all Azure regions, including Poland Central, is shown in the section
+262|Probe state
+263|Service state in tenants
+264|Service state according to Microsoft
+265|Service state according to Microsoft Service health in the test tenants, the public Azure status feed and the Microsoft 365 Message Center.
+266|Service state according to Microsoft Service health from the test tenants, compared with the portal's own probes. The worse of the two signals determines the service state. Issue titles are quoted in Microsoft's wording.
+267|State according to Microsoft
+268|Microsoft 365 admin center page with service state and issues. The portal reads this data through Microsoft Graph.
+269|Style of web interfaces used by Microsoft Graph, among others.
+270|Message details →
+271|Region details →
+272|Probe details →
+273|Check details →
+274|Service state details →
+275|Issue details →
+276|Glossary of abbreviations and terms
+277|Tenant
+279|Service dependency topology
+280|Microsoft issue type denoting a critical problem: a service or one of its main functions is unavailable.
+281|Microsoft issue type denoting a problem with limited impact; the service remains available.
+282|Title
+283|Coordinated Universal Time. In winter Polish time is UTC plus 1 hour, in summer plus 2.
+284|Simplified dependency graph. Band width corresponds to the share of traffic. The fibres depict the stream of requests: blue for successful, red for failed.
+285|Service
+286|Azure resource management service; every region has its own endpoint.
+290|Users lose access to Exchange Online mailboxes.
+292|At this point of the timeline all services are available.
+293|According to Microsoft the incident may affect users in any region.
+294|Visible in tenants
+295|Vienna
+296|Volume about 19% above the expected value.
+297|Traffic volume to Exchange Online starts to rise.
+298|User impact:
+299|Deployments paused and servers restarted
+300|All
+301|A dedicated instance of Microsoft 365 services for one organization. The portal uses two test tenants.
+302|List of abbreviations
+303|A result is successful when the response code matches the expected one: 200 for public documents, 401 for interfaces that require a token. After an error one retry follows.
+305|Closed incidents
+306|Scope:
+307|Closed
+308|Closed (7 days)
+309|Announcements of changes and planned work in Microsoft 365 services.
+310|Change announcements modified in the last 14 days, read through Microsoft Graph in the test tenants. Titles in Microsoft's wording. The link in the “ID” column opens the message in the Microsoft 365 admin center and requires an administrator sign-in.
+311|Unauthenticated HTTP GET request to a public endpoint, 10 s timeout.
+312|A set of Azure data centers in one geographic location, for example Poland Central in Warsaw.
+313|Set of public keys with which Microsoft Entra ID signs tokens.
+314|Related issues:
+315|Issue
+316|The issue is published on
+317|State changes recorded by the portal
+318|Meaning in the portal
+319|updated hourly
+320|active incidents
+321|none
+322|no active events
+323|no response
+324|no response:
+325|no traffic
+326|no probe
+327|no check
+328|no service
+329|error in two consecutive measurements or an outage
+330|errors:
+331|every 5 minutes, without reloading
+332|hourly
+333|about every 5 minutes
+334|UTC time
+335|available
+336|token signing keys (JWKS)
+337|vendor communication
+338|cloud endpoint metadata
+339|not applicable
+340|not published
+341|unavailable
+344|degraded
+345|degraded, access denied or a single error
+346|partial handling
+347|read of device enrollment configuration
+348|read of the team list
+349|read of the organization from the directory
+350|read of tenant SharePoint settings
+351|read of test mailbox settings
+352|read:
+353|API response without a token
+355|last measurement
+356|last measurement:
+357|warnings:
+358|open incident in the register
+359|open issues
+360|single error:
+361|advisories
+363|security portal
+364|Message Center message prefix
+365|issue identifier prefixes
+366|before the incident
+367|traffic takeover
+368|public Azure status feed
+369|EWS endpoint, response without a token
+370|Azure region (real measurement)
+371|regional Azure Resource Manager endpoints
+372|regions:
+373|partial traffic
+374|nominal traffic
+375|traffic handled
+376|actual traffic
+378|check inactive
+379|check successful
+380|web client page
+381|portal page
+382|tenants read
+383|ongoing
+384|services available
+385|services read
+386|services with issues
+387|device enrollment discovery service
+389|expected value
+392|closed in 7 days
+393|Chennai
+394|Microsoft sources
+402|request source
+403|No recent change coincides with the start of the incident. The component that assesses server health is being analysed.
+404|Request
+405|requests to Microsoft Graph with an application token
+406|“Available” after a successful measurement, “Degraded” after a single error, “Unavailable” after two consecutive errors.
+407|+19% above expected
+408|, which indicates broad impact. Entry last updated:
+409|. Each following day adds another one, up to 30.
+410|. Flow and glow shown in
+411|North and South America
+412|Current status
+413|Middle East and Africa
+414|No active incidents.
+415|No active incidents. Flow shown in blue.
+416|No mailbox access through Outlook on the web, on desktop, on mobile and through REST. Messages may be delivered with a delay.
+417|No open issues
+418|No traffic throughout the incident
+419|No services with issues
+420|No messages changed in the last 14 days.
+421|No issues in this view.
+422|Read error:
+423|Copilot Chat may fail to load or respond. It may also have no access to mail, calendar and files.
+424|Partial restoration overnight
+425|Some data centers remain inactive.
+426|Probe data is not available in this preview. Measurements are visible in the version published at pulse.azureme.pl.
+427|Service availability:
+428|Features that depend on Exchange Online. Files can still be opened.
+429|Graph: error
+430|Calendar, meeting scheduling and chat creation may not work in organizations with information barriers. Chat and meetings mostly work.
+431|The Azure status feed is unavailable:
+432|Next update:
+433|Unavailable
+434|Unsuccessful restoration attempts
+435|Time since the end of the last incident:
+436|Warnings:
+437|The panel could not be built from the current data.
+438|Start 17:35
+439|Incident start 17:35
+440|Incident start, about 17:35 UTC
+441|Restoration begins, 11:20 UTC
+442|Start:
+443|Show all services (
+444|Measurements have been running since
+445|Resolved
+446|Resolved by an external provider
+447|Reported
+448|Extended recovery
+449|Traffic takeover after the incident started
+450|Service interruption
+451|Restoring service
+452|Restored 11:20
+453|Restoration after 11:20 UTC
+454|The incident register is available in the version published at pulse.azureme.pl.
+455|The number of failed mailbox access attempts is rising. The vendor has not published a communication yet.
+456|Traffic is handled by all monitored data centers.
+457|Traffic returns to the main data centers. Some locations remain inactive.
+458|Safe Links may fail to verify URLs, which affects links in Outlook and Teams.
+459|Mitigated by an external provider
+460|Probes record errors.
+461|Synthetic probes record no errors. Traffic is handled by all monitored data centers.
+462|The state of each service is determined by synthetic probes. The “State according to Microsoft” column shows whether Microsoft has confirmed the incident in Service health.
+463|Portal pages may fail to load. In Microsoft Purview the problem covers, among others, Data Loss Prevention (DLP) and auto-labeling.
+464|Message details
+465|Region details
+466|Probe details
+467|Probe details:
+468|Check details
+469|Service state details
+470|Issue details
+471|UTC: error, code
+472|Service listed in the vendor communication without a description of the scope.
+473|Service restored
+474|Services
+475|Services without issues:
+476|Services covered by the incident
+477|Services covered by the issue
+478|Services with issues:
+479|Note: the measurement schedule is delayed.
+480|Verifying service
+481|Message
+482|Current view: simulation
+483|Most data centers are not handling traffic. Dependent services operate in limited mode.
+484|All services
+485|All services available
+486|All services are in the “Available” state.
+487|False positive
+488|Lead over the vendor
+489|End
+490|Ended
+491|Impact scope:
+492|Events detected by comparing consecutive measurements, newest first. Times in Polish time.
+493|active incidents
+494|no incidents
+495|no entries
+496|error
+497|available
+498|available
+499|more open issues
+501|global unavailability
+502|unavailable
+503|degradation
+504|access denied
+505|orange
+507|return 11:20
+508|bar
+509|bars
+510|bars
+511|just now
+512|service interruption
+513|restoring service
+514|restoration attempts
+516|regions responding
+517|incident register
+518|rising error rate
+519|tenants
+522|services
+523|service
+524|services
+525|according to the incident register
+526|messages from the last 14 days
+527|degraded
+528|· errors:
+529|· feed last updated:
+530|Arcs: flow model, colour by active Microsoft incidents. Diamonds: Azure regions, real measurement.
+531|Source:
+532|Requests for mail, calendar and contacts may time out.
+533|−85% against the expected value
+534|+traffic
+535|01 · SIMULATION
+536|Active data centers
+537|Active incidents:
+538|Active events:
+539|Azure Status: no read
+540|NO TRAFFIC
+541|No active advisories.
+542|No data
+543|No read
+544|No Service health read.
+545|No response:
+546|TIME WITHOUT TRAFFIC
+547|Incident duration
+548|Global traffic redistribution
+549|HTTP: code
+550|End
+551|Read:
+552|Last measurement:
+553|First signs of traffic restoration
+554|Successful checks:
+555|Advisories:
+556|Azure regions:
+557|HTTP probes (
+558|Simulation: state of locations at the selected moment of the replayed incident.
+559|Ongoing
+560|UTC (code
+561|Post on the public Microsoft 365 status page
+562|active events:
+563|active incident
+564|active since
+565|no active incident
+566|no data
+567|no vendor communication
+568|not configured
+569|no read
+570|missing permission
+572|incident active
+574|ms, code
+575|not provided
+576|overdue
+577|successful:
+578|successful,
+579|advisories:
+580|HTTP probes, window
+581|probe simulation, 5 min
+582|in the message
+583|· code

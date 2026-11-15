@@ -1,0 +1,297 @@
+Dostępność dzienna:|Daily availability:
+oczekiwany:|expected:
+Opracowanie portalu:|Portal write-up:
+Liczba pomiarów:|Measurements:
+okno:|window:
+nieaktywne:|inactive:
+, dlatego wykres ma teraz|, so the chart currently has
+obniżenie wydajności:|degradation:
+porady:|advisories:
+wersja|version
+(odczyt portalu, sekcja Pomiary rzeczywiste)|(portal read, Real measurements section)
+czerwonym|red
+niebieskim|blue
+W dobrej kondycji|Healthy
+w dobrej kondycji|healthy
+Badanie|Investigating
+Wstrzymano badanie problemu|Investigation suspended
+Opublikowany raport po zdarzeniu|Post-incident report published
+przerwa w świadczeniu usługi|service interruption
+Europa|Europe
+Azja i Pacyfik|Asia Pacific
+brak poprawnej odpowiedzi|no valid response
+odpowiedź przywrócona|response restored
+Dwa kolejne pomiary nieudane, ostatni kod:|Two consecutive measurements failed, last code:
+Ostatni pomiar poprawny,|Last measurement successful,
+Zmiana stanu deklarowanego przez Microsoft:|Change of the state declared by Microsoft:
+Nowe zgłoszenie|New issue
+Zgłoszenie zamknięte|Issue closed
+sprawdzenie nieudane|check failed
+sprawdzenie ponownie poprawne|check successful again
+Regionalny punkt końcowy Azure Resource Manager nie odpowiedział poprawnie w dwóch kolejnych pomiarach, ostatni kod:|The regional Azure Resource Manager endpoint did not respond correctly in two consecutive measurements, last code:
+Sonda HTTP|HTTP probe
+Bruksela|Brussels
+Dubaj|Dubai
+Hongkong|Hong Kong
+Kalifornia|California
+Kopenhaga|Copenhagen
+Londyn|London
+Madryt|Madrid
+Mediolan|Milan
+Mumbaj|Mumbai
+Pusan|Busan
+Seul|Seoul
+Singapur|Singapore
+Tajpej|Taipei
+Teksas|Texas
+Tel Awiw|Tel Aviv
+Tokio|Tokyo
+Warszawa|Warsaw
+Waszyngton|Washington
+Wirginia|Virginia
+Zurych|Zurich
+Marsylia|Marseille
+Defender XDR i Purview|Defender XDR and Purview
+Widoczne w:|Visible in:
+pokaż|show
+ukryj|hide
+Aktualizacja|Update
+Podsumowanie|Summary
+Pomniejsz|Zoom out
+Pozycja na osi czasu|Timeline position
+Widoki|Views
+Wykres czasu odpowiedzi|Response time chart
+Wymaga logowania administratora|Requires administrator sign-in
+Zamknij|Close
+Zmieniono|Modified
+Zmieniono (UTC)|Modified (UTC)
+Znaczenie|Meaning
+centrum administracyjne|admin center
+Centrum administracyjne ↗|Admin center ↗
+dokument metadanych API v1.0|API v1.0 metadata document
+metadane OpenID Connect|OpenID Connect metadata
+Harmonogram|Schedule
+INFORMACJE|INFORMATION
+Informacja|Information
+Istotna zmiana|Major change
+Klienci|Clients
+Obserwacja zewnętrzna|External observation
+obserwacja zewnętrzna|External observation
+Planowana zmiana|Planned change
+Identyfikator|ID
+Identyfikatory|IDs
+Pauza|Pause
+Z problemami|With issues
+odchylenie:|deviation:
+odpowiada:|responding:
+pierwsze zdarzenie|first event
+publicznej stronie stanu Microsoft 365|public Microsoft 365 status page
+‹ Poprzednie|‹ Previous
+poprawny|successful
+poprawnych|successful
+SYMULACJA|SIMULATION
+. Wartości dostępności są symulowane.|. Availability values are simulated.
+BRAK RUCHU PRZEZ CAŁY INCYDENT|NO TRAFFIC THROUGHOUT THE INCIDENT
+CZĘŚCIOWE PRZYWRÓCENIE W NOCY|PARTIAL RESTORATION OVERNIGHT
+PRZEJĘCIE RUCHU PO ROZPOCZĘCIU INCYDENTU|TRAFFIC TAKEOVER AFTER THE INCIDENT STARTED
+PRZYWRÓCENIE PO 11:20 UTC|RESTORATION AFTER 11:20 UTC
+Incydent w rejestrze portalu bez otwartego zgłoszenia Microsoft|Incident in the portal register without an open Microsoft issue
+Brak odczytu kanału stanu Azure.|No read of the Azure status feed.
+Usługi bez problemów|Services without issues
+Wczytywanie pomiarów…|Loading measurements…
+Wczytywanie zgłoszeń…|Loading issues…
+Wróć do widoku na żywo|Back to the live view
+Zakres wpływu według komunikatu MO1550821 w opracowaniu|Impact scope according to communication MO1550821, as described by
+obsługujące ruch|handling traffic
+odsetek udanych testów, średnie 5-minutowe, czas UTC|share of successful tests, 5-minute averages, UTC time
+zdarzenia|events
+Bez odpowiedzi:|No response:
+Komunikat|Communication
+Odtwarzanie symulacji:|Simulation playback:
+Opublikowano|Published
+Problem potwierdzony|Confirmed
+Skutki problemu ograniczone|Mitigated
+Wczytywanie rejestru…|Loading register…
+Zapobieganie problemom lub ich usuwanie|Prevent or fix issues
+czasu polskiego ·|Polish time ·
+wczytywanie…|loading…
+punktów końcowych|endpoints
+pomiarów|measurements
+otwarte zgłoszenia|open issues
+porad|advisories
+porada|advisory
+Analiza incydentów|Incident analysis
+Portal sam zakłada kartę analizy dla każdego incydentu Microsoft widocznego w Service health. Co około 5 minut dopisuje do niej komunikaty Microsoft oraz wyniki własnych sond. Po zamknięciu incydentu karta przechodzi do historii; portal przechowuje 5 ostatnich.|The portal automatically opens an analysis card for every Microsoft incident visible in Service health. About every 5 minutes it adds Microsoft communications and the results of its own probes. After the incident is closed the card moves to history; the portal keeps the last 5.
+Wybór incydentu|Incident selection
+Wczytywanie analizy…|Loading analysis…
+Studium przypadku: symulacja incydentu z 12–13 listopada 2026|Case study: simulation of the incident of 12–13 November 2026
+Opracowanie ręczne na podstawie danych publicznych, między innymi zewnętrznej analizy ruchu sieciowego. Wartości liczbowe w symulacji nie są pomiarami portalu.|Prepared manually from public data, including an external network traffic analysis. Numeric values in the simulation are not portal measurements.
+Trwające|Ongoing
+Historia|History
+Portal nie ma jeszcze żadnej karty analizy. Pierwsza powstanie automatycznie, gdy Microsoft zgłosi incydent w Service health.|The portal has no analysis card yet. The first one is created automatically when Microsoft reports an incident in Service health.
+(zgłoszenie zniknęło z odczytu)|(the issue disappeared from the read)
+Dostępność własnych sond w czasie incydentu|Availability of the portal's own probes during the incident
+Nieudane pomiary sond|Failed probe measurements
+Mediana czasu odpowiedzi|Median response time
+Pomiary w karcie analizy|Measurements in the analysis card
+Własne pomiary w czasie incydentu|Own measurements during the incident
+Dostępność i czas odpowiedzi własnych sond w czasie incydentu|Availability and response time of the portal's own probes during the incident
+mediana czasu odpowiedzi, maksimum|median response time, maximum
+wszystkie sondy odpowiadają|all probes responding
+część sond nie odpowiada|some probes not responding
+żadna sonda nie odpowiada|no probe responding
+mediana czasu odpowiedzi|median response time
+komunikat Microsoft|Microsoft communication
+obserwacja zewnętrzna|external observation
+Pomiary portalu w tej karcie zaczynają się|Portal measurements in this card start at
+, czyli później niż incydent. Wcześniejszego przebiegu portal nie zmierzył.|, which is later than the incident. The portal did not measure the earlier course.
+Sondy w czasie incydentu|Probes during the incident
+Karta nie ma jeszcze własnych pomiarów z czasu incydentu.|The card has no own measurements from the incident period yet.
+Usługi objęte incydentem (|Services covered by the incident (
+Komunikat Microsoft|Microsoft communication
+Pomiar portalu:|Portal measurement:
+Obserwacja zewnętrzna:|External observation:
+Przebieg incydentu (|Course of the incident (
+Źródło ↗|Source ↗
+Pokaż cały przebieg (|Show the full course (
+Komunikaty Microsoft w brzmieniu oryginalnym, w skrócie. Obserwacje zewnętrzne dopisuje zaplanowane zadanie na podstawie źródeł publicznych.|Microsoft communications in the original wording, abridged. External observations are added by a scheduled task from public sources.
+Opracowanie portalu|Portal write-up
+Koniec|End
+brak pomiaru|no measurement
+Sygnały zewnętrzne o sieci Microsoft|External signals about the Microsoft network
+bez odchyleń|no deviation
+odchylenie|deviation
+duże odchylenie|large deviation
+Trasy BGP sieci Microsoft (AS|BGP routes of the Microsoft network (AS
+Sieć widzi|The network is seen by
+kolektorów tras. Rozgłaszane prefiksy IPv4:|route collectors. Announced IPv4 prefixes:
+Źródło: RIPEstat · odczyt:|Source: RIPEstat · read:
+· ostatni odczyt nieudany|· last read failed
+Źródło: RIPEstat. Odczyt się nie powiódł.|Source: RIPEstat. The read failed.
+% względem mediany doby)|% against the daily median)
+Ruch sieci Microsoft widziany przez Cloudflare (AS|Microsoft network traffic seen by Cloudflare (AS
+Ruch sieci Microsoft widziany przez Cloudflare|Microsoft network traffic seen by Cloudflare
+Ostatnie 24 godziny, wartości znormalizowane. Źródło: Cloudflare Radar · odczyt:|Last 24 hours, normalized values. Source: Cloudflare Radar · read:
+Źródło: Cloudflare Radar. Odczyt się nie powiódł.|Source: Cloudflare Radar. The read failed.
+nie skonfigurowano|not configured
+Źródło wymaga tokenu Cloudflare Radar zapisanego w sekrecie repozytorium.|The source requires a Cloudflare Radar token stored in a repository secret.
+Sygnały pośrednie. Pokazują stan sieci Microsoft widziany z zewnątrz, a nie ruch użytkowników do Microsoft 365. Sondy RIPE Atlas sprawdzają odpowiedź na ping, czyli dostępność sieciową punktu wejścia, a nie działanie usługi po zalogowaniu. Zmiana oceny trafia do dziennika zmian i do karty analizy trwającego incydentu.|Indirect signals. They show the state of the Microsoft network as seen from outside, not user traffic to Microsoft 365. RIPE Atlas probes check the response to ping, that is network reachability of the entry point, not how the service works after sign-in. A change of assessment goes to the change log and to the analysis card of an ongoing incident.
+Sygnał zewnętrzny|External signal
+Ruch sieci Microsoft w Cloudflare Radar (AS|Microsoft network traffic in Cloudflare Radar (AS
+Zmiana oceny:|Assessment change:
+. Źródło: RIPEstat.|. Source: RIPEstat.
+. Źródło: Cloudflare Radar.|. Source: Cloudflare Radar.
+Bez odchyleń|No deviation
+Odchylenie|Deviation
+Duże odchylenie|Large deviation
+Trasy BGP|BGP routes
+Ruch w Cloudflare Radar|Traffic in Cloudflare Radar
+Szczegóły sygnałów|Signal details
+Szczegóły sygnałów →|Signal details →
+Osiągalność www.office.com z sond RIPE Atlas na świecie|Reachability of www.office.com from RIPE Atlas probes worldwide
+Osiągalność www.office.com z sond RIPE Atlas|Reachability of www.office.com from RIPE Atlas probes
+Kraje z osiągalnością poniżej 60%:|Countries with reachability below 60%:
+Źródło: RIPE Atlas,|Source: RIPE Atlas,
+Źródło: RIPE Atlas. Odczyt się nie powiódł.|Source: RIPE Atlas. The read failed.
+. Źródło: RIPE Atlas.|. Source: RIPE Atlas.
+ograniczenie liczby żądań przez Microsoft Graph|request throttling by Microsoft Graph
+Ostatnio zamknięty incydent Microsoft|Most recently closed Microsoft incident
+Ostatnio zamknięte incydenty Microsoft (|Recently closed Microsoft incidents (
+Zamknięty przez Microsoft:|Closed by Microsoft:
+Koniec wpływu na użytkowników według Microsoft:|End of user impact according to Microsoft:
+Czas trwania:|Duration:
+Stan:|State:
+Karty analizy zamkniętych incydentów →|Analysis cards of closed incidents →
+Rejestr incydentów →|Incident register →
+Usługa została przywrócona|Service restored
+z ostatnich 7 dni)|from the last 7 days)
+Trwające incydenty Microsoft|Ongoing Microsoft incidents
+Trwające incydenty Microsoft (|Ongoing Microsoft incidents (
+Ostatnia aktualizacja Microsoft:|Last Microsoft update:
+Następna aktualizacja:|Next update:
+Pozostałe incydenty:|Other incidents:
+Aktywne porady:|Active advisories:
+Zaktualizowane przez Microsoft w ostatnich 24 godzinach (|Updated by Microsoft in the last 24 hours (
+Aktualizacja:|Update:
+Pozostałe aktualizacje:|Other updates:
+Zamknięte incydenty Microsoft (|Closed Microsoft incidents (
+Najważniejsze informacje|Key information
+Zamknięty incydent|Closed incident
+Szczegóły zgłoszenia|Issue details
+Zamknięty przez Microsoft|Closed by Microsoft
+Koniec wpływu na użytkowników|End of user impact
+Początek|Start
+Czas trwania|Duration
+Ostatnia aktualizacja|Last update
+Następna aktualizacja|Next update
+Komunikat końcowy Microsoft|Final Microsoft communication
+Ostatni komunikat Microsoft|Latest Microsoft communication
+Komunikat końcowy Microsoft:|Final Microsoft communication:
+Ostatni komunikat Microsoft:|Latest Microsoft communication:
+Karta analizy →|Analysis card →
+Wszystkie zgłoszenia →|All issues →
+Zaktualizowane przez Microsoft w ostatnich 24 godzinach|Updated by Microsoft in the last 24 hours
+W ostatnich 24 godzinach Microsoft nie zaktualizował żadnego otwartego zgłoszenia.|In the last 24 hours Microsoft has not updated any open issue.
+Zamknięte incydenty Microsoft z ostatnich 7 dni|Microsoft incidents closed in the last 7 days
+W ostatnich 7 dniach Microsoft nie zamknął żadnego incydentu.|In the last 7 days Microsoft has not closed any incident.
+Pozostałe zamknięte:|Other closed:
+Karty analizy →|Analysis cards →
+Aktywne porady|Active advisories
+Ostatnio zaktualizowane|Last updated
+Stan zgłoszeń Microsoft|Microsoft issue status
+Sondy|Probes
+Ostatnio zamknięty|Last closed
+Zamknięty:|Closed:
+aktualizacja|update
+zamknięty|closed
+Brak aktualizacji otwartych zgłoszeń.|No updates to open issues.
+Brak zamkniętych incydentów.|No closed incidents.
+incydent Microsoft trwa|Microsoft incident ongoing
+incydenty Microsoft trwają|Microsoft incidents ongoing
+incydentów Microsoft trwa|Microsoft incidents ongoing
+Brak aktywnych incydentów Microsoft|No active Microsoft incidents
+sond odpowiada|probes responding
+Ostatnia aktualizacja Microsoft|Latest Microsoft update
+Ostatnio zamknięty incydent|Last closed incident
+Zwiń|Collapse
+Szczegóły|Details
+Obszary monitorowania|Monitored areas
+Jeden wiersz to jeden obszar. Wybierz wiersz, aby przejść do szczegółów.|One row is one area. Select a row to open the details.
+Zamknij pasek stanu|Close the status bar
+Pokaż pasek stanu|Show the status bar
+Ostatnio zaktualizowane:|Last updated:
+Symulacja|Simulation
+Symulacja na osi zdarzeń ze źródeł publicznych|Simulation on a timeline of events from public sources
+Analiza zewnętrzna|External analysis
+Model demonstracyjny|Demonstration model
+Dane rzeczywiste|Real data
+Informacje|Information
+Bieżący poziom ruchu w stosunku do najniższej wartości z ostatniej doby:|Current traffic level relative to the lowest value of the last 24 hours:
+Odchylenie od mediany doby:|Deviation from the 24-hour median:
+Portal ocenia ruch względem najniższej wartości doby, ponieważ ruch zmienia się w rytmie dobowym i tygodniowym: ostrzeżenie poniżej 70%, stan krytyczny poniżej 40%.|The portal rates traffic against the lowest value of the day, because traffic follows a daily and weekly cycle: warning below 70%, critical below 40%.
+Bieżący poziom ruchu w stosunku do tej samej godziny sprzed tygodnia:|Current traffic level relative to the same hour one week earlier:
+Bieżący poziom ruchu w stosunku do tej samej godziny w poprzednich dniach:|Current traffic level relative to the same hour on previous days:
+Portal ocenia ruch względem tej samej godziny sprzed tygodnia oraz najniższej wartości doby, ponieważ ruch zmienia się w rytmie dobowym i tygodniowym: ostrzeżenie poniżej 70%, stan krytyczny poniżej 40%.|The portal rates traffic against the same hour one week earlier and the lowest value of the day, because traffic follows a daily and weekly cycle: warning below 70%, critical below 40%.
+Bez nowych informacji od Microsoft od|No new information from Microsoft since
+Następna aktualizacja zapowiedziana na|Next update announced for
+bez nowych informacji od|no new information since
+w tym bez nowych informacji od ponad dwóch dni:|of which with no new information for more than two days:
+brak zgłoszeń|no reports
+zgłoszenia:|reports:
+publiczne strony stanu Microsoft|Microsoft public status pages
+Ostatnia aktualizacja|Latest update
+Ostatnio zamknięty|Last closed
+Brak incydentów|No incidents
+Incydenty:|Incidents:
+na publicznych stronach stanu Microsoft|on Microsoft public status pages
+Dostępna, aktywna porada Microsoft|Available, active Microsoft advisory
+incydenty:|incidents:
+porady:|advisories:
+Stan usług Microsoft 365|Microsoft 365 service status
+Zgłoszenia Microsoft|Microsoft issues
+z problemami|with problems
+działa bez problemów|working without problems
+Usługi z problemami|Services with problems
+Żadna usługa nie ma otwartego incydentu ani błędu sondy.|No service has an open incident or a probe failure.
+Pokaż usługi bez problemów|Show services without problems
+Wróć|Back
