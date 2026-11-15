@@ -295,3 +295,36 @@ Usługi z problemami|Services with problems
 Żadna usługa nie ma otwartego incydentu ani błędu sondy.|No service has an open incident or a probe failure.
 Pokaż usługi bez problemów|Show services without problems
 Wróć|Back
+Własne sondy HTTP|Own HTTP probes
+Szczegóły, zakłócenia i opis sond|Details, disruptions and probe descriptions
+Przebieg pomiarów|Measurement run
+Zakłócenia sond w oknie pomiarów|Probe disruptions in the measurement window
+Opis sond|Probe descriptions
+Sonda to automatyczne zapytanie HTTP wysyłane co około 5 minut do publicznego punktu końcowego usługi Microsoft. Odpowiedź z oczekiwanym kodem oznacza, że punkt wejścia usługi jest osiągalny z internetu. Sondy nie logują się do usług, więc nie wykrywają problemów widocznych dopiero po zalogowaniu. Takie problemy pokazuje Service health w zakładkach „Incydenty” i „Stan usług”.|A probe is an automatic HTTP request sent about every 5 minutes to a public endpoint of a Microsoft service. A response with the expected code means the service entry point is reachable from the internet. Probes do not sign in to services, so they do not detect problems visible only after sign-in. Those problems are shown by Service health in the "Incidents" and "Service status" tabs.
+Co sprawdza|What it checks
+Oczekiwany kod|Expected code
+Wynik|Result
+Kod|Code
+Poprawny|OK
+Błąd|Error
+Pomiar|Measurement
+sond odpowiada|probes responding
+zakłóceń w oknie pomiarów|disruptions in the measurement window
+zakłócenia w oknie pomiarów (chwilowe:|disruptions in the measurement window (transient:
+trwałe:|sustained:
+poprawnych pomiarów|successful measurements
+Przebieg pomiarów sond|Probe measurement run
+Każdy słupek to jeden pomiar wszystkich sond. Zielony: wszystkie odpowiedziały, pomarańczowy: jedna nie odpowiedziała, czerwony: co najmniej dwie. Wybierz słupek, aby zobaczyć szczegóły pomiaru.|Each bar is one measurement of all probes. Green: all responded, orange: one did not respond, red: at least two. Select a bar to see the measurement details.
+Trwa|Ongoing
+Trwałe|Sustained
+Chwilowe|Transient
+Kolejne błędne pomiary:|Consecutive failed measurements:
+trwa nadal|still ongoing
+Pojedynczy błędny pomiar:|Single failed measurement:
+Brak zakłóceń: wszystkie pomiary w oknie były poprawne.|No disruptions: all measurements in the window were successful.
+błędy:|errors:
+Początek:|Start:
+Zakłócenie trwa nadal.|The disruption is still ongoing.
+Ostatni błędny pomiar:|Last failed measurement:
+Jak działa pomiar|How a measurement works
+Lista sond|List of probes

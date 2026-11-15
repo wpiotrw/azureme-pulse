@@ -1128,6 +1128,39 @@ html[data-theme="light"] .back .ba{color:var(--flow)}
 .top .back b{display:none}
 body:not([data-view="home"]) .top .vt{display:none}
 @media (max-width:420px){.top .logo{font-size:17px}}
+
+/* own probes: summary, run chart, disruptions */
+.pbs .pb-box{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px 16px}
+.pb-k{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:-14px -16px 14px;border-bottom:1px solid var(--line)}
+.pb-k>div{padding:12px 16px;box-shadow:1px 0 0 var(--line);display:flex;flex-direction:column;gap:2px}
+.pb-k b{font:700 24px/1.1 var(--f-display);color:var(--ink)}
+.pb-k .ok b{color:var(--ok)}.pb-k .warn b{color:var(--warn)}.pb-k .crit b{color:var(--crit)}
+.pb-k span{font-size:13px;color:var(--muted);line-height:1.35}
+.pb-c{display:block;width:100%;height:46px}
+.pb-c .b{cursor:pointer}.pb-c .b.ok{fill:var(--ok);opacity:.8}.pb-c .b.warn{fill:var(--warn)}.pb-c .b.crit{fill:var(--crit)}
+.pb-c .b:hover{opacity:1;stroke:var(--ink);stroke-width:.6}
+.pb-ax{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:4px}
+.pb-n{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:1.45}
+.pb-more{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);text-decoration:none;font:500 14px var(--f-body)}
+.pb-more span{color:var(--flow);font-size:18px;line-height:1}
+.pb-more:hover{border-color:var(--flow)}
+#pb-top{margin-bottom:22px}
+#pb-top .sh:first-child{margin-top:0}
+.pb-rowut{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.pb-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:12px 16px;color:var(--ink);cursor:pointer;font:600 15px var(--f-body);position:relative}
+.pb-row:first-child{border-top:0}
+.pb-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc)}
+.pb-row .po-n small{display:block;font:400 13px var(--f-body);color:var(--muted)}
+.pb-row b{color:var(--sc);font-size:14px}
+.pb-row .po-d{grid-column:1/-1;font:400 13.5px var(--f-body);color:var(--muted)}
+.pb-row:hover{background:var(--panel2)}
+.pb-none{margin:0;padding:14px 16px;font-size:14.5px;color:var(--ok);font-weight:500}
+.pb-t small{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
+.pb-t b.ok{color:var(--ok)}.pb-t b.crit{color:var(--crit)}
+.pb-t tr.bad{background:color-mix(in srgb,var(--crit) 10%,transparent)}
+@media (max-width:760px){.pb-k{grid-template-columns:1fr 1fr}.pb-k>div:last-child{grid-column:1/-1;border-top:1px solid var(--line);flex-direction:row;align-items:baseline;gap:8px}.pb-k b{font-size:21px}}
+
+@media (max-width:760px){.pb-t thead{display:none}.pb-t td[data-l]::before{display:none}.pb-t tr{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:2px 14px;padding:10px 14px;border-top:1px solid var(--line);align-items:baseline}.pb-t tbody tr:first-child{border-top:0}.pb-t td{display:block;padding:0;border:0;font-size:14px}.pb-t td.id{grid-column:1/-1;font-weight:600;font-size:15px}.pb-t td:last-child{text-align:right;color:var(--muted)}}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -1181,6 +1214,11 @@ body:not([data-view="home"]) .top .vt{display:none}
         <h2 class="sh" id="ovs-h2">Zgłoszenia Microsoft</h2>
         <div class="brief" id="brief" hidden></div>
         <p class="lede" id="lede">…</p>
+        <section class="ovs pbs" id="pb-home" hidden aria-labelledby="ovs-h3">
+          <h2 class="sh" id="ovs-h3">Własne sondy HTTP</h2>
+          <div class="pb-box" data-pb></div>
+          <a class="pb-more" href="#/pomiary">Szczegóły, zakłócenia i opis sond<span aria-hidden="true">›</span></a>
+        </section>
         
         <p class="official">Oficjalne strony stanu: <a href="https://status.cloud.microsoft/" rel="noopener">Microsoft 365</a> · <a href="https://azure.status.microsoft/status" rel="noopener">Azure</a></p>
         <div class="cta"><button class="btn" id="replay" type="button">Odtwórz przebieg incydentu</button><button class="btn ghost" id="golive" type="button" hidden>Wróć do widoku na żywo</button></div>
@@ -1261,12 +1299,7 @@ body:not([data-view="home"]) .top .vt{display:none}
 
   <section id="pomiary" data-tabs>
     <header><span class="real">Dane rzeczywiste</span><h2>Sondy HTTP</h2><p>Osiągalność publicznych punktów końcowych Microsoft, mierzona co około 5 minut z jednej lokalizacji (GitHub Actions). Sonda bez uwierzytelnienia potwierdza, że punkt wejścia usługi odpowiada. Nie sprawdza czynności wykonywanych po zalogowaniu.</p></header>
-    <div class="how">
-      <div><b>1</b><span><strong>Harmonogram</strong>GitHub Actions uruchamia pomiar co około 5 minut z jednej lokalizacji.</span></div>
-      <div><b>2</b><span><strong>Żądanie</strong>Zapytanie HTTP GET bez uwierzytelnienia do publicznego punktu końcowego, limit czasu 10 s.</span></div>
-      <div><b>3</b><span><strong>Ocena</strong>Wynik jest poprawny, gdy kod odpowiedzi zgadza się z oczekiwanym: 200 dla dokumentów publicznych, 401 dla interfejsów wymagających tokenu. Po błędzie następuje jedna ponowna próba.</span></div>
-      <div><b>4</b><span><strong>Stan sondy</strong>„Dostępna” po poprawnym pomiarze, „Obniżona wydajność” po pojedynczym błędzie, „Niedostępna” po dwóch kolejnych błędach.</span></div>
-    </div>
+    <div class="pbs" id="pb-top" hidden><h3 class="sh">Przebieg pomiarów</h3><div class="pb-box" data-pb></div><h3 class="sh">Zakłócenia sond w oknie pomiarów</h3><div class="pb-out" id="pb-out"></div></div>
     <div class="tabp" data-tab="punkty" data-label="Punkty końcowe">
       <div class="fbar" id="f-live" role="group" aria-label="Filtr stanu sond"></div>
       <p class="note" style="margin:0 0 10px">Kliknij wiersz, aby otworzyć szczegóły sondy: adres, oczekiwany kod, statystyki i pełny wykres czasu odpowiedzi.</p>
@@ -1280,6 +1313,16 @@ body:not([data-view="home"]) .top .vt{display:none}
     <div class="tabp" data-tab="doby" data-label="Dostępność dzienna">
       <p class="note" style="margin:0">Jeden prostokąt to jedna doba (UTC), w której sondy wykonały pomiary. Kolor: zielony od 99,9% poprawnych pomiarów, pomarańczowy od 99%, czerwony poniżej 99%. <b id="hist-since"></b></p>
       <div class="card hist" style="margin-top:12px"><div class="hi-r h"><span>Usługa</span><span>Doby z pomiarami</span><span style="text-align:right">7 dni</span><span style="text-align:right">30 dni</span></div><div id="hist-rows"></div></div>
+    </div>
+  <div class="tabp" data-tab="opis" data-label="Opis sond">
+      <p class="note" style="margin:0 0 12px">Sonda to automatyczne zapytanie HTTP wysyłane co około 5 minut do publicznego punktu końcowego usługi Microsoft. Odpowiedź z oczekiwanym kodem oznacza, że punkt wejścia usługi jest osiągalny z internetu. Sondy nie logują się do usług, więc nie wykrywają problemów widocznych dopiero po zalogowaniu. Takie problemy pokazuje Service health w zakładkach „Incydenty” i „Stan usług”.</p>
+      <h3 class="sh">Jak działa pomiar</h3><div class="how">
+      <div><b>1</b><span><strong>Harmonogram</strong>GitHub Actions uruchamia pomiar co około 5 minut z jednej lokalizacji.</span></div>
+      <div><b>2</b><span><strong>Żądanie</strong>Zapytanie HTTP GET bez uwierzytelnienia do publicznego punktu końcowego, limit czasu 10 s.</span></div>
+      <div><b>3</b><span><strong>Ocena</strong>Wynik jest poprawny, gdy kod odpowiedzi zgadza się z oczekiwanym: 200 dla dokumentów publicznych, 401 dla interfejsów wymagających tokenu. Po błędzie następuje jedna ponowna próba.</span></div>
+      <div><b>4</b><span><strong>Stan sondy</strong>„Dostępna” po poprawnym pomiarze, „Obniżona wydajność” po pojedynczym błędzie, „Niedostępna” po dwóch kolejnych błędach.</span></div>
+    </div>
+      <h3 class="sh">Lista sond</h3><div class="card" style="padding:0;overflow:hidden"><table class="dt" id="pb-desc"><thead><tr><th>Sonda</th><th>Co sprawdza</th><th>Adres</th><th>Oczekiwany kod</th></tr></thead><tbody></tbody></table></div>
     </div>
   </section>
 
@@ -2012,7 +2055,7 @@ var DATA_URL="https://raw.githubusercontent.com/wpiotrw/azureme-pulse/data/statu
 function renderLive(d){
   if(!d||!d.services||!d.samples||!d.samples.length)throw new Error("empty");
   try{normHealth(d.health);}catch(e){}
-  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderBrief(d);}catch(e){}
+  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderBrief(d);}catch(e){}
   try{renderCurrent(d);}catch(e){}
   try{renderRegions(d.regions);}catch(e){}
   try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
@@ -2253,6 +2296,27 @@ function renderHealth(list){
   setTabCount("zrodla","sh",open.length);
 }
 function openDlg(t,h){$("dlg-t").textContent=t;$("dlg-b").innerHTML=h;var d=$("dlg");if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute("open","");$("dlg-b").scrollTop=0;}
+function tmin(t){return fdt(new Date(t*60000).toISOString());}
+function probeRuns(d){var out=[],S=d.samples;d.services.forEach(function(sv){var st=-1;for(var i=0;i<=S.length;i++){var v=i<S.length?(S[i].r&&S[i].r[sv.id]):null,bad=i<S.length&&v&&!v[0];if(bad&&st<0)st=i;if(!bad&&st>=0&&(i===S.length||v)){out.push({sv:sv,a:st,b:i-1,n:i-st,on:i===S.length});st=-1;}}});out.sort(function(x,y){return y.a-x.a;});return out;}
+function sampleDlg(i){var d=LASTD;if(!d||!d.samples[i])return;var x=d.samples[i],h='<table class="dt pb-t"><thead><tr><th>Sonda</th><th>Wynik</th><th>Kod</th><th>Czas odpowiedzi</th></tr></thead><tbody>';
+  d.services.forEach(function(sv){var v=x.r&&x.r[sv.id];if(!v)return;h+='<tr class="'+(v[0]?"":"bad")+'"><td class="id" data-l="Sonda">'+esc(sv.name)+'<small>'+esc(sv.what||"")+'</small></td><td data-l="Wynik"><b class="'+(v[0]?"ok":"crit")+'">'+(v[0]?"Poprawny":"Błąd")+'</b></td><td data-l="Kod">'+esc(v[2]||"brak")+'</td><td data-l="Czas odpowiedzi">'+esc(v[1])+' ms</td></tr>';});
+  openDlg("Pomiar "+tmin(x.t),h+'</tbody></table>');}
+function renderProbeSum(d){
+  var S=d.samples||[],n=S.length;if(!n||!d.services)return;
+  var tot=0,okc=0,bars="",W=n*4,runs=probeRuns(d),last=S[n-1],lt=0,lo=0;
+  S.forEach(function(x,i){var f=0,c=0;d.services.forEach(function(sv){var v=x.r&&x.r[sv.id];if(!v)return;c++;if(!v[0])f++;});tot+=c;okc+=c-f;bars+='<rect class="b '+(f>=2?"crit":f?"warn":"ok")+'" x="'+(i*4)+'" y="'+(f>=2?0:f?8:16)+'" width="3" height="'+(f>=2?34:f?26:18)+'" rx="1" data-si="'+i+'"><title>'+esc(tmin(x.t))+(f?", błędy: "+f:"")+'</title></rect>';});
+  d.services.forEach(function(sv){var v=last.r&&last.r[sv.id];if(!v)return;lt++;if(v[0])lo++;});
+  var one=runs.filter(function(r){return r.n===1;}).length,many=runs.length-one,pct=tot?(okc/tot*100).toFixed(okc===tot?0:2).replace(".",","):"0";
+  var h='<div class="pb-k"><div class="'+(lo===lt?"ok":"crit")+'"><b>'+lo+' z '+lt+'</b><span>sond odpowiada</span></div><div class="'+(runs.length?(many?"crit":"warn"):"ok")+'"><b>'+runs.length+'</b><span>'+(runs.length?"zakłócenia w oknie pomiarów (chwilowe: "+one+", trwałe: "+many+")":"zakłóceń w oknie pomiarów")+'</span></div><div><b>'+pct+'%</b><span>poprawnych pomiarów</span></div></div>'
+    +'<svg class="pb-c" viewBox="0 0 '+W+' 34" preserveAspectRatio="none" role="img" aria-label="Przebieg pomiarów sond">'+bars+'</svg>'
+    +'<div class="pb-ax"><span>'+esc(tmin(S[0].t))+'</span><span>'+esc(tmin(last.t))+'</span></div>'
+    +'<p class="pb-n">Każdy słupek to jeden pomiar wszystkich sond. Zielony: wszystkie odpowiedziały, pomarańczowy: jedna nie odpowiedziała, czerwony: co najmniej dwie. Wybierz słupek, aby zobaczyć szczegóły pomiaru.</p>';
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pb]"),function(b){b.innerHTML=h;});
+  $("pb-home").hidden=false;$("pb-top").hidden=false;
+  $("pb-out").innerHTML=runs.length?runs.slice(0,30).map(function(r){var perm=r.n>1;return '<button type="button" class="pb-row s-'+(perm?"crit":"warn")+'" data-pid="'+esc(r.sv.id)+'"><span class="po-n">'+esc(r.sv.name)+'<small>'+esc(r.sv.what||"")+'</small></span><b>'+(r.on?"Trwa":perm?"Trwałe":"Chwilowe")+'</b><span class="po-d">'+(perm?"Kolejne błędne pomiary: "+r.n+". Początek: "+esc(tmin(S[r.a].t))+". "+(r.on?"Zakłócenie trwa nadal.":"Ostatni błędny pomiar: "+esc(tmin(S[r.b].t))+"."):"Pojedynczy błędny pomiar: "+esc(tmin(S[r.a].t)))+'</span></button>';}).join(""):'<p class="pb-none">Brak zakłóceń: wszystkie pomiary w oknie były poprawne.</p>';
+  var tb=$("pb-desc").tBodies[0];tb.innerHTML=d.services.map(function(sv){return '<tr><td class="id" data-l="Sonda">'+esc(sv.name)+'</td><td data-l="Co sprawdza">'+esc(sv.what||"")+'</td><td data-l="Adres" style="overflow-wrap:anywhere">'+esc(sv.url||"")+'</td><td data-l="Oczekiwany kod">'+esc(sv.expect||"")+'</td></tr>';}).join("");
+}
+document.addEventListener("click",function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute("data-si")!==null&&t.getAttribute("data-si")!==undefined&&t.tagName.toLowerCase()==="rect"){sampleDlg(+t.getAttribute("data-si"));return;}var b=t&&t.closest&&t.closest(".pb-row");if(b)probeDetail(b.getAttribute("data-pid"));});
 function probeDetail(id){
   var d=LASTD;if(!d)return;var sv=d.services.filter(function(x){return x.id===id;})[0];if(!sv)return;
   var pts=d.samples.map(function(x){var v=x.r&&x.r[id];return v?{t:x.t,ok:v[0],ms:v[1],code:v[2]}:null;}).filter(Boolean),okp=pts.filter(function(p){return p.ok;}),ms=okp.map(function(p){return p.ms;}).sort(function(a,b){return a-b;});
