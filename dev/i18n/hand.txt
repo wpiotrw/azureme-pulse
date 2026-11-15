@@ -328,3 +328,35 @@ Zakłócenie trwa nadal.|The disruption is still ongoing.
 Ostatni błędny pomiar:|Last failed measurement:
 Jak działa pomiar|How a measurement works
 Lista sond|List of probes
+Za mało pomiarów, aby narysować wykres.|Not enough measurements to draw the chart.
+Linia pokazuje medianę czasu odpowiedzi wszystkich sond w każdym pomiarze, a jaśniejszy pas zakres od 10. do 90. percentyla. Zakreskowane pola oznaczają pomiary, w których co najmniej jedna sonda nie odpowiedziała. Wybierz punkt wykresu, aby zobaczyć szczegóły pomiaru.|The line shows the median response time of all probes in each measurement, and the lighter band the range from the 10th to the 90th percentile. Hatched areas mark measurements in which at least one probe did not respond. Select a point on the chart to see the measurement details.
+Czas odpowiedzi sond|Probe response time
+Czas odpowiedzi sond i zakłócenia|Probe response time and disruptions
+mediana czasu odpowiedzi|median response time
+zakres 10–90%|10–90% range
+mediana okna|window median
+jedna sonda bez odpowiedzi|one probe not responding
+co najmniej dwie sondy bez odpowiedzi|at least two probes not responding
+Mediana okna|Window median
+95. percentyl|95th percentile
+Najdłuższa mediana|Highest median
+sondy bez odpowiedzi:|probes not responding:
+wszystkie sondy odpowiedziały|all probes responded
+mediana|median
+zakres|range
+Czas odpowiedzi|Response time
+Wykres czasu odpowiedzi sondy|Probe response time chart
+czas odpowiedzi|response time
+nieudany pomiar|failed measurement
+błąd, kod|error, code
+Ruch do sieci Microsoft według Cloudflare Radar|Traffic to the Microsoft network according to Cloudflare Radar
+Wykres ruchu do sieci Microsoft|Chart of traffic to the Microsoft network
+% maksimum doby|% of the daily maximum
+ruch znormalizowany|normalised traffic
+mediana doby|24-hour median
+Mediana doby|24-hour median
+Minimum doby|24-hour minimum
+Ostatni pełny odczyt|Last complete reading
+Względem tej samej godziny sprzed tygodnia|Relative to the same hour one week earlier
+brak danych|no data
+Wykres|Chart

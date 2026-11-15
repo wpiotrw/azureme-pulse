@@ -1161,6 +1161,43 @@ body:not([data-view="home"]) .top .vt{display:none}
 @media (max-width:760px){.pb-k{grid-template-columns:1fr 1fr}.pb-k>div:last-child{grid-column:1/-1;border-top:1px solid var(--line);flex-direction:row;align-items:baseline;gap:8px}.pb-k b{font-size:21px}}
 
 @media (max-width:760px){.pb-t thead{display:none}.pb-t td[data-l]::before{display:none}.pb-t tr{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:2px 14px;padding:10px 14px;border-top:1px solid var(--line);align-items:baseline}.pb-t tbody tr:first-child{border-top:0}.pb-t td{display:block;padding:0;border:0;font-size:14px}.pb-t td.id{grid-column:1/-1;font-weight:600;font-size:15px}.pb-t td:last-child{text-align:right;color:var(--muted)}}
+
+/* time-series chart */
+.tsc{position:relative}
+.ts-h1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.ts-h1 b{font:600 15px var(--f-display);color:var(--ink)}
+.ts-h1 span{font-size:12.5px;color:var(--muted)}
+.ts-plot{position:relative}
+.ts-svg{display:block;width:100%;height:auto;touch-action:pan-y;cursor:crosshair}
+.ts-grid{stroke:var(--line);stroke-width:1}
+.ts-yl,.ts-xl{fill:var(--muted);font:12px var(--f-body)}
+.ts-line{fill:none;stroke:var(--flow);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.ts-g0{stop-color:var(--flow);stop-opacity:.34}.ts-g1{stop-color:var(--flow);stop-opacity:.02}
+.ts-band{fill:var(--flow);opacity:.16}
+.ts-base{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 5;opacity:.8}
+.ts-reg.warn{fill:var(--warn);opacity:.13}.ts-reg.crit{fill:var(--crit);opacity:.16}
+.ts-regt.warn{fill:var(--warn)}.ts-regt.crit{fill:var(--crit)}
+.ts-h{stroke-width:2.2}.ts-h.warn{stroke:var(--warn);opacity:.45}.ts-h.crit{stroke:var(--crit);opacity:.5}
+.ts-st.ok{fill:var(--ok);opacity:.75}.ts-st.warn{fill:var(--warn)}.ts-st.crit{fill:var(--crit)}
+.ts-ch{stroke:var(--ink);stroke-width:1;opacity:.55}
+.ts-dot{fill:var(--panel);stroke:var(--flow);stroke-width:2.5}
+.ts-tip{position:absolute;top:6px;left:0;pointer-events:none;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px;line-height:1.45;color:var(--ink);box-shadow:0 10px 24px -12px rgba(0,0,0,.7);white-space:nowrap;z-index:2}
+.ts-tip b{display:block;font-weight:600;margin-bottom:2px}
+.ts-tip em{font-style:normal;font-weight:600}.ts-tip em.warn{color:var(--warn)}.ts-tip em.crit{color:var(--crit)}
+.ts-lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:12.5px;color:var(--muted)}
+.ts-lg span{display:inline-flex;align-items:center;gap:6px}
+.ts-lg i{display:inline-block;width:18px;height:10px;border-radius:2px}
+.ts-lg .l-line{height:0;border-top:2.5px solid var(--flow);border-radius:0}
+.ts-lg .l-band{background:color-mix(in srgb,var(--flow) 22%,transparent)}
+.ts-lg .l-base{height:0;border-top:2px dashed var(--muted);border-radius:0}
+.ts-lg .l-warn{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--warn) 70%,transparent) 0 2px,color-mix(in srgb,var(--warn) 16%,transparent) 2px 6px)}
+.ts-lg .l-crit{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--crit) 75%,transparent) 0 2px,color-mix(in srgb,var(--crit) 18%,transparent) 2px 6px)}
+.ts-stats{display:flex;flex-wrap:wrap;gap:8px 22px;margin:10px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.ts-stats dt{font-size:12.5px;color:var(--muted)}.ts-stats dd{margin:0;font:600 15px var(--f-display);color:var(--ink)}
+.ts-none{margin:0;font-size:13.5px;color:var(--muted)}
+.ts-card{padding:14px 16px;margin-top:12px}
+.pb-chart{margin-top:2px}
+#ts-probe{margin:10px 0}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -2055,7 +2092,7 @@ var DATA_URL="https://raw.githubusercontent.com/wpiotrw/azureme-pulse/data/statu
 function renderLive(d){
   if(!d||!d.services||!d.samples||!d.samples.length)throw new Error("empty");
   try{normHealth(d.health);}catch(e){}
-  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderBrief(d);}catch(e){}
+  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderTraffic(d);}catch(e){}try{renderBrief(d);}catch(e){}
   try{renderCurrent(d);}catch(e){}
   try{renderRegions(d.regions);}catch(e){}
   try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
@@ -2296,11 +2333,57 @@ function renderHealth(list){
   setTabCount("zrodla","sh",open.length);
 }
 function openDlg(t,h){$("dlg-t").textContent=t;$("dlg-b").innerHTML=h;var d=$("dlg");if(d.showModal){if(!d.open)d.showModal();}else d.setAttribute("open","");$("dlg-b").scrollTop=0;}
+
+/* ---------- time-series chart: line with area, percentile band, baseline, disruption regions, state strip, crosshair ---------- */
+var TSN=0,TSRO=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){var el=e.target;if(el._ts&&Math.abs((el._tw||0)-el.clientWidth)>4)tsDraw(el);});}):null;
+function tsMount(el,o){if(!el)return;el._ts=o;el.classList.add("tsc");tsDraw(el);if(TSRO&&!el._tro){el._tro=1;TSRO.observe(el);}}
+function tsHM(t){var x=new Date(t);return p2(x.getUTCHours())+":"+p2(x.getUTCMinutes());}
+function tsDM(t){var x=new Date(t);return p2(x.getUTCDate())+"-"+p2(x.getUTCMonth()+1);}
+function tsDraw(el){
+  var o=el._ts,P=o.pts||[];el._tw=el.clientWidth;if(P.length<2){el.innerHTML='<p class="ts-none">Za mało pomiarów, aby narysować wykres.</p>';return;}
+  var W=Math.max(280,el.clientWidth||680),small=W<480,H=o.h||(small?200:240),L=small?36:46,R=10,T=14,SB=o.strip===false?0:14,B=22+SB,id="ts"+(++TSN);
+  var mx=0;P.forEach(function(p){if(p.v!=null&&p.v>mx)mx=p.v;if(p.hi!=null&&p.hi>mx)mx=p.hi;});if(o.base&&o.base>mx)mx=o.base;mx=(mx||1)*1.08;(function(){var e=Math.pow(10,Math.floor(Math.log(mx)/Math.LN10)),m=mx/e,n=m<=1?1:m<=1.2?1.2:m<=1.6?1.6:m<=2?2:m<=2.4?2.4:m<=3.2?3.2:m<=4?4:m<=6?6:m<=8?8:10;mx=n*e;})();
+  var t0=P[0].t,t1=P[P.length-1].t,span=Math.max(1,t1-t0),step=span/(P.length-1),pw=W-L-R,ph=H-T-B;
+  function X(t){return L+(t-t0)/span*pw;}function Y(v){return T+(1-v/mx)*ph;}
+  var f=o.fmt||function(v){return String(Math.round(v));},g="",k;
+  for(k=0;k<=4;k++){var gv=mx*k/4,gy=Y(gv);g+='<line class="ts-grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+gy.toFixed(1)+'" y2="'+gy.toFixed(1)+'"/><text class="ts-yl" x="'+(L-6)+'" y="'+(gy+4).toFixed(1)+'" text-anchor="end">'+esc(f(gv))+'</text>';}
+  var nt=small?3:5,pd="";for(k=0;k<nt;k++){var tt=t0+span*k/(nt-1),lab=tsHM(tt),dm=tsDM(tt);if(dm!==pd){lab=dm+" "+lab;pd=dm;}g+='<text class="ts-xl" x="'+X(tt).toFixed(1)+'" y="'+(H-SB-6)+'" text-anchor="'+(k===0?"start":k===nt-1?"end":"middle")+'">'+lab+'</text>';}
+  var segs=[],cur=null;P.forEach(function(p){if(p.v==null){cur=null;return;}if(!cur){cur=[];segs.push(cur);}cur.push(p);});
+  function curve(a,fy){var d="";a.forEach(function(p,i){var x=X(p.t),y=fy(p);if(!i){d+=x.toFixed(1)+" "+y.toFixed(1);return;}var q=a[i-1],cx=((X(q.t)+x)/2).toFixed(1);d+="C"+cx+" "+fy(q).toFixed(1)+" "+cx+" "+y.toFixed(1)+" "+x.toFixed(1)+" "+y.toFixed(1);});return d;}
+  var line="",area="",band="";segs.forEach(function(a){var c=curve(a,function(p){return Y(p.v);});line+="M"+c;area+="M"+c+"L"+X(a[a.length-1].t).toFixed(1)+" "+(T+ph)+"L"+X(a[0].t).toFixed(1)+" "+(T+ph)+"Z";
+    if(a[0].hi!=null){var up=curve(a,function(p){return Y(p.hi);}),lo=a.slice().reverse().map(function(p){return X(p.t).toFixed(1)+" "+Y(p.lo).toFixed(1);}).join("L");band+="M"+up+"L"+lo+"Z";}});
+  var reg="";(o.regions||[]).forEach(function(r){var x0=Math.max(L,X(r.a)-step/2*pw/span),x1=Math.min(W-R,X(r.b)+step/2*pw/span),w=Math.max(3,x1-x0);reg+='<rect class="ts-reg '+r.q+'" x="'+x0.toFixed(1)+'" y="'+T+'" width="'+w.toFixed(1)+'" height="'+ph+'"/><rect x="'+x0.toFixed(1)+'" y="'+T+'" width="'+w.toFixed(1)+'" height="'+ph+'" fill="url(#'+id+r.q+')"/><rect class="ts-regt '+r.q+'" x="'+x0.toFixed(1)+'" y="'+T+'" width="'+w.toFixed(1)+'" height="3"/>';});
+  var base="";if(o.base){var by=Y(o.base);base='<line class="ts-base" x1="'+L+'" x2="'+(W-R)+'" y1="'+by.toFixed(1)+'" y2="'+by.toFixed(1)+'"/>';}
+  var strip="";if(SB){var bw=Math.max(1,pw/(P.length-1)),gaps=P.slice(1).map(function(p,i){return p.t-P[i].t;}).sort(function(a,b){return a-b;}),ms0=gaps[Math.floor(gaps.length/2)]||step;P.forEach(function(p,i){var nx=i<P.length-1?P[i+1].t:p.t+ms0,w=Math.max(1,(Math.min(nx-p.t,ms0*2.2))/span*pw);strip+='<rect class="ts-st '+(p.q||"ok")+'" x="'+Math.min(X(p.t),W-R-1).toFixed(1)+'" y="'+(H-10)+'" width="'+Math.min(w+.4,W-R-X(p.t)+1).toFixed(1)+'" height="8"/>';});}
+  var defs='<defs><linearGradient id="'+id+'g" x1="0" x2="0" y1="0" y2="1"><stop class="ts-g0" offset="0"/><stop class="ts-g1" offset="1"/></linearGradient>'+["warn","crit"].map(function(q){return '<pattern id="'+id+q+'" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="ts-h '+q+'" x1="0" y1="0" x2="0" y2="7"/></pattern>';}).join("")+'<clipPath id="'+id+'c"><rect x="'+L+'" y="'+(T-2)+'" width="'+pw+'" height="'+(ph+2)+'"/></clipPath></defs>';
+  var svg='<svg class="ts-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+" "+H+'" role="img" aria-label="'+esc(o.label||"Wykres")+'">'+defs+g+reg+'<g clip-path="url(#'+id+'c)">'+(band?'<path class="ts-band" d="'+band+'"/>':"")+'<path d="'+area+'" fill="url(#'+id+'g)"/><path class="ts-line" d="'+line+'"/></g>'+base+strip+'<line class="ts-ch" y1="'+T+'" y2="'+(T+ph)+'" x1="0" x2="0" visibility="hidden"/><circle class="ts-dot" r="4.5" visibility="hidden"/><rect class="ts-hit" x="'+L+'" y="0" width="'+pw+'" height="'+H+'" fill="transparent"/></svg>';
+  var lg='<div class="ts-lg">'+(o.legend||[]).map(function(x){return '<span><i class="'+x[0]+'"></i>'+esc(x[1])+'</span>';}).join("")+'</div>';
+  var stt=(o.stats&&o.stats.length)?'<dl class="ts-stats">'+o.stats.map(function(x){return '<div><dt>'+esc(x[0])+'</dt><dd>'+esc(x[1])+'</dd></div>';}).join("")+'</dl>':"";
+  el.innerHTML=(o.title?'<div class="ts-h1"><b>'+esc(o.title)+'</b>'+(o.unit?'<span>'+esc(o.unit)+'</span>':"")+'</div>':"")+'<div class="ts-plot">'+svg+'<div class="ts-tip" hidden></div></div>'+lg+stt;
+  el._g={L:L,pw:pw,t0:t0,span:span,X:X,Y:Y,W:W};
+}
+function tsAt(el,cx){var g=el._g,P=el._ts.pts,r=el.querySelector(".ts-svg").getBoundingClientRect(),x=(cx-r.left)*(g.W/r.width),t=g.t0+Math.max(0,Math.min(1,(x-g.L)/g.pw))*g.span,bi=0,bd=Infinity;P.forEach(function(p,i){var dd=Math.abs(p.t-t);if(dd<bd){bd=dd;bi=i;}});return bi;}
+function tsHover(el,cx){var i=tsAt(el,cx),o=el._ts,p=o.pts[i],g=el._g,x=g.X(p.t),ch=el.querySelector(".ts-ch"),dot=el.querySelector(".ts-dot"),tip=el.querySelector(".ts-tip");
+  ch.setAttribute("x1",x);ch.setAttribute("x2",x);ch.setAttribute("visibility","visible");if(p.v!=null){dot.setAttribute("cx",x);dot.setAttribute("cy",g.Y(p.v));dot.setAttribute("visibility","visible");}else dot.setAttribute("visibility","hidden");
+  tip.innerHTML=o.tip?o.tip(p,i):'<b>'+tsDM(p.t)+" "+tsHM(p.t)+' UTC</b>'+(p.v!=null?esc((o.fmt?o.fmt(p.v):Math.round(p.v))+(o.unit?" "+o.unit:"")):"brak danych");tip.hidden=false;
+  var sc=el.querySelector(".ts-svg").getBoundingClientRect().width/g.W,px=x*sc,tw=tip.offsetWidth,pwid=el.querySelector(".ts-plot").clientWidth;tip.style.left=Math.max(0,Math.min(pwid-tw,px+(px>pwid/2?-tw-10:10)))+"px";return i;}
+function tsOut(el){var a=el.querySelector(".ts-ch"),b=el.querySelector(".ts-dot"),c=el.querySelector(".ts-tip");if(a)a.setAttribute("visibility","hidden");if(b)b.setAttribute("visibility","hidden");if(c)c.hidden=true;}
+document.addEventListener("pointermove",function(e){var h=e.target.closest&&e.target.closest(".ts-svg");if(!h)return;tsHover(h.closest(".tsc"),e.clientX);});
+document.addEventListener("pointerout",function(e){var h=e.target.closest&&e.target.closest(".ts-svg");if(h&&e.pointerType==="mouse"&&!(e.relatedTarget&&h.contains(e.relatedTarget)))tsOut(h.closest(".tsc"));});
+document.addEventListener("click",function(e){var h=e.target.closest&&e.target.closest(".ts-svg");if(!h)return;var el=h.closest(".tsc"),i=tsHover(el,e.clientX);if(el._ts.click)el._ts.click(i);});
+function tsRuns(P){var out=[],st=-1;P.forEach(function(p,i){var bad=p.q==="warn"||p.q==="crit";if(bad&&st<0)st=i;if((!bad||i===P.length-1)&&st>=0){var b=bad?i:i-1,q="warn";for(var k=st;k<=b;k++)if(P[k].q==="crit")q="crit";out.push({a:P[st].t,b:P[b].t,q:q});st=-1;}});return out;}
+function tsQ(a,q){return a.length?a[Math.min(a.length-1,Math.floor(q*a.length))]:null;}
 function tmin(t){return fdt(new Date(t*60000).toISOString());}
 function probeRuns(d){var out=[],S=d.samples;d.services.forEach(function(sv){var st=-1;for(var i=0;i<=S.length;i++){var v=i<S.length?(S[i].r&&S[i].r[sv.id]):null,bad=i<S.length&&v&&!v[0];if(bad&&st<0)st=i;if(!bad&&st>=0&&(i===S.length||v)){out.push({sv:sv,a:st,b:i-1,n:i-st,on:i===S.length});st=-1;}}});out.sort(function(x,y){return y.a-x.a;});return out;}
 function sampleDlg(i){var d=LASTD;if(!d||!d.samples[i])return;var x=d.samples[i],h='<table class="dt pb-t"><thead><tr><th>Sonda</th><th>Wynik</th><th>Kod</th><th>Czas odpowiedzi</th></tr></thead><tbody>';
   d.services.forEach(function(sv){var v=x.r&&x.r[sv.id];if(!v)return;h+='<tr class="'+(v[0]?"":"bad")+'"><td class="id" data-l="Sonda">'+esc(sv.name)+'<small>'+esc(sv.what||"")+'</small></td><td data-l="Wynik"><b class="'+(v[0]?"ok":"crit")+'">'+(v[0]?"Poprawny":"Błąd")+'</b></td><td data-l="Kod">'+esc(v[2]||"brak")+'</td><td data-l="Czas odpowiedzi">'+esc(v[1])+' ms</td></tr>';});
   openDlg("Pomiar "+tmin(x.t),h+'</tbody></table>');}
+function renderTraffic(d){var r=d.signals&&d.signals.radar,host=$("sg-ext");if(!host||!r||!r.values||!r.from||!r.to||r.values.length<8)return;
+  var el=$("ts-radar");if(!el){el=document.createElement("div");el.id="ts-radar";el.className="card ts-card";host.parentNode.insertBefore(el,host.nextSibling);}
+  var v=r.values,a=Date.parse(r.from),b=Date.parse(r.to),srt=v.slice().sort(function(p,q){return p-q;}),med=tsQ(srt,.5),mn=srt[0];
+  var P=v.map(function(y,i){return {t:a+(b-a)*i/(v.length-1),v:y*100,q:y<mn*.4&&i>v.length-3?"crit":y<mn*.7&&i>v.length-3?"warn":"ok"};});
+  tsMount(el,{pts:P,base:med*100,unit:"% maksimum doby",title:"Ruch do sieci Microsoft według Cloudflare Radar",label:"Wykres ruchu do sieci Microsoft",fmt:function(x){return Math.round(x)+"%";},legend:[["l-line","ruch znormalizowany"],["l-base","mediana doby"]],
+    stats:[["Mediana doby",Math.round(med*100)+"%"],["Minimum doby",Math.round(mn*100)+"%"],["Ostatni pełny odczyt",Math.round(v[v.length-2]*100)+"%"]].concat(r.week?[["Względem tej samej godziny sprzed tygodnia",r.week.ratio+"%"]]:[])});}
 function renderProbeSum(d){
   var S=d.samples||[],n=S.length;if(!n||!d.services)return;
   var tot=0,okc=0,bars="",W=n*4,runs=probeRuns(d),last=S[n-1],lt=0,lo=0;
@@ -2308,10 +2391,14 @@ function renderProbeSum(d){
   d.services.forEach(function(sv){var v=last.r&&last.r[sv.id];if(!v)return;lt++;if(v[0])lo++;});
   var one=runs.filter(function(r){return r.n===1;}).length,many=runs.length-one,pct=tot?(okc/tot*100).toFixed(okc===tot?0:2).replace(".",","):"0";
   var h='<div class="pb-k"><div class="'+(lo===lt?"ok":"crit")+'"><b>'+lo+' z '+lt+'</b><span>sond odpowiada</span></div><div class="'+(runs.length?(many?"crit":"warn"):"ok")+'"><b>'+runs.length+'</b><span>'+(runs.length?"zakłócenia w oknie pomiarów (chwilowe: "+one+", trwałe: "+many+")":"zakłóceń w oknie pomiarów")+'</span></div><div><b>'+pct+'%</b><span>poprawnych pomiarów</span></div></div>'
-    +'<svg class="pb-c" viewBox="0 0 '+W+' 34" preserveAspectRatio="none" role="img" aria-label="Przebieg pomiarów sond">'+bars+'</svg>'
-    +'<div class="pb-ax"><span>'+esc(tmin(S[0].t))+'</span><span>'+esc(tmin(last.t))+'</span></div>'
-    +'<p class="pb-n">Każdy słupek to jeden pomiar wszystkich sond. Zielony: wszystkie odpowiedziały, pomarańczowy: jedna nie odpowiedziała, czerwony: co najmniej dwie. Wybierz słupek, aby zobaczyć szczegóły pomiaru.</p>';
-  Array.prototype.forEach.call(document.querySelectorAll("[data-pb]"),function(b){b.innerHTML=h;});
+    +'<div class="pb-chart"></div><p class="pb-n">Linia pokazuje medianę czasu odpowiedzi wszystkich sond w każdym pomiarze, a jaśniejszy pas zakres od 10. do 90. percentyla. Zakreskowane pola oznaczają pomiary, w których co najmniej jedna sonda nie odpowiedziała. Wybierz punkt wykresu, aby zobaczyć szczegóły pomiaru.</p>';
+  var AP=S.map(function(x){var a=[],f=0;d.services.forEach(function(sv){var v=x.r&&x.r[sv.id];if(!v)return;if(v[0])a.push(v[1]);else f++;});a.sort(function(p,q){return p-q;});return {t:x.t*60000,v:a.length?tsQ(a,.5):null,lo:a.length?tsQ(a,.1):null,hi:a.length?tsQ(a,.9):null,q:f>=2?"crit":f?"warn":"ok",f:f,n:a.length+f};});
+  var allms=AP.filter(function(p){return p.v!=null;}).map(function(p){return p.v;}).sort(function(p,q){return p-q;}),med=tsQ(allms,.5);
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pb]"),function(b){b.innerHTML=h;tsMount(b.querySelector(".pb-chart"),{pts:AP,base:med,unit:"ms",label:"Czas odpowiedzi sond i zakłócenia",title:"Czas odpowiedzi sond",regions:tsRuns(AP),
+    legend:[["l-line","mediana czasu odpowiedzi"],["l-band","zakres 10–90%"],["l-base","mediana okna"],["l-warn","jedna sonda bez odpowiedzi"],["l-crit","co najmniej dwie sondy bez odpowiedzi"]],
+    stats:[["Mediana okna",med!=null?med+" ms":"brak"],["95. percentyl",allms.length?tsQ(allms,.95)+" ms":"brak"],["Najdłuższa mediana",allms.length?allms[allms.length-1]+" ms":"brak"]],
+    tip:function(p){return '<b>'+tsDM(p.t)+" "+tsHM(p.t)+' UTC</b>'+(p.v!=null?"mediana "+p.v+" ms<br>zakres "+p.lo+"–"+p.hi+" ms<br>":"")+(p.f?'<em class="'+p.q+'">sondy bez odpowiedzi: '+p.f+" z "+p.n+'</em>':"wszystkie sondy odpowiedziały");},
+    click:function(i){sampleDlg(i);}});});
   $("pb-home").hidden=false;$("pb-top").hidden=false;
   $("pb-out").innerHTML=runs.length?runs.slice(0,30).map(function(r){var perm=r.n>1;return '<button type="button" class="pb-row s-'+(perm?"crit":"warn")+'" data-pid="'+esc(r.sv.id)+'"><span class="po-n">'+esc(r.sv.name)+'<small>'+esc(r.sv.what||"")+'</small></span><b>'+(r.on?"Trwa":perm?"Trwałe":"Chwilowe")+'</b><span class="po-d">'+(perm?"Kolejne błędne pomiary: "+r.n+". Początek: "+esc(tmin(S[r.a].t))+". "+(r.on?"Zakłócenie trwa nadal.":"Ostatni błędny pomiar: "+esc(tmin(S[r.b].t))+"."):"Pojedynczy błędny pomiar: "+esc(tmin(S[r.a].t)))+'</span></button>';}).join(""):'<p class="pb-none">Brak zakłóceń: wszystkie pomiary w oknie były poprawne.</p>';
   var tb=$("pb-desc").tBodies[0];tb.innerHTML=d.services.map(function(sv){return '<tr><td class="id" data-l="Sonda">'+esc(sv.name)+'</td><td data-l="Co sprawdza">'+esc(sv.what||"")+'</td><td data-l="Adres" style="overflow-wrap:anywhere">'+esc(sv.url||"")+'</td><td data-l="Oczekiwany kod">'+esc(sv.expect||"")+'</td></tr>';}).join("");
@@ -2330,7 +2417,10 @@ function probeDetail(id){
   if(okp.length)area=line+"L"+X(okp[okp.length-1].t).toFixed(1)+" "+(Hh-B)+"L"+X(okp[0].t).toFixed(1)+" "+(Hh-B)+"Z";
   pts.forEach(function(p){if(!p.ok)er+='<line x1="'+X(p.t)+'" x2="'+X(p.t)+'" y1="'+T+'" y2="'+(Hh-B)+'" stroke="#ff5d62" stroke-width="2"><title>'+tm(p.t)+" UTC: błąd, kod "+(p.code||"brak odpowiedzi")+'</title></line>';});
   var last=pts[pts.length-1],fails=pts.filter(function(p){return !p.ok;});
-  openDlg(sv.name+": "+(sv.what||""),'<dl class="facts"><div><dt>Ostatni wynik</dt><dd>'+esc(last.ok?"poprawny, "+last.ms+" ms":"błąd")+'</dd></div><div><dt>Kod odpowiedzi</dt><dd>'+esc(last.code||"brak odpowiedzi")+(sv.expect?" (oczekiwany: "+esc(sv.expect)+")":"")+'</dd></div><div><dt>Dostępność</dt><dd>'+(pts.length?(okp.length/pts.length*100).toFixed(2).replace(".",",")+"%":"brak")+" ("+okp.length+" z "+pts.length+')</dd></div><div><dt>Okno pomiarów</dt><dd>'+esc(tm(t0)+" – "+tm(t1)+" UTC")+'</dd></div><div><dt>Najkrótszy czas</dt><dd>'+(ms.length?ms[0]+" ms":"brak")+'</dd></div><div><dt>Mediana</dt><dd>'+pct(.5)+'</dd></div><div><dt>95. percentyl</dt><dd>'+pct(.95)+'</dd></div><div><dt>Najdłuższy czas</dt><dd>'+(ms.length?ms[ms.length-1]+" ms":"brak")+'</dd></div></dl>'+(sv.url?'<p><b>Sprawdzany adres:</b> <code>'+esc(sv.url)+'</code></p>':"")+'<p><b>Czas odpowiedzi w milisekundach</b> (czas UTC; czerwona linia oznacza nieudany pomiar)</p><svg class="big" viewBox="0 0 '+W+" "+Hh+'" role="img" aria-label="Wykres czasu odpowiedzi">'+g+(area?'<path d="'+area+'" fill="rgba(86,204,255,.14)"/>':"")+'<path d="'+line+'" fill="none" stroke="#56ccff" stroke-width="1.8" stroke-linejoin="round"/>'+er+dots+'</svg><p><b>Nieudane pomiary w oknie:</b> '+(fails.length?fails.slice(-8).map(function(p){return esc(tm(p.t)+" UTC (kod "+(p.code||"brak odpowiedzi")+")");}).join(", "):"brak")+'</p><p class="note">Pomiar z jednej lokalizacji (GitHub Actions). Czas obejmuje zestawienie połączenia i pobranie odpowiedzi.</p>');
+  openDlg(sv.name+": "+(sv.what||""),'<dl class="facts"><div><dt>Ostatni wynik</dt><dd>'+esc(last.ok?"poprawny, "+last.ms+" ms":"błąd")+'</dd></div><div><dt>Kod odpowiedzi</dt><dd>'+esc(last.code||"brak odpowiedzi")+(sv.expect?" (oczekiwany: "+esc(sv.expect)+")":"")+'</dd></div><div><dt>Dostępność</dt><dd>'+(pts.length?(okp.length/pts.length*100).toFixed(2).replace(".",",")+"%":"brak")+" ("+okp.length+" z "+pts.length+')</dd></div><div><dt>Okno pomiarów</dt><dd>'+esc(tm(t0)+" – "+tm(t1)+" UTC")+'</dd></div><div><dt>Najkrótszy czas</dt><dd>'+(ms.length?ms[0]+" ms":"brak")+'</dd></div><div><dt>Mediana</dt><dd>'+pct(.5)+'</dd></div><div><dt>95. percentyl</dt><dd>'+pct(.95)+'</dd></div><div><dt>Najdłuższy czas</dt><dd>'+(ms.length?ms[ms.length-1]+" ms":"brak")+'</dd></div></dl>'+(sv.url?'<p><b>Sprawdzany adres:</b> <code>'+esc(sv.url)+'</code></p>':"")+'<div class="tsc" id="ts-probe"></div><p><b>Nieudane pomiary w oknie:</b> '+(fails.length?fails.slice(-8).map(function(p){return esc(tm(p.t)+" UTC (kod "+(p.code||"brak odpowiedzi")+")");}).join(", "):"brak")+'</p><p class="note">Pomiar z jednej lokalizacji (GitHub Actions). Czas obejmuje zestawienie połączenia i pobranie odpowiedzi.</p>');
+  var DP=pts.map(function(p){return {t:p.t*60000,v:p.ok?p.ms:null,q:p.ok?"ok":"crit",code:p.code,ok:p.ok};});
+  tsMount($("ts-probe"),{pts:DP,base:ms.length?tsQ(ms,.5):0,unit:"ms",title:"Czas odpowiedzi",label:"Wykres czasu odpowiedzi sondy",regions:tsRuns(DP),legend:[["l-line","czas odpowiedzi"],["l-base","mediana"],["l-crit","nieudany pomiar"]],
+    tip:function(p){return '<b>'+tsDM(p.t)+" "+tsHM(p.t)+' UTC</b>'+(p.ok?p.v+" ms, kod "+esc(p.code):'<em class="crit">błąd, kod '+esc(p.code||"brak odpowiedzi")+'</em>');}});
 }
 var LASTD=null,TABC={},BUILD=/*BUILD*/null,TF="24",FRREG=null;
 try{TF=localStorage.getItem("pulse-tf")==="12"?"12":"24";}catch(e){}
