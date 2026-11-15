@@ -1198,6 +1198,33 @@ body:not([data-view="home"]) .top .vt{display:none}
 .ts-card{padding:14px 16px;margin-top:12px}
 .pb-chart{margin-top:2px}
 #ts-probe{margin:10px 0}
+
+/* telemetry view */
+.ts-mk line{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:2 3}
+.ts-mk path{fill:var(--muted)}
+.ts-mk.crit line{stroke:var(--crit)}.ts-mk.crit path{fill:var(--crit)}
+.ts-mk.warn line{stroke:var(--warn)}.ts-mk.warn path{fill:var(--warn)}
+.ts-mk.ok line{stroke:var(--ok)}.ts-mk.ok path{fill:var(--ok)}
+.ts-lg .l-mk{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid var(--warn);border-radius:0}
+.tl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.tl-grid.two{grid-template-columns:repeat(auto-fill,minmax(420px,1fr))}
+.tl-grid .ts-card{margin-top:0;min-width:0}
+.tl-one{cursor:pointer}
+.tl-one .ts-h1 b{font-size:14px}
+.hm{display:grid;grid-template-columns:minmax(120px,210px) minmax(0,1fr);gap:0 10px}
+.hm-l{display:flex;flex-direction:column}
+.hm-r{height:20px;padding:0;border:0;background:none;color:var(--ink);font:500 12.5px/20px var(--f-body);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.hm-r small{color:var(--muted);font-size:12px;margin-left:6px}
+.hm-r:hover{color:var(--flow)}
+.hm-c svg{display:block;width:100%}
+.hm-c rect{cursor:pointer}
+.hm .h1,.ts-lg .h1{fill:var(--flow);background:var(--flow);opacity:.28}
+.hm .h2,.ts-lg .h2{fill:var(--flow);background:var(--flow);opacity:.55}
+.hm .h3,.ts-lg .h3{fill:var(--warn);background:var(--warn);opacity:.75}
+.hm .h4,.ts-lg .h4{fill:var(--warn);background:var(--warn);opacity:1}
+.hm .hx,.ts-lg .hx{fill:var(--crit);background:var(--crit)}
+#tl-hm-lg{margin-top:10px}
+@media (max-width:760px){.tl-grid,.tl-grid.two{grid-template-columns:1fr}.hm{grid-template-columns:104px minmax(0,1fr)}.hm-r small{display:none}}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -1361,6 +1388,18 @@ body:not([data-view="home"]) .top .vt{display:none}
     </div>
       <h3 class="sh">Lista sond</h3><div class="card" style="padding:0;overflow:hidden"><table class="dt" id="pb-desc"><thead><tr><th>Sonda</th><th>Co sprawdza</th><th>Adres</th><th>Oczekiwany kod</th></tr></thead><tbody></tbody></table></div>
     </div>
+  </section>
+
+  <section id="telemetria" hidden>
+    <header><h2>Telemetria</h2><p>Wszystkie szeregi czasowe portalu w jednym miejscu: własne sondy HTTP, sygnały zewnętrzne i znaczniki wpisów Microsoft. Każdy wykres ma celownik z dokładnymi wartościami; wybranie punktu otwiera szczegóły.</p></header>
+    <h3 class="sh">Czas odpowiedzi wszystkich sond</h3>
+    <div class="card ts-card" id="tl-all"></div>
+    <h3 class="sh">Mapa cieplna: sonda i czas</h3>
+    <div class="card ts-card"><div class="hm" id="tl-hm"></div><div class="ts-lg" id="tl-hm-lg"><span><i class="h1"></i>szybciej niż zwykle</span><span><i class="h2"></i>typowo</span><span><i class="h3"></i>ponad dwukrotnie wolniej</span><span><i class="h4"></i>ponad czterokrotnie wolniej</span><span><i class="hx"></i>brak odpowiedzi</span></div><p class="pb-n">Jeden wiersz to jedna sonda, jedna kolumna to jeden pomiar. Kolor porównuje czas odpowiedzi z medianą tej sondy. Pionowy pas w jednym kolorze oznacza zdarzenie wspólne dla wielu usług, pojedyncza plama dotyczy jednej usługi. Wybierz pole, aby zobaczyć szczegóły pomiaru, albo nazwę sondy, aby zobaczyć jej wykres.</p></div>
+    <h3 class="sh">Każda sonda osobno</h3>
+    <div class="tl-grid" id="tl-each"></div>
+    <h3 class="sh">Sygnały zewnętrzne</h3>
+    <div class="tl-grid two" id="tl-ext"></div>
   </section>
 
   <section id="zrodla" data-tabs>
@@ -2017,8 +2056,8 @@ function frame(ts){var dt=Math.min(.1,(ts-prev)/1000||0);prev=ts;
   if(playing){pos+=dt*speed;if(pos>=TOTAL){pos=TOTAL;setPlaying(false);}}
   updateDom();if(vis.globe&&VIEW==="globe")drawGlobe(ts/1000,dt);if(vis.pipe)drawPipe(ts/1000);if(vis.map&&VIEW==="map")drawMap(ts/1000);if(vis.chart)drawChart();if(vis.traffic)drawTraffic();drawMini();if(vis.heat)drawHeat();requestAnimationFrame(frame);}
 
-var VIEWS=[["home","Przegląd",["stage","home-tiles"]],["incydenty","Incydenty",["biezace","rejestr"]],["sygnaly","Panel sygnalizacyjny",["sygnaly"]],["uslugi","Stan usług",["uslugi"]],["regiony","Regiony Azure",["regiony"]],["pomiary","Sondy HTTP",["pomiary"]],["microsoft","Komunikaty Microsoft",["zrodla"]],["model","Analiza incydentów",["analiza","demo-b","model","model-globe","ruch","sciezka","lokalizacje","zdarzenia"]],["slownik","Słownik",["slownik"]]],CURV="";
-var VICON={home:'<path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/>',incydenty:'<path d="M10 3l8 14H2zM10 8.5v4M10 14.6v.2"/>',sygnaly:'<circle cx="4.5" cy="10" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="15.5" cy="10" r="2"/>',uslugi:'<path d="M3 5h14M3 10h14M3 15h14"/>',regiony:'<circle cx="10" cy="10" r="7.5"/><path d="M2.5 10h15M10 2.5c3 3 3 12 0 15M10 2.5c-3 3-3 12 0 15"/>',pomiary:'<path d="M2 10h4l2-5 3 10 2-5h5"/>',microsoft:'<path d="M3 4h14v10H8.5L5 17v-3H3z"/>',model:'<path d="M6.5 4.5l9 5.5-9 5.5z"/>',slownik:'<path d="M4 3.5h9a3 3 0 0 1 3 3v10H7a3 3 0 0 1-3-3zM7.5 7.5h5M7.5 10.5h5"/>'},VGRP={home:"Monitoring",microsoft:"Źródła Microsoft",model:"Analiza"};
+var VIEWS=[["home","Przegląd",["stage","home-tiles"]],["incydenty","Incydenty",["biezace","rejestr"]],["sygnaly","Panel sygnalizacyjny",["sygnaly"]],["uslugi","Stan usług",["uslugi"]],["regiony","Regiony Azure",["regiony"]],["pomiary","Sondy HTTP",["pomiary"]],["telemetria","Telemetria",["telemetria"]],["microsoft","Komunikaty Microsoft",["zrodla"]],["model","Analiza incydentów",["analiza","demo-b","model","model-globe","ruch","sciezka","lokalizacje","zdarzenia"]],["slownik","Słownik",["slownik"]]],CURV="";
+var VICON={home:'<path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/>',incydenty:'<path d="M10 3l8 14H2zM10 8.5v4M10 14.6v.2"/>',sygnaly:'<circle cx="4.5" cy="10" r="2"/><circle cx="10" cy="10" r="2"/><circle cx="15.5" cy="10" r="2"/>',uslugi:'<path d="M3 5h14M3 10h14M3 15h14"/>',regiony:'<circle cx="10" cy="10" r="7.5"/><path d="M2.5 10h15M10 2.5c3 3 3 12 0 15M10 2.5c-3 3-3 12 0 15"/>',pomiary:'<path d="M2 10h4l2-5 3 10 2-5h5"/>',telemetria:'<path d="M3 3v14h14M6 13l3-4 3 2 4-6"/>',microsoft:'<path d="M3 4h14v10H8.5L5 17v-3H3z"/>',model:'<path d="M6.5 4.5l9 5.5-9 5.5z"/>',slownik:'<path d="M4 3.5h9a3 3 0 0 1 3 3v10H7a3 3 0 0 1-3-3zM7.5 7.5h5M7.5 10.5h5"/>'},VGRP={home:"Monitoring",microsoft:"Źródła Microsoft",model:"Analiza"};
 function setBadge(v,t,q){var b=$("bdg-"+v);if(!b)return;b.textContent=t;b.className="bdg"+(q?" "+q:"");b.hidden=!t;}
 var BST=[];
 function showView(v,anchor){
@@ -2092,7 +2131,7 @@ var DATA_URL="https://raw.githubusercontent.com/wpiotrw/azureme-pulse/data/statu
 function renderLive(d){
   if(!d||!d.services||!d.samples||!d.samples.length)throw new Error("empty");
   try{normHealth(d.health);}catch(e){}
-  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderTraffic(d);}catch(e){}try{renderBrief(d);}catch(e){}
+  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderTraffic(d);}catch(e){}try{renderTele(d);}catch(e){}try{renderBrief(d);}catch(e){}
   try{renderCurrent(d);}catch(e){}
   try{renderRegions(d.regions);}catch(e){}
   try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
@@ -2353,10 +2392,11 @@ function tsDraw(el){
   var line="",area="",band="";segs.forEach(function(a){var c=curve(a,function(p){return Y(p.v);});line+="M"+c;area+="M"+c+"L"+X(a[a.length-1].t).toFixed(1)+" "+(T+ph)+"L"+X(a[0].t).toFixed(1)+" "+(T+ph)+"Z";
     if(a[0].hi!=null){var up=curve(a,function(p){return Y(p.hi);}),lo=a.slice().reverse().map(function(p){return X(p.t).toFixed(1)+" "+Y(p.lo).toFixed(1);}).join("L");band+="M"+up+"L"+lo+"Z";}});
   var reg="";(o.regions||[]).forEach(function(r){var x0=Math.max(L,X(r.a)-step/2*pw/span),x1=Math.min(W-R,X(r.b)+step/2*pw/span),w=Math.max(3,x1-x0);reg+='<rect class="ts-reg '+r.q+'" x="'+x0.toFixed(1)+'" y="'+T+'" width="'+w.toFixed(1)+'" height="'+ph+'"/><rect x="'+x0.toFixed(1)+'" y="'+T+'" width="'+w.toFixed(1)+'" height="'+ph+'" fill="url(#'+id+r.q+')"/><rect class="ts-regt '+r.q+'" x="'+x0.toFixed(1)+'" y="'+T+'" width="'+w.toFixed(1)+'" height="3"/>';});
+  var mk="";(o.marks||[]).forEach(function(m){if(m.t<t0||m.t>t1)return;var x=X(m.t).toFixed(1);mk+='<g class="ts-mk '+(m.q||"")+'"><line x1="'+x+'" x2="'+x+'" y1="'+T+'" y2="'+(T+ph)+'"/><path d="M'+(x-5)+" "+(T-9)+"h10l-5 8z"+'"/><title>'+esc(m.label)+'</title></g>';});
   var base="";if(o.base){var by=Y(o.base);base='<line class="ts-base" x1="'+L+'" x2="'+(W-R)+'" y1="'+by.toFixed(1)+'" y2="'+by.toFixed(1)+'"/>';}
   var strip="";if(SB){var bw=Math.max(1,pw/(P.length-1)),gaps=P.slice(1).map(function(p,i){return p.t-P[i].t;}).sort(function(a,b){return a-b;}),ms0=gaps[Math.floor(gaps.length/2)]||step;P.forEach(function(p,i){var nx=i<P.length-1?P[i+1].t:p.t+ms0,w=Math.max(1,(Math.min(nx-p.t,ms0*2.2))/span*pw);strip+='<rect class="ts-st '+(p.q||"ok")+'" x="'+Math.min(X(p.t),W-R-1).toFixed(1)+'" y="'+(H-10)+'" width="'+Math.min(w+.4,W-R-X(p.t)+1).toFixed(1)+'" height="8"/>';});}
   var defs='<defs><linearGradient id="'+id+'g" x1="0" x2="0" y1="0" y2="1"><stop class="ts-g0" offset="0"/><stop class="ts-g1" offset="1"/></linearGradient>'+["warn","crit"].map(function(q){return '<pattern id="'+id+q+'" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="ts-h '+q+'" x1="0" y1="0" x2="0" y2="7"/></pattern>';}).join("")+'<clipPath id="'+id+'c"><rect x="'+L+'" y="'+(T-2)+'" width="'+pw+'" height="'+(ph+2)+'"/></clipPath></defs>';
-  var svg='<svg class="ts-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+" "+H+'" role="img" aria-label="'+esc(o.label||"Wykres")+'">'+defs+g+reg+'<g clip-path="url(#'+id+'c)">'+(band?'<path class="ts-band" d="'+band+'"/>':"")+'<path d="'+area+'" fill="url(#'+id+'g)"/><path class="ts-line" d="'+line+'"/></g>'+base+strip+'<line class="ts-ch" y1="'+T+'" y2="'+(T+ph)+'" x1="0" x2="0" visibility="hidden"/><circle class="ts-dot" r="4.5" visibility="hidden"/><rect class="ts-hit" x="'+L+'" y="0" width="'+pw+'" height="'+H+'" fill="transparent"/></svg>';
+  var svg='<svg class="ts-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+" "+H+'" role="img" aria-label="'+esc(o.label||"Wykres")+'">'+defs+g+reg+'<g clip-path="url(#'+id+'c)">'+(band?'<path class="ts-band" d="'+band+'"/>':"")+'<path d="'+area+'" fill="url(#'+id+'g)"/><path class="ts-line" d="'+line+'"/></g>'+base+mk+strip+'<line class="ts-ch" y1="'+T+'" y2="'+(T+ph)+'" x1="0" x2="0" visibility="hidden"/><circle class="ts-dot" r="4.5" visibility="hidden"/><rect class="ts-hit" x="'+L+'" y="0" width="'+pw+'" height="'+H+'" fill="transparent"/></svg>';
   var lg='<div class="ts-lg">'+(o.legend||[]).map(function(x){return '<span><i class="'+x[0]+'"></i>'+esc(x[1])+'</span>';}).join("")+'</div>';
   var stt=(o.stats&&o.stats.length)?'<dl class="ts-stats">'+o.stats.map(function(x){return '<div><dt>'+esc(x[0])+'</dt><dd>'+esc(x[1])+'</dd></div>';}).join("")+'</dl>':"";
   el.innerHTML=(o.title?'<div class="ts-h1"><b>'+esc(o.title)+'</b>'+(o.unit?'<span>'+esc(o.unit)+'</span>':"")+'</div>':"")+'<div class="ts-plot">'+svg+'<div class="ts-tip" hidden></div></div>'+lg+stt;
@@ -2384,6 +2424,32 @@ function renderTraffic(d){var r=d.signals&&d.signals.radar,host=$("sg-ext");if(!
   var P=v.map(function(y,i){return {t:a+(b-a)*i/(v.length-1),v:y*100,q:y<mn*.4&&i>v.length-3?"crit":y<mn*.7&&i>v.length-3?"warn":"ok"};});
   tsMount(el,{pts:P,base:med*100,unit:"% maksimum doby",title:"Ruch do sieci Microsoft według Cloudflare Radar",label:"Wykres ruchu do sieci Microsoft",fmt:function(x){return Math.round(x)+"%";},legend:[["l-line","ruch znormalizowany"],["l-base","mediana doby"]],
     stats:[["Mediana doby",Math.round(med*100)+"%"],["Minimum doby",Math.round(mn*100)+"%"],["Ostatni pełny odczyt",Math.round(v[v.length-2]*100)+"%"]].concat(r.week?[["Względem tej samej godziny sprzed tygodnia",r.week.ratio+"%"]]:[])});}
+function msMarks(d){var seen={},out=[];(d.health||[]).forEach(function(h){(h.issues||[]).forEach(function(i){if(seen[i.id])return;seen[i.id]=1;var inc=isInc(i);[["start","początek"],["updateAt","wpis Microsoft"],["end","zakończenie"]].forEach(function(k){var t=Date.parse(i[k[0]]||"");if(!isNaN(t))out.push({t:t,q:k[0]==="end"?"ok":inc?"crit":"warn",label:i.id+": "+k[1]+", "+fdt(i[k[0]])});});});});return out;}
+function teleAgg(d){return d.samples.map(function(x){var a=[],f=0;d.services.forEach(function(sv){var v=x.r&&x.r[sv.id];if(!v)return;if(v[0])a.push(v[1]);else f++;});a.sort(function(p,q){return p-q;});return {t:x.t*60000,v:a.length?tsQ(a,.5):null,lo:a.length?tsQ(a,.1):null,hi:a.length?tsQ(a,.9):null,q:f>=2?"crit":f?"warn":"ok",f:f,n:a.length+f};});}
+function renderTele(d){
+  var S=d.samples||[];if(S.length<2||!$("tl-all"))return;var AP=teleAgg(d),allms=AP.filter(function(p){return p.v!=null;}).map(function(p){return p.v;}).sort(function(p,q){return p-q;}),med=tsQ(allms,.5),MK=msMarks(d);
+  tsMount($("tl-all"),{pts:AP,base:med,unit:"ms",h:300,title:"Mediana czasu odpowiedzi i zakłócenia",label:"Czas odpowiedzi wszystkich sond",regions:tsRuns(AP),marks:MK,
+    legend:[["l-line","mediana czasu odpowiedzi"],["l-band","zakres 10–90%"],["l-base","mediana okna"],["l-warn","jedna sonda bez odpowiedzi"],["l-crit","co najmniej dwie sondy bez odpowiedzi"],["l-mk","wpis lub zmiana stanu zgłoszenia Microsoft"]],
+    stats:[["Mediana okna",med!=null?med+" ms":"brak"],["95. percentyl",allms.length?tsQ(allms,.95)+" ms":"brak"],["Pomiary w oknie",String(S.length)],["Okno",tmin(S[0].t)+" – "+tmin(S[S.length-1].t)]],
+    tip:function(p){return '<b>'+tsDM(p.t)+" "+tsHM(p.t)+' UTC</b>'+(p.v!=null?"mediana "+p.v+" ms<br>zakres "+p.lo+"–"+p.hi+" ms<br>":"")+(p.f?'<em class="'+p.q+'">sondy bez odpowiedzi: '+p.f+" z "+p.n+'</em>':"wszystkie sondy odpowiedziały");},click:function(i){sampleDlg(i);}});
+  var n=S.length,rows="",cells="",RH=20;
+  d.services.forEach(function(sv,r){var ok=[];S.forEach(function(x){var v=x.r&&x.r[sv.id];if(v&&v[0])ok.push(v[1]);});ok.sort(function(a,b){return a-b;});var m=tsQ(ok,.5)||1;
+    rows+='<button type="button" class="hm-r" data-pid="'+esc(sv.id)+'" title="'+esc(sv.what||"")+'">'+esc(sv.name)+'<small>'+esc(sv.what||"")+'</small></button>';
+    S.forEach(function(x,c){var v=x.r&&x.r[sv.id];if(!v)return;var k=!v[0]?"hx":v[1]<m*.8?"h1":v[1]<m*2?"h2":v[1]<m*4?"h3":"h4";cells+='<rect class="'+k+'" x="'+c+'" y="'+(r*RH+1)+'" width="1.02" height="'+(RH-2)+'" data-hc="'+c+'"><title>'+esc(sv.name+", "+tmin(x.t)+": "+(v[0]?v[1]+" ms":"brak odpowiedzi"))+'</title></rect>';});});
+  $("tl-hm").innerHTML='<div class="hm-l">'+rows+'</div><div class="hm-c"><svg viewBox="0 0 '+n+" "+(d.services.length*RH)+'" preserveAspectRatio="none" style="height:'+(d.services.length*RH)+'px" role="img" aria-label="Mapa cieplna czasu odpowiedzi sond">'+cells+'</svg><div class="pb-ax"><span>'+esc(tmin(S[0].t))+'</span><span>'+esc(tmin(S[n-1].t))+'</span></div></div>';
+  var each=$("tl-each");if(each.children.length!==d.services.length){each.innerHTML=d.services.map(function(sv){return '<div class="card ts-card tl-one" data-pid="'+esc(sv.id)+'"></div>';}).join("");}
+  d.services.forEach(function(sv,k){var P=S.map(function(x){var v=x.r&&x.r[sv.id];return v?{t:x.t*60000,v:v[0]?v[1]:null,q:v[0]?"ok":"crit",ok:v[0],code:v[2]}:null;}).filter(Boolean),ms=P.filter(function(p){return p.v!=null;}).map(function(p){return p.v;}).sort(function(a,b){return a-b;});
+    tsMount(each.children[k],{pts:P,base:tsQ(ms,.5)||0,unit:"ms",h:170,title:sv.name+": "+(sv.what||""),label:"Czas odpowiedzi sondy "+sv.name,regions:tsRuns(P),marks:MK,stats:[["Mediana",ms.length?tsQ(ms,.5)+" ms":"brak"],["95. percentyl",ms.length?tsQ(ms,.95)+" ms":"brak"],["Poprawne pomiary",P.length?(ms.length/P.length*100).toFixed(ms.length===P.length?0:2).replace(".",",")+"%":"brak"]],
+      tip:function(p){return '<b>'+tsDM(p.t)+" "+tsHM(p.t)+' UTC</b>'+(p.ok?p.v+" ms, kod "+esc(p.code):'<em class="crit">błąd, kod '+esc(p.code||"brak odpowiedzi")+'</em>');},click:(function(id){return function(){probeDetail(id);};})(sv.id)});});
+  var ext=$("tl-ext"),sg=d.signals||{},defs=[];
+  if(sg.radar&&sg.radar.values&&sg.radar.from&&sg.radar.to){var v=sg.radar.values,a=Date.parse(sg.radar.from),b=Date.parse(sg.radar.to),srt=v.slice().sort(function(p,q){return p-q;});defs.push({pts:v.map(function(y,i){return {t:a+(b-a)*i/(v.length-1),v:y*100};}),base:tsQ(srt,.5)*100,unit:"% maksimum doby",title:"Ruch do sieci Microsoft (Cloudflare Radar)",fmt:function(x){return Math.round(x)+"%";},legend:[["l-line","ruch znormalizowany"],["l-base","mediana doby"]],stats:[["Mediana doby",Math.round(tsQ(srt,.5)*100)+"%"],["Minimum doby",Math.round(srt[0]*100)+"%"]].concat(sg.radar.week?[["Względem tej samej godziny sprzed tygodnia",sg.radar.week.ratio+"%"]]:[])});}
+  if(sg.atlas&&sg.atlas.hist&&sg.atlas.hist.length>1){defs.push({pts:sg.atlas.hist.map(function(x){return {t:x[0]*60000,v:x[1],q:x[1]<90?"crit":x[1]<96?"warn":"ok"};}),unit:"% kotwic",title:"Osiągalność www.office.com z kotwic RIPE Atlas",fmt:function(x){return Math.round(x)+"%";},legend:[["l-line","odsetek kotwic z odpowiedzią"]],stats:[["Ostatni odczyt",String(sg.atlas.reach).replace(".",",")+"%"],["Kotwice",sg.atlas.okCount+" z "+sg.atlas.n],["Kraje",String(sg.atlas.countries)]]});
+    defs.push({pts:sg.atlas.hist.map(function(x){return {t:x[0]*60000,v:x[2]};}),unit:"ms",title:"Mediana opóźnienia do www.office.com (RIPE Atlas)",fmt:function(x){return (Math.round(x*10)/10).toString().replace(".",",");},legend:[["l-line","mediana opóźnienia"]],stats:[["Ostatni odczyt",String(sg.atlas.med).replace(".",",")+" ms"]]});}
+  if(sg.bgp&&sg.bgp.hist&&sg.bgp.hist.length>1){defs.push({pts:sg.bgp.hist.map(function(x){return {t:x[0]*60000,v:x[1],q:x[2]<90?"crit":x[2]<98?"warn":"ok"};}),unit:"prefiksy IPv4",title:"Prefiksy rozgłaszane przez sieć Microsoft (RIPEstat)",legend:[["l-line","liczba prefiksów IPv4"]],stats:[["Ostatni odczyt",String(sg.bgp.v4.prefixes)],["Widoczność w kolektorach",sg.bgp.v4.seen+" z "+sg.bgp.v4.total]]});}
+  if(ext.children.length!==defs.length)ext.innerHTML=defs.map(function(){return '<div class="card ts-card"></div>';}).join("");
+  defs.forEach(function(o,k){o.h=210;o.marks=MK;o.label=o.title;tsMount(ext.children[k],o);});
+}
+document.addEventListener("click",function(e){var t=e.target;if(t&&t.getAttribute&&t.tagName&&t.tagName.toLowerCase()==="rect"&&t.getAttribute("data-hc")!==null){sampleDlg(+t.getAttribute("data-hc"));return;}var b=t&&t.closest&&t.closest(".hm-r");if(b)probeDetail(b.getAttribute("data-pid"));});
 function renderProbeSum(d){
   var S=d.samples||[],n=S.length;if(!n||!d.services)return;
   var tot=0,okc=0,bars="",W=n*4,runs=probeRuns(d),last=S[n-1],lt=0,lo=0;
@@ -2394,8 +2460,8 @@ function renderProbeSum(d){
     +'<div class="pb-chart"></div><p class="pb-n">Linia pokazuje medianę czasu odpowiedzi wszystkich sond w każdym pomiarze, a jaśniejszy pas zakres od 10. do 90. percentyla. Zakreskowane pola oznaczają pomiary, w których co najmniej jedna sonda nie odpowiedziała. Wybierz punkt wykresu, aby zobaczyć szczegóły pomiaru.</p>';
   var AP=S.map(function(x){var a=[],f=0;d.services.forEach(function(sv){var v=x.r&&x.r[sv.id];if(!v)return;if(v[0])a.push(v[1]);else f++;});a.sort(function(p,q){return p-q;});return {t:x.t*60000,v:a.length?tsQ(a,.5):null,lo:a.length?tsQ(a,.1):null,hi:a.length?tsQ(a,.9):null,q:f>=2?"crit":f?"warn":"ok",f:f,n:a.length+f};});
   var allms=AP.filter(function(p){return p.v!=null;}).map(function(p){return p.v;}).sort(function(p,q){return p-q;}),med=tsQ(allms,.5);
-  Array.prototype.forEach.call(document.querySelectorAll("[data-pb]"),function(b){b.innerHTML=h;tsMount(b.querySelector(".pb-chart"),{pts:AP,base:med,unit:"ms",label:"Czas odpowiedzi sond i zakłócenia",title:"Czas odpowiedzi sond",regions:tsRuns(AP),
-    legend:[["l-line","mediana czasu odpowiedzi"],["l-band","zakres 10–90%"],["l-base","mediana okna"],["l-warn","jedna sonda bez odpowiedzi"],["l-crit","co najmniej dwie sondy bez odpowiedzi"]],
+  Array.prototype.forEach.call(document.querySelectorAll("[data-pb]"),function(b){b.innerHTML=h;tsMount(b.querySelector(".pb-chart"),{pts:AP,base:med,unit:"ms",label:"Czas odpowiedzi sond i zakłócenia",title:"Czas odpowiedzi sond",regions:tsRuns(AP),marks:msMarks(d),
+    legend:[["l-line","mediana czasu odpowiedzi"],["l-band","zakres 10–90%"],["l-base","mediana okna"],["l-warn","jedna sonda bez odpowiedzi"],["l-crit","co najmniej dwie sondy bez odpowiedzi"],["l-mk","wpis lub zmiana stanu zgłoszenia Microsoft"]],
     stats:[["Mediana okna",med!=null?med+" ms":"brak"],["95. percentyl",allms.length?tsQ(allms,.95)+" ms":"brak"],["Najdłuższa mediana",allms.length?allms[allms.length-1]+" ms":"brak"]],
     tip:function(p){return '<b>'+tsDM(p.t)+" "+tsHM(p.t)+' UTC</b>'+(p.v!=null?"mediana "+p.v+" ms<br>zakres "+p.lo+"–"+p.hi+" ms<br>":"")+(p.f?'<em class="'+p.q+'">sondy bez odpowiedzi: '+p.f+" z "+p.n+'</em>':"wszystkie sondy odpowiedziały");},
     click:function(i){sampleDlg(i);}});});

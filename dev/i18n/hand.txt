@@ -360,3 +360,39 @@ Ostatni pełny odczyt|Last complete reading
 Względem tej samej godziny sprzed tygodnia|Relative to the same hour one week earlier
 brak danych|no data
 Wykres|Chart
+Telemetria|Telemetry
+Wszystkie szeregi czasowe portalu w jednym miejscu: własne sondy HTTP, sygnały zewnętrzne i znaczniki wpisów Microsoft. Każdy wykres ma celownik z dokładnymi wartościami; wybranie punktu otwiera szczegóły.|All time series of the portal in one place: own HTTP probes, external signals and markers of Microsoft posts. Every chart has a crosshair with exact values; selecting a point opens the details.
+Czas odpowiedzi wszystkich sond|Response time of all probes
+Mapa cieplna: sonda i czas|Heat map: probe and time
+szybciej niż zwykle|faster than usual
+typowo|typical
+ponad czterokrotnie wolniej|more than four times as slow
+ponad dwukrotnie wolniej|more than twice as slow
+brak odpowiedzi|no response
+Jeden wiersz to jedna sonda, jedna kolumna to jeden pomiar. Kolor porównuje czas odpowiedzi z medianą tej sondy. Pionowy pas w jednym kolorze oznacza zdarzenie wspólne dla wielu usług, pojedyncza plama dotyczy jednej usługi. Wybierz pole, aby zobaczyć szczegóły pomiaru, albo nazwę sondy, aby zobaczyć jej wykres.|One row is one probe, one column is one measurement. The colour compares the response time with the median of that probe. A vertical band in one colour means an event shared by many services, a single spot concerns one service. Select a cell to see the measurement details, or a probe name to see its chart.
+Każda sonda osobno|Each probe separately
+Sygnały zewnętrzne|External signals
+Mediana czasu odpowiedzi i zakłócenia|Median response time and disruptions
+wpis lub zmiana stanu zgłoszenia Microsoft|Microsoft post or issue state change
+Pomiary w oknie|Measurements in the window
+Okno|Window
+Mapa cieplna czasu odpowiedzi sond|Heat map of probe response times
+Czas odpowiedzi sondy|Probe response time
+Mediana|Median
+Poprawne pomiary|Successful measurements
+Ruch do sieci Microsoft (Cloudflare Radar)|Traffic to the Microsoft network (Cloudflare Radar)
+% kotwic|% of anchors
+Osiągalność www.office.com z kotwic RIPE Atlas|Reachability of www.office.com from RIPE Atlas anchors
+odsetek kotwic z odpowiedzią|share of anchors with a response
+Ostatni odczyt|Latest reading
+Kotwice|Anchors
+Kraje|Countries
+Mediana opóźnienia do www.office.com (RIPE Atlas)|Median latency to www.office.com (RIPE Atlas)
+mediana opóźnienia|median latency
+prefiksy IPv4|IPv4 prefixes
+Prefiksy rozgłaszane przez sieć Microsoft (RIPEstat)|Prefixes announced by the Microsoft network (RIPEstat)
+liczba prefiksów IPv4|number of IPv4 prefixes
+Widoczność w kolektorach|Visibility in collectors
+początek|start
+wpis Microsoft|Microsoft post
+zakończenie|end
