@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated": "2026-11-16T05:10:00Z",
+  "updated": "2026-11-18T23:20:00Z",
   "incidents": [
     {
       "ids": [
@@ -22,8 +22,8 @@
         "Defender XDR i Purview",
         "Microsoft Graph"
       ],
-      "summary": "Użytkownicy utracili dostęp do skrzynek Exchange Online przez przeglądarkę, klienta na komputerze, urządzenia mobilne i REST. Microsoft otworzył zgłoszenie MO1550821 dla usług zależnych od Exchange Online. Według zewnętrznej analizy ruchu sieciowego ruch spadł o około 85% względem wartości oczekiwanej i zaczął wracać 13-11 około 11:20 UTC. Odczyt Service health z 16-11-2026 05:07 UTC w obu tenantach testowych pokazuje MO1550821 jako incydent (incident) ze stanem „Opublikowano raport po zdarzeniu”, ostatnia zmiana 16-11-2026 04:46 UTC. Microsoft podaje, że incydent wynikał z problemu podczas wcześniejszej rozbudowy przepustowości sieci, który ujawnił się po niedawnej zmianie w sieci, i nie był związany z cyberatakiem ani z AI. Usługi przywracano stopniowo, z weryfikacją stabilności na każdym etapie. Microsoft poinformował w Service health o opublikowaniu raportu po zdarzeniu; jego treść nie była dostępna w tym przebiegu. Pole końca w Service health podaje 13-11-2026 16:10 UTC, lecz komunikaty Microsoft trwały do 14-11-2026. Zgłoszenie EX1550543 nie występuje w Service health tenantów testowych.",
-      "summary_en": "Users lost access to Exchange Online mailboxes through the browser, the desktop client, mobile devices and REST. Microsoft opened issue MO1550821 for services that depend on Exchange Online. According to an external network traffic analysis, traffic dropped by about 85% against the expected value and began to return on 13-11 at about 11:20 UTC. The Service health read of 16-11-2026 05:07 UTC in both test tenants shows MO1550821 as an incident in the “Post-incident report published” state, last changed on 16-11-2026 at 04:46 UTC. Microsoft states that the incident resulted from a problem during an earlier network capacity upgrade that surfaced after a recent network change, and was not related to a cyberattack or to AI. Services were restored gradually, with stability validated at each stage. Microsoft reported in Service health that the post-incident report has been published; its content was not available in this run. The end field in Service health gives 13-11-2026 16:10 UTC, but Microsoft messages continued until 14-11-2026. Issue EX1550543 does not appear in Service health of the test tenants.",
+      "summary": "Użytkownicy utracili dostęp do skrzynek Exchange Online przez przeglądarkę, klienta na komputerze, urządzenia mobilne i REST. Microsoft otworzył zgłoszenie MO1550821 dla usług zależnych od Exchange Online. Według zewnętrznej analizy ruchu sieciowego ruch spadł o około 85% względem wartości oczekiwanej i zaczął wracać 13-11 około 11:20 UTC. Odczyt Service health z 16-11-2026 05:07 UTC w obu tenantach testowych pokazuje MO1550821 jako incydent (incident) ze stanem „Opublikowano raport po zdarzeniu”. Wstępny raport po zdarzeniu Microsoft z 15-11-2026 podaje jako przyczynę ukrytą wadę w serwerach bramy sieciowej, ujawnioną przez wzrost obciążenia po przełączeniu ruchu Teams i niedostępność około 14% mocy serwerów. Według raportu w najniższym punkcie ponad 80% serwerów nie odpowiadało, a koniec wpływu przypada na 13-11-2026 16:10 UTC. Raport podaje, że usługę przywracano stopniowo po wycofaniu wadliwej zmiany; ostateczny raport zapowiedziano na 20-11-2026. Zgłoszenie EX1550543 nie występuje w Service health tenantów testowych. Raport pochodzi z kopii opublikowanej przez serwis next.ink, nie z portalu Microsoft.",
+      "summary_en": "Users lost access to Exchange Online mailboxes through the browser, the desktop client, mobile devices and REST. Microsoft opened issue MO1550821 for services that depend on Exchange Online. According to an external network traffic analysis, traffic dropped by about 85% against the expected value and began to return on 13-11 at about 11:20 UTC. The Service health read of 16-11-2026 05:07 UTC in both test tenants shows MO1550821 as an incident in the “Post-incident report published” state. The Microsoft preliminary post-incident report of 15-11-2026 names a latent defect in network gateway servers as the cause, exposed by increased load after Teams traffic failover and about 14% of server capacity being out of service. According to the report, at the lowest point more than 80% of servers were unresponsive, and the impact ended on 13-11-2026 at 16:10 UTC. The report states that the service was restored gradually after the defective change was reverted; a final report was announced for 20-11-2026. Issue EX1550543 does not appear in Service health of the test tenants. The report comes from a copy published by next.ink, not from a Microsoft portal.",
       "sources": [
         {
           "name": "Microsoft Service Health (odczyt portalu, sekcja Pomiary rzeczywiste)",
@@ -44,6 +44,10 @@
         {
           "name": "Analiza zewnętrzna ruchu sieciowego",
           "url": "https://x.com/DougMadory"
+        },
+        {
+          "name": "Wstępny raport po zdarzeniu Microsoft (kopia: next.ink)",
+          "url": "https://next.ink/wp-content/uploads/2026/11/PostIncidentReport.pdf"
         }
       ],
       "own_probes": "Własne pomiary: sondy HTTP działają od 13-11-2026 19:22 UTC; w ostatnich 90 minutach przed odczytem z 16-11-2026 05:07 UTC wszystkie punkty końcowe odpowiadały zgodnie z oczekiwaniem. W czasie niedostępności portal nie miał jeszcze pomiarów.",
@@ -53,7 +57,18 @@
       ],
       "related_note": "TM1551945: porada Microsoft Teams, w której Microsoft wskazuje wzrost ruchu po niedostępności z 12-11-2026 jako przyczynę.",
       "related_note_en": "TM1551945: a Microsoft Teams advisory in which Microsoft names the traffic increase after the unavailability of 12-11-2026 as the cause.",
-      "end": "2026-11-13T16:10:00Z"
+      "end": "2026-11-13T16:10:00Z",
+      "timeline": [
+        {
+          "t": "2026-11-13T07:20:00Z",
+          "source": "Microsoft, wstępny raport po zdarzeniu (kopia: next.ink)",
+          "url": "https://next.ink/wp-content/uploads/2026/11/PostIncidentReport.pdf",
+          "title": "Microsoft zastosował aktualizację wycofującą wadliwą zmianę na części mocy bramy sieciowej.",
+          "text": "Wstępny raport podaje, że 13-11-2026 o 07:20 UTC wdrożono aktualizację wycofującą wadliwą zmianę, a o 16:10 UTC potwierdzono brak aktywnego wpływu.",
+          "title_en": "Microsoft applied an update reverting the defective change on part of the network gateway capacity.",
+          "text_en": "The preliminary report states that on 13-11-2026 at 07:20 UTC an update reverting the defective change was applied, and at 16:10 UTC no active impact was confirmed."
+        }
+      ]
     }
   ]
 }
