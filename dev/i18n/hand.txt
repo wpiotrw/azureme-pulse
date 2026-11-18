@@ -434,3 +434,42 @@ zwykły poziom|usual level
 sondy nie odpowiadają|probes not responding
 Przykładowe zgłoszenie Microsoft: początek|Sample Microsoft issue: start
 Przykładowe zgłoszenie Microsoft: zakończenie|Sample Microsoft issue: end
+Brak incydentów Microsoft|No Microsoft incidents
+w Service health i na publicznych stronach stanu|in Service health and on the public status pages
+w Service health|in Service health
+usługa z przerwą w działaniu|service with an interruption
+usługi z przerwą w działaniu|services with an interruption
+usług z przerwą w działaniu|services with an interruption
+według Service health, bez zgłoszenia incydentu|according to Service health, with no incident reported
+Dostępna; oznaczona przez Microsoft w związku z poradą dotyczącą innej usługi|Available; marked by Microsoft in connection with an advisory for another service
+Dostępna; oznaczenie Microsoft bez otwartego zgłoszenia|Available; marked by Microsoft with no open issue
+wykryto w tenancie|detected in the tenant
+wykryto we wszystkich tenantach (|detected in all tenants (
+wykryto w|detected in
+incydent w Service health tenanta|incident in tenant Service health
+incydenty w Service health tenantów|incidents in tenant Service health
+incydentów w Service health tenantów|incidents in tenant Service health
+Azure Service Health w subskrypcjach|Azure Service Health in subscriptions
+wykryto w subskrypcji Azure:|detected in an Azure subscription:
+Zakończone|Ended
+Ostrzeżenie|Warning
+Krytyczny|Critical
+Informacja|Information
+Zdarzenie|Event
+Usługi|Services
+Regiony|Regions
+Początek|Start
+Azure Service Health w portalu Azure ↗|Azure Service Health in the Azure portal ↗
+Portal nie ma dostępu do żadnej subskrypcji Azure. Aby odczytywać problemy widoczne w Azure Service Health, aplikacja portalu potrzebuje roli Czytelnik (Reader) w subskrypcji.|The portal has no access to any Azure subscription. To read problems visible in Azure Service Health, the portal application needs the Reader role on the subscription.
+To zdarzenia z Azure Service Health (Service issues) odczytane w subskrypcjach tenantów testowych. Dotyczą usług używanych w tych subskrypcjach, dlatego mogą nie występować na publicznej stronie stanu Azure ani u innych klientów.|These are Azure Service Health events (Service issues) read in the subscriptions of the test tenants. They concern services used in those subscriptions, so they may not appear on the public Azure status page or for other customers.
+problem w Azure Service Health|problem in Azure Service Health
+problemy w Azure Service Health|problems in Azure Service Health
+problemów w Azure Service Health|problems in Azure Service Health
+Brak aktywnych problemów usług w|No active service problems in
+subskrypcji|subscription
+subskrypcjach|subscriptions
+Azure Service Health zgłasza|Azure Service Health reports
+problem:|problem:
+zdarzenie|event
+zdarzenia|events
+zdarzeń|events

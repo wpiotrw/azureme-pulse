@@ -1260,6 +1260,31 @@ html[data-theme="light"] .ts-rg button.on{color:#fff}
 .tl-ex[open]>summary{border-bottom:1px solid var(--line)}
 .tl-exb{padding:14px 16px}
 .tl-exb ol{margin:12px 0 0;padding-left:20px;display:grid;gap:7px;font-size:14px;line-height:1.5}
+
+/* Azure Service Health in subscriptions */
+.azh{margin-top:6px}
+.azw{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.azc{position:relative}.azc+.azc,.azn+.azc{border-top:1px solid var(--line)}
+.azc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc)}
+.azc.s-ok::before{background:transparent}
+.azc>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) 22px;gap:5px 10px;padding:13px 14px 13px 16px}
+.azc>summary::-webkit-details-marker{display:none}
+.azc .azt{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;font-size:13px}
+.azc .azt .id{font:700 14px var(--f-body);color:var(--ink)}
+.azc .azt .st{color:var(--c);font-weight:600}
+.azc .azt .rt{color:var(--muted)}
+.azc h4{grid-column:1;margin:0;font:600 15px/1.35 var(--f-body);color:var(--ink)}
+.azc .ch{grid-column:2;grid-row:1/3;align-self:center;font-size:20px;color:var(--muted);text-align:center;transition:transform .18s ease}
+.azc[open] .ch{transform:rotate(90deg)}
+.azc>summary:hover{background:var(--panel2)}
+.azb{padding:2px 16px 14px}
+.azb dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 16px;margin:0 0 10px}
+.azb dt{font-size:12.5px;color:var(--muted)}.azb dd{margin:0;font:600 14px var(--f-body)}
+.azb p{font-size:13.5px;line-height:1.5;margin:0 0 10px;color:var(--ink)}
+.azl{display:inline-block;font-size:13px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;color:var(--flow);text-decoration:none}
+.azn{margin:0;padding:13px 16px;font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.azw .azn{border:0;border-radius:0;background:none}
+.azn.ok{color:var(--ok);font-weight:500}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -1312,6 +1337,7 @@ html[data-theme="light"] .ts-rg button.on{color:#fff}
         </section>
         <h2 class="sh" id="ovs-h2">Zgłoszenia Microsoft</h2>
         <div class="brief" id="brief" hidden></div>
+        <div class="azh" data-azh hidden></div>
         <p class="lede" id="lede">…</p>
         <section class="ovs pbs" id="pb-home" hidden aria-labelledby="ovs-h3">
           <h2 class="sh" id="ovs-h3">Własne sondy HTTP</h2>
@@ -1346,6 +1372,7 @@ html[data-theme="light"] .ts-rg button.on{color:#fff}
 
   <section id="biezace">
     <header><span class="real">Dane rzeczywiste</span><h2>Bieżące incydenty według Microsoft</h2><p>Otwarte zgłoszenia z Microsoft Service health (Kondycja usługi), odczytywane przez Microsoft Graph w tenantach testowych co około 5 minut. Każde zgłoszenie jest policzone raz. Treść komunikatów jest podana w brzmieniu Microsoft, w skrócie.</p></header>
+    <div class="azh" data-azh hidden></div>
     <details class="fold" style="margin:-6px 0 12px;border-top:0;padding-top:0"><summary>Czym różni się incydent od porady</summary><p class="note" style="margin:8px 0 0;max-width:80ch">Incydent (incident, w polskim centrum administracyjnym: zdarzenie) oznacza problem krytyczny: usługa lub jej główna funkcja jest niedostępna. Porada (advisory) oznacza problem o ograniczonym zasięgu, przy którym usługa pozostaje dostępna. Microsoft pokazuje w każdym tenancie tylko zgłoszenia, które go dotyczą, dlatego to samo zgłoszenie może być widoczne w jednym tenancie, a w drugim nie. Przy każdym zgłoszeniu portal podaje, w ilu tenantach jest ono widoczne.</p></details>
     <div id="reg-open-w" hidden><h3 class="sub" style="margin:0 0 10px">Incydent w rejestrze portalu bez otwartego zgłoszenia Microsoft</h3><div class="reg" id="reg-open"></div></div>
     <div class="fbar" id="cur-f" role="group" aria-label="Filtr typu zgłoszenia" style="margin:0 0 4px"></div>
@@ -2067,7 +2094,8 @@ function applyReal(){
   var degN=Object.keys(deg),crit=degN.some(function(n){return deg[n]==="crit";});
 
   if(q==="ok"&&degN.length){q=crit?"crit":"warn";setCls($("stage"),q);}
-  $("headline").innerHTML=r.ok!==r.total?"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>":degN.length?"Microsoft zgłasza <em>"+(crit?"przerwę w świadczeniu usług":"obniżenie wydajności")+": "+(degN.length===1?esc(degN[0]):degN.length+" "+plf(degN.length,"usługa","usługi","usług"))+"</em>":"Wszystkie usługi <em>dostępne</em>";
+  var azH=azActive(LASTD);if(q==="ok"&&azH.length){q="warn";setCls($("stage"),q);}
+  $("headline").innerHTML=r.ok!==r.total?"Brak odpowiedzi: <em>"+esc(r.bad.join(", "))+"</em>":degN.length?"Microsoft zgłasza <em>"+(crit?"przerwę w świadczeniu usług":"obniżenie wydajności")+": "+(degN.length===1?esc(degN[0]):degN.length+" "+plf(degN.length,"usługa","usługi","usług"))+"</em>":azH.length?"Azure Service Health zgłasza <em>problem: "+esc(azH.length===1?(azH[0].services[0]||azH[0].id):azH.length+" "+plf(azH.length,"zdarzenie","zdarzenia","zdarzeń"))+"</em>":"Wszystkie usługi <em>dostępne</em>";
   $("lede").textContent="Sondy HTTP ("+r.when+" UTC): odpowiada "+r.ok+" z "+r.total+" punktów końcowych."+(tenants?" Service health z "+tenants+" tenantów: otwarte zgłoszenia "+Object.keys(openIds).length+" (incydenty: "+Object.keys(openIds).filter(function(k){return openIds[k]==="i";}).length+", porady: "+Object.keys(openIds).filter(function(k){return openIds[k]==="a";}).length+").":"");
   setK("k-av","Dostępność Exchange Online",r.exo,"sondy HTTP, okno "+r.win);
   var since="brak wpisów",sub="rejestr incydentów";
@@ -2171,7 +2199,7 @@ var DATA_URL="https://raw.githubusercontent.com/wpiotrw/azureme-pulse/data/statu
 function renderLive(d){
   if(!d||!d.services||!d.samples||!d.samples.length)throw new Error("empty");
   try{normHealth(d.health);}catch(e){}
-  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderTraffic(d);}catch(e){}try{renderTele(d);}catch(e){}try{renderBrief(d);}catch(e){}
+  LASTD=d;try{renderExt(d.signals);}catch(e){}try{renderAzh(d);}catch(e){}try{renderProbeSum(d);}catch(e){}try{renderTraffic(d);}catch(e){}try{renderTele(d);}catch(e){}try{renderBrief(d);}catch(e){}
   try{renderCurrent(d);}catch(e){}
   try{renderRegions(d.regions);}catch(e){}
   try{renderSignals(d);}catch(e){$("sg-empty").hidden=false;$("sg-empty").textContent="Panelu nie udało się zbudować z bieżących danych.";}
@@ -2205,10 +2233,10 @@ function renderLive(d){
 }
 var HST={serviceOperational:["W dobrej kondycji","ok"],investigating:["Badanie","warn"],restoringService:["Przywracanie usługi","warn"],verifyingService:["Weryfikacja przywrócenia usługi","warn"],serviceRestored:["Usługa została przywrócona","ok"],postIncidentReviewPublished:["Opublikowany raport po zdarzeniu","ok"],serviceDegradation:["Obniżenie wydajności usługi","warn"],serviceInterruption:["Przerwa w świadczeniu usługi","crit"],extendedRecovery:["Przedłużone odzyskiwanie usługi","warn"],falsePositive:["Wynik fałszywie dodatni","ok"],investigationSuspended:["Wstrzymano badanie problemu","warn"],resolved:["Problem rozwiązany","ok"],mitigated:["Skutki problemu ograniczone","ok"],mitigatedExternal:["Skutki ograniczone przez dostawcę zewnętrznego","ok"],resolvedExternal:["Problem rozwiązany przez dostawcę zewnętrznego","ok"],confirmed:["Problem potwierdzony","warn"],reported:["Problem zgłoszony","warn"]};
 function hst(x){return HST[x]||[String(x||"brak danych"),"warn"];}
-HST.advisoryOnly=["Dostępna, aktywna porada Microsoft","ok"];
+HST.advisoryOnly=["Dostępna, aktywna porada Microsoft","ok"];HST.advisoryRelated=["Dostępna; oznaczona przez Microsoft w związku z poradą dotyczącą innej usługi","ok"];HST.noIssue=["Dostępna; oznaczenie Microsoft bez otwartego zgłoszenia","ok"];
 // Microsoft marks a service as degraded also when its only open issue is an advisory. An advisory means the service
 // is available, so such a service must not count as degraded: only incident-classified issues do.
-function normHealth(H){var inc={},adv={};(H||[]).forEach(function(h){if(!h||!h.ok)return;(h.issues||[]).forEach(function(i){if(i.resolved)return;(isInc(i)?inc:adv)[i.service]=1;});});(H||[]).forEach(function(h){if(!h||!h.ok)return;(h.services||[]).forEach(function(sv){if(sv.status==="advisoryOnly"||hst(sv.status)[1]==="ok")return;if(!inc[sv.name]&&adv[sv.name]){sv.statusRaw=sv.status;sv.status="advisoryOnly";}});});}
+function normHealth(H){var inc={},adv={},anyAdv=false;(H||[]).forEach(function(h){if(!h||!h.ok)return;(h.issues||[]).forEach(function(i){if(i.resolved)return;if(isInc(i))inc[i.service]=1;else{adv[i.service]=1;anyAdv=true;}});});(H||[]).forEach(function(h){if(!h||!h.ok)return;(h.services||[]).forEach(function(sv){if(sv.statusRaw)return;var lv=hst(sv.status)[1];if(lv==="ok"||lv==="crit"||inc[sv.name])return;sv.statusRaw=sv.status;sv.status=adv[sv.name]?"advisoryOnly":anyAdv?"advisoryRelated":"noIssue";});});}
 var HTTPMAP=[[/Exchange/i,"exo"],[/Teams/i,"teams"],[/Intune/i,"intune"],[/Defender XDR/i,"defender"],[/Entra/i,"entra"],[/Copilot/i,"copilot"]];
 var CST={ok:"poprawny",fail:"błąd",noperm:"brak uprawnienia",noconfig:"brak konfiguracji",denied:"odmowa dostępu",throttled:"ograniczenie liczby żądań przez Microsoft Graph"};
 function renderRealTable(d){
@@ -2507,6 +2535,14 @@ function renderTele(d){try{teleExample();}catch(e){}
   defs.forEach(function(o,k){o.h=210;o.marks=MK;o.help=["Linia pokazuje wartość sygnału w czasie; przerywana linia, jeśli jest, to poziom zwykły.","Nagły, utrzymujący się spadek jednocześnie z błędami sond wskazuje na problem po stronie sieci, a nie pojedynczej usługi.","Trójkąty oznaczają chwile wpisów Microsoft."];o.label=o.title;tsMount(ext.children[k],o);});
 }
 document.addEventListener("click",function(e){var t=e.target;if(t&&t.getAttribute&&t.tagName&&t.tagName.toLowerCase()==="rect"&&t.getAttribute("data-hc")!==null){sampleDlg(+t.getAttribute("data-hc"));return;}var b=t&&t.closest&&t.closest(".hm-r");if(b)probeDetail(b.getAttribute("data-pid"));});
+function azActive(d){var a=d&&d.azureHealth;return a&&a.items?a.items.filter(function(i){return i.active;}):[];}
+function renderAzh(d){var a=d.azureHealth,els=document.querySelectorAll("[data-azh]");if(!a){Array.prototype.forEach.call(els,function(e){e.hidden=true;});return;}
+  var act=a.items.filter(function(i){return i.active;}),old=a.items.filter(function(i){return !i.active;}).slice(0,5),LV={Error:["Błąd","crit"],Critical:["Krytyczny","crit"],Warning:["Ostrzeżenie","warn"],Informational:["Informacja","ok"]};
+  function card(i){var lv=LV[i.level]||[i.level||"Zdarzenie",i.active?"warn":"ok"],q=i.active?lv[1]:"ok";return '<details class="azc s-'+q+'"'+(i.active?" open":"")+'><summary><span class="azt"><b class="id">'+esc(i.id)+'</b><span class="st" style="--c:var(--'+q+')">'+esc(i.active?lv[0]:"Zakończone")+'</span><span class="rt">'+esc("wykryto w subskrypcji Azure: "+i.tenants.join(", "))+'</span></span><h4>'+esc(i.title)+'</h4><span class="ch" aria-hidden="true">›</span></summary><div class="azb"><dl><div><dt>Usługi</dt><dd>'+esc(i.services.join(", ")||"brak danych")+'</dd></div><div><dt>Regiony</dt><dd>'+esc(i.regions.join(", ")||"brak danych")+'</dd></div><div><dt>Początek</dt><dd>'+esc(i.start?fdt(i.start):"brak danych")+'</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>'+esc(i.updated?fdt(i.updated)+" ("+ago(i.updated)+")":"brak danych")+'</dd></div></dl>'+(i.summary?'<p>'+esc(i.summary)+'</p>':"")+'<a class="azl" href="https://portal.azure.com/#view/Microsoft_Azure_Health/AzureHealthBrowseBlade/~/serviceIssues" target="_blank" rel="noopener">Azure Service Health w portalu Azure ↗</a></div></details>';}
+  var h='<h3 class="sh">Azure Service Health w subskrypcjach</h3>';
+  if(!a.subs)h+='<p class="azn">Portal nie ma dostępu do żadnej subskrypcji Azure. Aby odczytywać problemy widoczne w Azure Service Health, aplikacja portalu potrzebuje roli Czytelnik (Reader) w subskrypcji.</p>';
+  else h+='<div class="azw">'+(act.length?act.map(card).join(""):'<p class="azn ok">Brak aktywnych problemów usług w '+a.subs+" "+plf(a.subs,"subskrypcji","subskrypcjach","subskrypcjach")+'.</p>')+old.map(card).join("")+'</div><p class="pb-n">To zdarzenia z Azure Service Health (Service issues) odczytane w subskrypcjach tenantów testowych. Dotyczą usług używanych w tych subskrypcjach, dlatego mogą nie występować na publicznej stronie stanu Azure ani u innych klientów.</p>';
+  Array.prototype.forEach.call(els,function(e){e.innerHTML=h;e.hidden=false;});}
 function renderProbeSum(d){
   var S=d.samples||[],n=S.length;if(!n||!d.services)return;
   var tot=0,okc=0,bars="",W=n*4,runs=probeRuns(d),last=S[n-1],lt=0,lo=0;
@@ -2587,7 +2623,7 @@ function issueSum(d){
 }
 var BROPEN={};
 function quietIss(i){var t=Date.parse(i.updateAt||i.modified||"");return !isNaN(t)&&Date.now()-t>48*3600000;}
-function reachTxt(i){return i._nT>1?(i._seen===i._nT?"we wszystkich tenantach ("+i._nT+")":"w "+i._seen+" z "+i._nT+" tenantów"):"";}
+function reachTxt(i){return i._nT>1?(i._seen===i._nT?"wykryto we wszystkich tenantach ("+i._nT+")":"wykryto w "+i._seen+" z "+i._nT+" tenantów"):"wykryto w tenancie";}
 function quietTxt(i){return "Bez nowych informacji od Microsoft od "+fdt(i.updateAt||i.modified)+(i.next?". Następna aktualizacja zapowiedziana na "+fdt(i.next):"")+".";}
 function renderBrief(d){
   var box=$("brief"),S=issueSum(d);if(!S){box.hidden=true;$("sbar").hidden=true;return;}
@@ -2612,14 +2648,17 @@ function renderBrief(d){
   h+=panel("p-upd","info","Zaktualizowane przez Microsoft w ostatnich 24 godzinach",upd.length,upd.length?pv(upd[0],"aktualizacja"):"Brak aktualizacji otwartych zgłoszeń.",upd.length?upd.slice(0,5).map(function(i){return card(i,"upd");}).join(""):'<p class="none">W ostatnich 24 godzinach Microsoft nie zaktualizował żadnego otwartego zgłoszenia.</p>',upd.length>5?'<a href="#/incydenty">Pozostałe aktualizacje: '+(upd.length-5)+' →</a>':"");
   h+=panel("p-cls","ok","Zamknięte incydenty Microsoft z ostatnich 7 dni",closed.length,closed.length?pv(closed[0],"zamknięty"):"Brak zamkniętych incydentów.",closed.length?closed.slice(0,5).map(function(i){return card(i,"closed");}).join(""):'<p class="none">W ostatnich 7 dniach Microsoft nie zamknął żadnego incydentu.</p>',(closed.length>5?'<a href="#/uslugi">Pozostałe zamknięte: '+(closed.length-5)+' →</a>':"")+'<a href="#/model">Karty analizy →</a><a href="#/incydenty">Rejestr incydentów →</a>');
   box.innerHTML=h;box.hidden=false;
-  var sb=$("sbar"),bad=(d.services||[]).filter(function(x){return !x.last||!x.last.ok;}).length,tot=(d.services||[]).length,q=(inc.length&&!incQ)||bad?"crit":(adv.length||inc.length)?"warn":"ok";
+  var sb=$("sbar"),bad=(d.services||[]).filter(function(x){return !x.last||!x.last.ok;}).length,tot=(d.services||[]).length,q=(inc.length&&!incQ)||bad?"crit":(adv.length||inc.length||azActive(d).length)?"warn":"ok";
   var nq=inc.filter(quietIss).length,sub=inc.length===1?[inc[0].service||"",reachTxt(inc[0])].filter(Boolean).join(", ")+(nq?"; bez nowych informacji od "+fdt(up(inc[0])).slice(0,10).replace(/-/g,"\u2011"):""):nq?"w tym bez nowych informacji od ponad dwóch dni: "+nq:"";
-  var b='<a class="sm q-'+(inc.length?(incQ?"warn":"crit"):"ok")+'" href="#/incydenty" data-curf="inc">'+(inc.length?'<strong>'+inc.length+'</strong><span>'+plf(inc.length,"incydent Microsoft trwa","incydenty Microsoft trwają","incydentów Microsoft trwa")+(sub?'<small>'+esc(sub)+'</small>':"")+'</span>':'<span style="max-width:none">Brak aktywnych incydentów Microsoft</span>')+'</a>';
+  var svcBad=[],sbSeen={};(d.health||[]).forEach(function(h){if(!h||!h.ok)return;(h.services||[]).forEach(function(sv){if(hst(sv.status)[1]==="crit"&&!sbSeen[sv.name]){sbSeen[sv.name]=1;svcBad.push(sv.name);}});});
+  var pubN=(d.public&&d.public.ok)?((d.public.m365&&d.public.m365.status&&d.public.m365.status!=="Available"?1:0)+((d.azure&&d.azure.ok&&d.azure.items)?d.azure.items.length:0)):-1,pubOk=pubN===0;
+  var azA=azActive(d),azQ=azA.some(function(i){return i.level==="Error"||i.level==="Critical";})?"crit":"warn";
+  var b='<a class="sm q-'+(inc.length?(incQ?"warn":"crit"):azA.length?azQ:svcBad.length?"crit":"ok")+'" href="#/incydenty" data-curf="inc">'+(inc.length?'<strong>'+inc.length+'</strong><span>'+plf(inc.length,"incydent w Service health tenanta","incydenty w Service health tenantów","incydentów w Service health tenantów")+((sub||azA.length)?'<small>'+esc(sub+(azA.length?(sub?"; ":"")+"Azure Service Health: "+azA.length:""))+'</small>':"")+'</span>':azA.length?'<strong>'+azA.length+'</strong><span>'+plf(azA.length,"problem w Azure Service Health","problemy w Azure Service Health","problemów w Azure Service Health")+'<small>'+esc((azA[0].services[0]||azA[0].id)+"; wykryto w subskrypcji Azure: "+azA[0].tenants.join(", "))+'</small></span>':svcBad.length?'<strong>'+svcBad.length+'</strong><span>'+plf(svcBad.length,"usługa z przerwą w działaniu","usługi z przerwą w działaniu","usług z przerwą w działaniu")+'<small>'+esc(svcBad.slice(0,2).join(", "))+'; według Service health, bez zgłoszenia incydentu</small></span>':'<span style="max-width:none">Brak incydentów Microsoft<small>'+(pubOk?"w Service health i na publicznych stronach stanu":"w Service health")+'</small></span>')+'</a>';
   b+='<a class="sc q-'+(adv.length?"warn":"ok")+'" href="#/incydenty" data-curf="adv"><strong>'+adv.length+'</strong><span>'+plf(adv.length,"porada","porady","porad")+'</span></a><a class="sc q-'+(bad?"crit":"ok")+'" href="#/pomiary"><strong>'+(tot-bad)+" z "+tot+'</strong><span>sond odpowiada</span></a>';
-  if(d.public&&d.public.ok){var pm=d.public.m365||{},pn=(pm.status&&pm.status!=="Available"?1:0)+((d.azure&&d.azure.ok&&d.azure.items)?d.azure.items.length:0);b+='<a class="sc sp q-'+(pn?"crit":"ok")+'" href="https://status.cloud.microsoft" target="_blank" rel="noopener" title="status.cloud.microsoft, status.azure.com"><strong>'+(pn?"Incydenty: "+pn:"Brak incydentów")+'</strong><span>na publicznych stronach stanu Microsoft</span></a>';}
+  if(d.public&&d.public.ok&&!(pubOk&&!inc.length&&!svcBad.length&&!azA.length)){var pm=d.public.m365||{},pn=(pm.status&&pm.status!=="Available"?1:0)+((d.azure&&d.azure.ok&&d.azure.items)?d.azure.items.length:0);b+='<a class="sc sp q-'+(pn?"crit":"ok")+'" href="https://status.cloud.microsoft" target="_blank" rel="noopener" title="status.cloud.microsoft, status.azure.com"><strong>'+(pn?"Incydenty: "+pn:"Brak incydentów")+'</strong><span>na publicznych stronach stanu Microsoft</span></a>';}
   if(S.open.length){var u=S.open[0];b+='<button type="button" class="sn a" data-iss="'+esc(u.id)+'" title="'+esc(fdt(up(u)))+'"><span class="l">Ostatnia aktualizacja</span><span class="v"><b>'+esc(u.id)+'</b>'+esc(hday(up(u)))+'</span></button>';}
   if(closed.length){var c0=closed[0];b+='<button type="button" class="sn b" data-iss="'+esc(c0.id)+'" title="'+esc(fdt(up(c0)))+'"><span class="l">Ostatnio zamknięty</span><span class="v"><b>'+esc(c0.id)+'</b>'+esc(hday(up(c0)))+'</span></button>';}
-  var sig=[inc.length,incQ?1:0,adv.length,bad,S.open.length?S.open[0].id+up(S.open[0]):"",closed.length?closed[0].id:""].join("|"),shut=false;try{shut=sessionStorage.getItem("pulse-sbar-x")===sig;}catch(e){}
+  var sig=[inc.length,incQ?1:0,azA.length,adv.length,bad,S.open.length?S.open[0].id+up(S.open[0]):"",closed.length?closed[0].id:""].join("|"),shut=false;try{shut=sessionStorage.getItem("pulse-sbar-x")===sig;}catch(e){}
   b+='<button type="button" class="sx" id="sbar-x" aria-label="Zamknij pasek stanu" title="Zamknij pasek stanu">×</button><i class="pg" aria-hidden="true"></i>';
   sb.className="sbar s-"+q;sb.dataset.sig=sig;sb.innerHTML=b;sb.hidden=shut;$("sbar-show").hidden=!shut;
 }

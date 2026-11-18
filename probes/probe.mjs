@@ -6,6 +6,7 @@ import { readAzureStatus } from './azure.mjs';
 import { notify, diffEvents } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
 import { readPublicStatus } from './mscloud.mjs';
+import { readAzureHealth } from './azurehealth.mjs';
 import { updateCases } from './cases.mjs';
 import { readSignals, signalEvents } from './signals.mjs';
 
@@ -117,6 +118,17 @@ if (prevPath && outPath) {
   const pub = await readPublicStatus();
   console.log(`${pub.ok ? 'OK  ' : 'FAIL'} status.cloud.microsoft m365=${pub.m365?.status || ''} ${pub.error}`);
   next.public = pub.ok ? pub : prev.public ? { ...prev.public, lastError: pub.error } : pub;
+  // Azure Service Health per subscription (needs the Reader role for the app; without it the list of subscriptions is empty).
+  try {
+    const azh = await readAzureHealth();
+    if (azh) {
+      next.azureHealth = azh.ok ? azh : prev.azureHealth ? { ...prev.azureHealth, lastError: (azh.tenants || []).map((t) => t.error).filter(Boolean).join('; ').slice(0, 200) } : azh;
+      console.log(`${azh.ok ? 'OK ' : 'BŁĄD'} azureHealth subskrypcje=${azh.subs} zdarzenia=${azh.items.length} aktywne=${azh.items.filter((i) => i.active).length} ${(azh.tenants || []).map((t) => `${t.label}:${t.ok ? t.subs : t.error}`).join(' | ')}`);
+    }
+  } catch (e) {
+    console.log(`BŁĄD azureHealth ${String(e.message || e).slice(0, 120)}`);
+    if (prev.azureHealth) next.azureHealth = prev.azureHealth;
+  }
   next.regions = await probeRegions(prev.regions);
   const down = next.regions.list.filter((r) => !r.ok);
   console.log(`${down.length ? 'FAIL' : 'OK  '} regions ${next.regions.list.length - down.length}/${next.regions.list.length} ${down.map((r) => r.id).join(',')}`);
