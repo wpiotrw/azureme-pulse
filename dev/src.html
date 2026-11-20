@@ -1333,6 +1333,27 @@ details.cur .lk2 .adm{margin:0;font-size:13.5px}
 .ic2 .bd2{padding:12px 14px 14px;border-top:1px solid var(--line)}
 html[data-theme="light"] .ic2{box-shadow:0 1px 2px rgba(15,27,45,.08)}
 @media (max-width:420px){.bp .bb{padding:10px 10px 12px 12px}.ic2 .tt{font-size:15.5px}}
+/* Zgłoszenia Microsoft: każda sekcja jako osobna karta z licznikiem w kafelku */
+.brief{display:grid;gap:12px;border:0;border-radius:0;background:none;overflow:visible}
+.bp,.bp+.bp{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.bp::before{display:none}
+.bp.s-crit,.bp.s-warn{border-color:color-mix(in srgb,var(--sc) 60%,var(--line));background:color-mix(in srgb,var(--sc) 8%,var(--panel))}
+.bp>summary{grid-template-columns:50px minmax(0,1fr) 22px;gap:5px 14px;padding:14px;align-items:start}
+.bp>summary .n,html[data-theme="light"] .bp>summary .n{grid-row:1/3;grid-column:1;width:50px;height:50px;min-width:0;display:grid;place-items:center;border-radius:14px;padding:0;text-align:center;background:color-mix(in srgb,var(--sc) 20%,transparent);color:var(--sc);font:700 23px/1 var(--f-display)}
+.bp.s-crit>summary .n,html[data-theme="light"] .bp.s-crit>summary .n,.bp.s-warn>summary .n,html[data-theme="light"] .bp.s-warn>summary .n{background:var(--sc);color:#fff}
+.bp>summary h3{grid-column:2;font:600 16.5px/1.3 var(--f-display);padding-top:1px}
+.bp.zero:not(.s-ok)>summary h3{color:var(--muted);font-weight:500}
+.bp>summary .ch{grid-column:3;grid-row:1/3;align-self:center}
+.bp>summary .pv{grid-column:2;display:block;-webkit-line-clamp:unset;overflow:visible;font-size:13.5px;line-height:1.45;color:var(--muted)}
+.bp.s-ok.zero>summary .pv{color:var(--ok);font-weight:600}
+.bp .pv .p1{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink);font-size:14px;line-height:1.4}
+.bp .pv .p1 b{font-weight:700;margin-right:8px}
+.bp .pv .p2{display:block;font-size:13px;margin-top:1px}
+.bp .pv .p2 b{color:var(--ink);font-weight:600}
+.bp[open]>summary{align-items:center}
+.bp[open]>summary .n{grid-row:1}
+.bp[open]>summary .ch{grid-row:1}
+@media (max-width:420px){.bp>summary{grid-template-columns:46px minmax(0,1fr) 20px;gap:5px 12px;padding:13px 12px}.bp>summary .n,html[data-theme="light"] .bp>summary .n{width:46px;height:46px;font-size:21px}}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -2693,15 +2714,15 @@ function renderBrief(d){
     h+='<div class="lk"><button type="button" data-iss="'+esc(i.id)+'">Szczegóły zgłoszenia</button>'+(incd?'<a href="#/model">Karta analizy →</a>':"")+'<a rel="noopener" target="_blank" href="'+shUrl(i.id)+'">Centrum administracyjne ↗</a></div></div></details>';
     return h;
   }
-  function panel(k,q,title,n,pv,body,foot){return '<details class="bp s-'+q+'" data-k="'+k+'"'+isOpen(k)+'><summary><span class="n">'+n+'</span><h3>'+title+'</h3><span class="ch" aria-hidden="true">›</span><span class="pv">'+pv+'</span></summary><div class="bb">'+body+'</div>'+(foot?'<div class="bpf">'+foot+'</div>':"")+'</details>';}
-  function pv(i,w){return i?esc(i.id)+" · "+w+" "+esc(fdt(up(i)))+" ("+esc(ago(up(i)))+")":"";}
+  function panel(k,q,title,n,pv,body,foot){return '<details class="bp s-'+q+(n?"":" zero")+'" data-k=""'+k+'"'+isOpen(k)+'><summary><span class="n">'+n+'</span><h3>'+title+'</h3><span class="ch" aria-hidden="true">›</span><span class="pv">'+pv+'</span></summary><div class="bb">'+body+'</div>'+(foot?'<div class="bpf">'+foot+'</div>':"")+'</details>';}
+  function pv(i,w){return i?'<span class="p1"><b>'+esc(i.id)+'</b>'+esc(cutT(i.title,90))+'</span><span class="p2">'+w+" "+esc(fdt(up(i)))+' (<b>'+esc(ago(up(i)))+'</b>)</span>':"";}
   var incQ=inc.length&&inc.every(quietIss);
   var shown={};inc.slice(0,5).forEach(function(i){shown[i.id]=1;});var updAll=upd.length;upd=upd.filter(function(i){return !shown[i.id];});
   var h=panel("p-inc",inc.length?(incQ?"warn":"crit"):"ok","Trwające incydenty Microsoft",inc.length,inc.length?pv(inc[0],"aktualizacja"):"Brak aktywnych incydentów.",inc.length?inc.slice(0,5).map(function(i){return card(i,"inc");}).join(""):'<p class="none">Brak aktywnych incydentów.</p>',(inc.length>5?'<a href="#/incydenty" data-curf="inc">Pozostałe incydenty: '+(inc.length-5)+' →</a>':"")+'<a href="#/incydenty" data-curf="adv">Aktywne porady: '+adv.length+' →</a><a href="#/incydenty">Wszystkie zgłoszenia →</a>');
   h+=panel("p-upd","info","Pozostałe zgłoszenia zaktualizowane w ostatnich 24 godzinach",upd.length,upd.length?pv(upd[0],"aktualizacja"):updAll?"Aktualizacje dotyczyły tylko trwających incydentów.":"Brak aktualizacji otwartych zgłoszeń.",upd.length?upd.slice(0,5).map(function(i){return card(i,"upd");}).join(""):'<p class="none">'+(updAll?"Poza trwającymi incydentami Microsoft nie zaktualizował w ostatnich 24 godzinach żadnego zgłoszenia.":"W ostatnich 24 godzinach Microsoft nie zaktualizował żadnego otwartego zgłoszenia.")+'</p>',upd.length>5?'<a href="#/incydenty">Pozostałe aktualizacje: '+(upd.length-5)+' →</a>':"");
   h+=panel("p-cls","ok","Zamknięte incydenty Microsoft z ostatnich 7 dni",closed.length,closed.length?pv(closed[0],"zamknięty"):"Brak zamkniętych incydentów.",closed.length?closed.slice(0,5).map(function(i){return card(i,"closed");}).join(""):'<p class="none">W ostatnich 7 dniach Microsoft nie zamknął żadnego incydentu.</p>',(closed.length>5?'<a href="#/uslugi">Pozostałe zamknięte: '+(closed.length-5)+' →</a>':"")+'<a href="#/model">Karty analizy →</a><a href="#/incydenty">Rejestr incydentów →</a>');
   var wdl=(d.withdrawn||[]).filter(function(w){return !S.open.some(function(i){return i.id===w.id;})&&!closed.some(function(i){return i.id===w.id;});});
-  if(wdl.length){h+=panel("p-wd","mute","Incydenty wycofane przez Microsoft z ostatnich 7 dni",wdl.length,esc(wdl[0].id)+" · ostatnia zmiana "+esc(fdt(wdl[0].last))+" ("+esc(ago(wdl[0].last))+")",'<p class="none wdn">Microsoft usunął te zgłoszenia z Service health bez oznaczenia zamknięcia i bez komunikatu końcowego.</p>'+wdl.slice(0,5).map(function(w){var key="wd:"+w.id,st=hst(w.status),t0=Date.parse(w.start),t1=Date.parse(w.last);
+  if(wdl.length){h+=panel("p-wd","mute","Incydenty wycofane przez Microsoft z ostatnich 7 dni",wdl.length,'<span class="p1"><b>'+esc(wdl[0].id)+'</b>'+esc(cutT(wdl[0].title,90))+'</span><span class="p2">ostatnia zmiana '+esc(fdt(wdl[0].last))+' (<b>'+esc(ago(wdl[0].last))+'</b>)</span>','<p class="none wdn">Microsoft usunął te zgłoszenia z Service health bez oznaczenia zamknięcia i bez komunikatu końcowego.</p>'+wdl.slice(0,5).map(function(w){var key="wd:"+w.id,st=hst(w.status),t0=Date.parse(w.start),t1=Date.parse(w.last);
     return '<details class="ic2 k-mute" data-k="'+esc(key)+'" style="--sc:var(--muted)"'+isOpen(key)+'><summary><p class="tt">'+esc(cutT(w.title,110))+'</p><span class="ch" aria-hidden="true">›</span><div class="hd2"><span class="tg" style="--c:var(--muted)">Wycofany incydent</span><span class="id">'+esc(w.id)+'</span>'+(w.service?'<span class="sv">'+esc(w.service)+'</span>':"")+'</div><span class="st" style="--c:var(--muted)">Wycofany bez komunikatu końcowego</span><span class="kd"><span class="up">Ostatnia zmiana po stronie Microsoft: '+esc(fdt(w.last))+' (<b>'+esc(ago(w.last))+'</b>)</span></span></summary><div class="bd2"><dl>'+f("Ostatni znany stan",esc(st[0]),"")+f("Początek",esc(fdt(w.start)),"")+f("Ostatnia zmiana po stronie Microsoft",esc(fdt(w.last)),esc(ago(w.last)))+(w.gone?f("Ostatnio widoczny w odczycie",esc(fdt(w.gone)),""):"")+(!isNaN(t0)&&!isNaN(t1)&&t1>t0?f("Czas od początku do ostatniej zmiany",esc(cdur((t1-t0)/60000)),""):"")+'</dl><p class="ms">Zgłoszenie nie jest już widoczne w żadnym tenancie testowym. Portal nie zna przyczyny wycofania.</p><div class="lk"><a href="#/model">Karta analizy →</a></div></div></details>';}).join(""),"");}
   box.innerHTML=h;box.hidden=false;
   var sb=$("sbar"),bad=(d.services||[]).filter(function(x){return !x.last||!x.last.ok;}).length,tot=(d.services||[]).length,q=(inc.length&&!incQ)||bad?"crit":(adv.length||inc.length||azActive(d).length)?"warn":"ok";

@@ -492,3 +492,4 @@ Ostatni znany stan|Last known status
 Ostatnio widoczny w odczycie|Last seen in a reading
 Czas od początku do ostatniej zmiany|Time from start to the last change
 Zgłoszenie nie jest już widoczne w żadnym tenancie testowym. Portal nie zna przyczyny wycofania.|The report is no longer visible in any test tenant. The portal does not know why it was withdrawn.
+ostatnia zmiana|last change
