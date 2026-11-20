@@ -2719,7 +2719,7 @@ function renderBrief(d){
     h+='<div class="lk"><button type="button" data-iss="'+esc(i.id)+'">Szczegóły zgłoszenia</button>'+(incd?'<a href="#/model">Karta analizy →</a>':"")+'<a rel="noopener" target="_blank" href="'+shUrl(i.id)+'">Centrum administracyjne ↗</a></div></div></details>';
     return h;
   }
-  function panel(k,q,title,n,pv,body,foot){return '<details class="bp s-'+q+(n?"":" zero")+'" data-k=""'+k+'"'+isOpen(k)+'><summary><span class="n">'+n+'</span><h3>'+title+'</h3><span class="ch" aria-hidden="true">›</span><span class="pv">'+pv+'</span></summary><div class="bb">'+body+'</div>'+(foot?'<div class="bpf">'+foot+'</div>':"")+'</details>';}
+  function panel(k,q,title,n,pv,body,foot){return '<details class="bp s-'+q+(n?"":" zero")+'" data-k="'+k+'"'+isOpen(k)+'><summary><span class="n">'+n+'</span><h3>'+title+'</h3><span class="ch" aria-hidden="true">›</span><span class="pv">'+pv+'</span></summary><div class="bb">'+body+'</div>'+(foot?'<div class="bpf">'+foot+'</div>':"")+'</details>';}
   function pv(i,w){return i?'<span class="p1"><b>'+esc(i.id)+'</b>'+esc(cutT(i.title,90))+'</span><span class="p2">'+w+" "+esc(fdt(up(i)))+' (<b>'+esc(ago(up(i)))+'</b>)</span>':"";}
   var incQ=inc.length&&inc.every(quietIss);
   var shown={};inc.slice(0,5).forEach(function(i){shown[i.id]=1;});var updAll=upd.length;upd=upd.filter(function(i){return !shown[i.id];});
