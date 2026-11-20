@@ -150,7 +150,9 @@ if (prevPath && outPath) {
       console.log(`OK   cases open=${cases.cases.filter((c) => !c.end).length} closed=${cases.cases.filter((c) => c.end).length}`);
       // Incidents that Microsoft removed from Service health without closing them (last 7 days), for the page and the e-mail.
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-      next.withdrawn = cases.cases.filter((c) => c.endAssumed && c.end && String(c.lastSeen || c.end) > weekAgo)
+      // A case also ends this way when Microsoft reclassifies the incident as an advisory; such a report is still listed, so it is not withdrawn.
+      const listed = new Set((next.health || []).flatMap((h) => (h.issues || []).map((i) => i.id)));
+      next.withdrawn = cases.cases.filter((c) => c.endAssumed && c.end && String(c.lastSeen || c.end) > weekAgo && !listed.has(c.id))
         .map((c) => ({ id: c.id, title: String(c.title || '').slice(0, 300), service: c.service || '', status: c.status || '', start: c.start || null, last: c.end, gone: c.lastSeen || null, tenants: c.tenants || [] }));
     } catch (e) {
       console.log(`FAIL cases ${e.message}`);
