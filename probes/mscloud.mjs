@@ -18,7 +18,7 @@ export function postSections(text) {
 
 export function parseNext(raw) {
   if (!raw) return null;
-  const d = Date.parse(String(raw).replace(/^[A-Za-z]+,\s*/, '').replace(/,?\s+at\s+/i, ' ').replace(/\.$/, ''));
+  const d = Date.parse(String(raw).replace(/^[A-Za-z]+,\s*/, '').replace(/,?\s+at\s+/i, ' ').replace(/(\d)\s*([ap]m)\b/i, '$1 $2').replace(/\.$/, ''));
   return Number.isNaN(d) ? null : new Date(d).toISOString();
 }
 

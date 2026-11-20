@@ -180,10 +180,11 @@ export function mailEvents(prev, next, state = {}, now = Date.now(), cfg = {}) {
       const inc = isIncident(i);
       if (!inc && !(cfg.advisories === true && !p && !i.resolved)) continue;
       if (!p) { if (!i.resolved) ev.push({ type: 'new', sev: inc ? 'crit' : 'warn', issue: i }); continue; }
+      if (inc && !isIncident(p) && !i.resolved) { ev.push({ type: 'new', sev: 'crit', issue: i, prev: p, reclass: true }); continue; }
       if (!p.resolved && i.resolved) { ev.push({ type: 'closed', sev: 'ok', issue: i }); continue; }
       if (i.resolved) continue;
       if (p.resolved) { ev.push({ type: 'new', sev: 'crit', issue: i, reopened: true }); continue; }
-      if (String(i.updateAt || '') > String(p.updateAt || '') || i.status !== p.status) ev.push({ type: 'update', sev: statusClass(i.status) === 'crit' ? 'crit' : 'warn', issue: i, prevStatus: p.status !== i.status ? p.status : null });
+      if (String(i.updateAt || '') > String(p.updateAt || '') || i.status !== p.status) ev.push({ type: 'update', sev: statusClass(i.status) === 'crit' ? 'crit' : 'warn', issue: i, prev: p, prevStatus: p.status !== i.status ? p.status : null });
     }
   }
   for (const s of next.services || []) {
@@ -199,6 +200,7 @@ export function mailEvents(prev, next, state = {}, now = Date.now(), cfg = {}) {
     const c = next.signals?.[k];
     if (c?.ok && c.state === 'crit' && p && p !== 'crit' && cool(`signal:${k}`, SIGNAL_COOLDOWN_MIN)) ev.push({ type: 'signal', sev: 'crit', name: SIG[k], signal: c });
   }
+  for (const e of ev) if (e.issue) { const k = `mail:${e.issue.id}`; if (sent[k] !== undefined) e.lastMailMin = nowMin - sent[k]; sent[k] = nowMin; }
   state.sent = sent;
   return ev;
 }
@@ -224,11 +226,54 @@ export function summary(st, now = Date.now()) {
   };
 }
 
+const span = (min) => (min < 60 ? `${min} min` : min < 1440 ? `${Math.floor(min / 60)} godz. ${min % 60} min` : `${Math.floor(min / 1440)} dni`);
+const sameText = (a, b) => String(a || '').replace(/\s+/g, ' ').trim() === String(b || '').replace(/\s+/g, ' ').trim();
+
+// Why a message is sent: one lead sentence and the list of things that differ from the previous reading.
+export function whyEvent(e) {
+  const out = { lead: '', items: [] };
+  const i = e.issue;
+  if (i) {
+    const p = e.prev;
+    if (e.type === 'new') {
+      out.lead = e.reclass ? 'Microsoft zmienił klasyfikację zgłoszenia z porady na incydent.' : e.reopened ? 'Microsoft ponownie otworzył zamknięty incydent.' : isIncident(i) ? 'Microsoft otworzył nowy incydent.' : 'Microsoft opublikował nową poradę.';
+      out.items.push(['Stan według Microsoft', hstWord(i.status)]);
+      if (e.reclass && p && String(i.updateAt || '') > String(p.updateAt || '')) out.items.push(['Nowy wpis Microsoft', both(i.updateAt)]);
+    } else if (e.type === 'closed') {
+      out.lead = 'Microsoft zamknął incydent.';
+      out.items.push(['Stan według Microsoft', hstWord(i.status)]);
+      const a = Date.parse(i.start); const b = Date.parse(i.end || i.updateAt || i.modified);
+      if (!Number.isNaN(a) && !Number.isNaN(b) && b > a) out.items.push(['Czas trwania', span(Math.round((b - a) / 60000))]);
+    } else {
+      const newer = p && String(i.updateAt || '') > String(p.updateAt || '');
+      const text = p && !sameText(i.current, p.current);
+      out.lead = e.prevStatus && !newer ? 'Microsoft zmienił stan zgłoszenia.' : text || !p ? 'Microsoft opublikował nowy wpis w zgłoszeniu.' : 'Microsoft odświeżył zgłoszenie; treść ostatniego wpisu jest taka sama.';
+      if (e.prevStatus) out.items.push(['Stan według Microsoft', `${hstWord(e.prevStatus)} → ${hstWord(i.status)}`]);
+      if (newer) out.items.push(['Czas wpisu', `${both(i.updateAt)}; poprzedni wpis: ${both(p.updateAt)}`]);
+      if (p && !sameText(i.title, p.title)) out.items.push(['Nowy tytuł', cut(i.title, 160)]);
+      if (p && String(i.next || '') !== String(p.next || '') && i.next && !Number.isNaN(Date.parse(i.next))) out.items.push(['Następna aktualizacja', both(i.next)]);
+      if (p && !sameText(i.impact, p.impact) && i.impact) out.items.push(['Zmieniony opis wpływu', cut(i.impact, 300)]);
+      if (p && (i.tenants || []).length !== (p.tenants || []).length) out.items.push(['Widoczne w', `${(i.tenants || []).join(', ')} (poprzednio: ${(p.tenants || []).join(', ') || 'brak'})`]);
+      if (text && i.current) out.items.push(['Treść nowego wpisu', cut(i.current, 600)]);
+    }
+    if (e.lastMailMin !== undefined) out.items.push(['Poprzednia wiadomość o tym zgłoszeniu', `${span(e.lastMailMin)} temu`]);
+    return out;
+  }
+  if (e.probe) {
+    out.lead = e.type === 'probe-down' ? 'Sonda portalu nie otrzymała odpowiedzi w dwóch kolejnych pomiarach.' : 'Sonda portalu ponownie otrzymuje odpowiedź.';
+    out.items.push(['Sonda', `${e.probe.name}: ${e.probe.what}`]);
+    return out;
+  }
+  out.lead = 'Sygnał zewnętrzny przeszedł w stan dużego odchylenia.';
+  out.items.push(['Sygnał', e.name]);
+  return out;
+}
+
 const KIND = { new: 'Nowy incydent Microsoft', update: 'Aktualizacja Microsoft', closed: 'Incydent zamknięty przez Microsoft', 'probe-down': 'Awaria wykryta przez sondę portalu', 'probe-up': 'Sonda portalu: odpowiedź przywrócona', signal: 'Sygnał zewnętrzny: duże odchylenie' };
 
 function eventSubject(e) {
   if (e.issue) {
-    const what = e.type === 'new' ? (isIncident(e.issue) ? (e.reopened ? 'Incydent Microsoft otwarty ponownie' : 'Nowy incydent Microsoft') : 'Nowa porada Microsoft') : e.type === 'closed' ? 'Incydent zamknięty' : 'Aktualizacja Microsoft';
+    const what = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada Microsoft przeklasyfikowana na incydent' : e.reopened ? 'Incydent Microsoft otwarty ponownie' : 'Nowy incydent Microsoft') : 'Nowa porada Microsoft') : e.type === 'closed' ? 'Incydent zamknięty' : 'Aktualizacja Microsoft';
     return `${what} ${e.issue.id}: ${cut(`${e.issue.service ? `${e.issue.service} – ` : ''}${e.issue.title}`, 90)}`;
   }
   if (e.probe) return e.type === 'probe-down' ? `Sonda portalu: ${e.probe.name} nie odpowiada` : `Sonda portalu: ${e.probe.name} odpowiada ponownie`;
@@ -273,14 +318,26 @@ export function buildMail(st, events, daily, now = Date.now()) {
   h += `<div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(`${headline}. Porady: ${S.advisories.length}. Sondy portalu: ${S.probesAll - S.probesDown} z ${S.probesAll} odpowiada.`)}</div>`;
   h += `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f4f9"><tr><td align="center" style="padding:18px 10px"><table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;table-layout:fixed;background:#ffffff;border:1px solid #dfe5ee;border-top:5px solid ${COL[worst]};border-radius:12px">`;
   h += `<tr><td style="padding:20px 24px 4px"><div style="font-size:12px;letter-spacing:.14em;font-weight:700;color:#0b63ce">AZUREME PULSE</div><div style="font-size:22px;font-weight:700;color:#0f1b2d;margin-top:4px;line-height:1.25">${esc(events.length ? KIND[events[0].type] : 'Raport dobowy')}</div><div style="font-size:13px;color:#64748b;margin-top:3px">${esc(both(nowIso))}</div></td></tr>`;
+  let whyBox = '';
+  if (events.length) {
+    let w = '';
+    for (const e of events.slice(0, 8)) {
+      const y = whyEvent(e);
+      const who = e.issue ? `${e.issue.id}${e.issue.service ? `, ${e.issue.service}` : ''}` : e.probe ? e.probe.name : e.name;
+      w += `<div style="margin-top:10px"><div style="font-size:15px;font-weight:700;color:#0f1b2d;line-height:1.35">${esc(who)}: ${esc(y.lead)}</div>`
+        + y.items.map(([k, v]) => `<div style="font-size:13.5px;color:#334155;margin-top:5px;line-height:1.45;overflow-wrap:anywhere;word-break:break-word"><span style="color:#64748b">${esc(k)}:</span> ${esc(v)}</div>`).join('') + `</div>`;
+    }
+    whyBox = `<tr><td style="padding:14px 24px 2px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4ff;border:1px solid #c7d7f5;border-radius:14px"><tr><td style="padding:14px 16px 16px"><div style="font-size:13px;font-weight:700;color:#1d4ed8">Dlaczego ta wiadomość${events.length > 1 ? ` (zmiany: ${events.length})` : ''}</div>${w}</td></tr></table></td></tr>`;
+  }
+  h += whyBox;
   h += `<tr><td style="padding:14px 24px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG[worst]};border-radius:8px"><tr><td style="padding:12px 16px;font-size:16px;font-weight:700;color:${COL[worst]}">${dot(worst)}${esc(headline)}</td></tr></table></td></tr>`;
   h += `<tr><td style="padding:8px 19px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${tile(String(S.incidents.length), 'aktywne incydenty Microsoft', S.incidents.length ? 'crit' : 'ok', LINK.issues)}${tile(String(S.advisories.length), 'aktywne porady Microsoft', S.advisories.length ? 'warn' : 'ok', LINK.issues)}</tr><tr>${tile(`${S.probesAll - S.probesDown} z ${S.probesAll}`, 'sondy HTTP portalu odpowiadają', S.probesDown ? 'crit' : 'ok', LINK.probes)}${tile(S.regionsAll ? `${S.regionsAll - S.regionsDown} z ${S.regionsAll}` : 'brak', 'regiony Azure odpowiadają', S.regionsDown ? 'warn' : 'ok', `${SITE}#/regiony`)}</tr></table></td></tr>`;
 
   if (events.length) {
-    h += h2(events.length > 1 ? `Co się zmieniło (${events.length})` : 'Co się zmieniło');
+    h += h2(events.length > 1 ? `Zgłoszenia, których dotyczy wiadomość (${events.length})` : 'Zgłoszenie, którego dotyczy wiadomość');
     for (const e of events.slice(0, 8)) {
       if (e.issue) {
-        const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
+        const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada przeklasyfikowana na incydent' : e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
         h += issueCard(e.issue, kind, e.sev, true);
       } else if (e.probe) {
         h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[e.sev]};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:${COL[e.sev]}">${esc(KIND[e.type])}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(`${e.probe.name}: ${e.probe.what}`)}</div>${fact('Wynik', esc(e.type === 'probe-down' ? `dwa kolejne nieudane pomiary, ostatni kod odpowiedzi: ${e.probe.last?.code || 'brak odpowiedzi'}` : `ostatni pomiar poprawny, ${e.probe.last?.ms} ms`))}${fact('Sprawdzany adres', esc(e.probe.url || ''))}${fact('Zastrzeżenie', 'pomiar z jednej lokalizacji (GitHub Actions); brak odpowiedzi nie przesądza o awarii usługi')}${links([[LINK.probes, 'Sondy HTTP w portalu'], [`${SITE}#/sygnaly`, 'Panel sygnalizacyjny'], [LINK.m365, 'Publiczna strona stanu']])}</td></tr></table></td></tr>`;
