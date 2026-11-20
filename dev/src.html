@@ -1359,6 +1359,15 @@ html[data-theme="light"] .ic2{box-shadow:0 1px 2px rgba(15,27,45,.08)}
 .sh::before{content:"";flex:none;width:5px;height:1.05em;border-radius:3px;background:var(--muted)}
 h3.sh{font-size:21px}
 @media (max-width:420px){.sh,.ovs .sh{font-size:21.5px;margin:34px 0 14px;padding-top:18px}h3.sh{font-size:20px}}
+/* Globus i mapa: przełączniki, opis stanu, obraz, legenda jeden pod drugim, bez nakładania */
+.globe{aspect-ratio:auto;display:flex;flex-direction:column;gap:10px}
+.globe .vctl{position:static;order:1;justify-content:flex-end}
+.globe .gstate,.globe.is-map .gstate{position:static;order:2;max-width:none;margin:0}
+.globe canvas,.globe.is-map canvas{position:relative;inset:auto;order:3;width:100%;height:auto;aspect-ratio:1/1}
+.globe.is-map canvas{aspect-ratio:1.45/1}
+.globe .vnote{position:static;order:4;max-width:none;padding:0}
+.globe .cap,.globe.is-map .cap{position:static;order:5;margin:0}
+html[data-theme="light"] .globe.is-map{padding:10px}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
