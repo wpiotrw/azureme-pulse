@@ -482,3 +482,13 @@ incydenty|incidents
 incydentów|incidents
 Zgłoszenie wycofane|Report withdrawn
 Microsoft usunął zgłoszenie z Service health bez wpisu o zamknięciu.|Microsoft removed the report from Service health without a closing post.
+Incydenty wycofane przez Microsoft z ostatnich 7 dni|Incidents withdrawn by Microsoft in the last 7 days
+Microsoft usunął te zgłoszenia z Service health bez oznaczenia zamknięcia i bez komunikatu końcowego.|Microsoft removed these reports from Service health without marking them closed and without a final post.
+Wycofany incydent|Withdrawn incident
+Wycofany bez komunikatu końcowego|Withdrawn without a final post
+Ostatnia zmiana po stronie Microsoft|Last change on the Microsoft side
+Ostatnia zmiana po stronie Microsoft: |Last change on the Microsoft side: 
+Ostatni znany stan|Last known status
+Ostatnio widoczny w odczycie|Last seen in a reading
+Czas od początku do ostatniej zmiany|Time from start to the last change
+Zgłoszenie nie jest już widoczne w żadnym tenancie testowym. Portal nie zna przyczyny wycofania.|The report is no longer visible in any test tenant. The portal does not know why it was withdrawn.

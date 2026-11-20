@@ -31,4 +31,8 @@ ev = N.mailEvents(gone, gone, st, T + 600000); assert.deepEqual(ev.map((e) => e.
 y = N.whyEvent(ev[0]); console.log(y.lead); const mw = N.buildMail(gone, ev, null, T + 600000); assert.match(mw.subject, /Incydent wycofany z Service health EX1561765/); assert.ok(mw.html.includes('bez wpisu o zamknięciu'));
 st = {}; N.mailEvents(live, gone, st, T); ev = N.mailEvents(gone, live, st, T + 300000); assert.equal(st.pending, undefined, 'powrót zgłoszenia kasuje oczekiwanie'); assert.ok(!ev.some((e) => e.type === 'withdrawn'));
 assert.ok(N.diffEvents(live, gone).some((e) => e.kind === 'Zgłoszenie wycofane'));
+// 7. sekcja wycofanych incydentów w wiadomości
+const wdl = JSON.parse(fs.readFileSync(new URL('./data/live19.json', import.meta.url), 'utf8'));
+const md = N.buildMail(wdl, [], '2026-11-21', Date.parse(wdl.generated)); assert.ok(md.html.includes('Incydenty wycofane przez Microsoft w ostatnich 7 dniach (1)')); assert.ok(md.html.includes('EX1561765'));
+if (process.env.MAIL_OUT) fs.writeFileSync(process.env.MAIL_OUT + '.daily.html', md.html);
 console.log('WHY TESTS PASSED');

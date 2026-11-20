@@ -378,6 +378,13 @@ export function buildMail(st, events, daily, now = Date.now()) {
     if (rest.length > 10) h += `<tr><td style="padding:6px 24px;font-size:13px;color:#475569">Pozostałe zgłoszenia: ${rest.length - 10}. ${a(LINK.issues, 'Pełna lista w portalu')}.</td></tr>`;
   } else if (!events.length && S.healthRead) h += `<tr><td style="padding:14px 24px 0;font-size:14px;color:#334155">${dot('ok')}Microsoft nie zgłasza otwartych incydentów ani porad w tenantach testowych.</td></tr>`;
 
+  const wd = (Array.isArray(st.withdrawn) ? st.withdrawn : []).filter((w) => !shown.has(w.id));
+  if (wd.length) {
+    h += h2(`Incydenty wycofane przez Microsoft w ostatnich 7 dniach (${wd.length})`);
+    h += `<tr><td style="padding:0 24px 4px;font-size:13px;color:#475569;line-height:1.5">Microsoft usunął te zgłoszenia z Service health bez oznaczenia zamknięcia i bez komunikatu końcowego.</td></tr>`;
+    for (const w of wd.slice(0, 6)) h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid #64748b;border-radius:12px"><tr><td style="padding:13px 16px"><div style="font-size:15px;font-weight:600;color:#0f1b2d;line-height:1.35">${esc(w.title)}</div><div style="margin-top:6px"><span style="display:inline-block;padding:2px 9px;border-radius:999px;background:#eef2f7;color:#475569;font-size:12px;font-weight:700;white-space:nowrap">Wycofany incydent</span> &nbsp;<span style="font-size:14px;font-weight:700;color:#0f1b2d">${esc(w.id)}</span></div>${fact('Usługa', esc(w.service || 'brak danych'))}${fact('Ostatni znany stan', esc(hstWord(w.status)))}${fact('Początek', esc(both(w.start)))}${fact('Ostatnia zmiana po stronie Microsoft', esc(both(w.last)))}${w.gone ? fact('Ostatnio widoczny w odczycie', esc(both(w.gone))) : ''}${links([[LINK.analysis, 'Karta analizy incydentu']])}</td></tr></table></td></tr>`;
+  }
+
   const closedList = S.closed.filter((i) => !shown.has(i.id)).slice(0, 3);
   if (closedList.length) {
     h += `<tr><td style="padding:18px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG.ok};border:1px solid #bfe5cd;border-left:4px solid ${COL.ok};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:15px;font-weight:700;color:${COL.ok}">${esc(closedList.length === 1 ? 'Ostatnio zamknięty incydent Microsoft' : `Ostatnio zamknięte incydenty Microsoft (${S.closed.filter((i) => !shown.has(i.id)).length} z ostatnich 7 dni)`)}</div>`;

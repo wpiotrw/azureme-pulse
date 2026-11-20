@@ -148,8 +148,13 @@ if (prevPath && outPath) {
       const cases = updateCases(prevCases, next);
       writeFileSync(casesPath, JSON.stringify(cases));
       console.log(`OK   cases open=${cases.cases.filter((c) => !c.end).length} closed=${cases.cases.filter((c) => c.end).length}`);
+      // Incidents that Microsoft removed from Service health without closing them (last 7 days), for the page and the e-mail.
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      next.withdrawn = cases.cases.filter((c) => c.endAssumed && c.end && String(c.lastSeen || c.end) > weekAgo)
+        .map((c) => ({ id: c.id, title: String(c.title || '').slice(0, 300), service: c.service || '', status: c.status || '', start: c.start || null, last: c.end, gone: c.lastSeen || null, tenants: c.tenants || [] }));
     } catch (e) {
       console.log(`FAIL cases ${e.message}`);
+      if (Array.isArray(prev.withdrawn)) next.withdrawn = prev.withdrawn;
       try { writeFileSync(casesPath, readFileSync(prevCasesPath, 'utf8')); } catch { writeFileSync(casesPath, '{"schema":1,"cases":[]}'); }
     }
   }
