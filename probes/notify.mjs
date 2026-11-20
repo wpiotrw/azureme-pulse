@@ -66,6 +66,7 @@ export function diffEvents(prev, next) {
     const na = allIssues(next);
     for (const [id, i] of no) if (!pa.has(id)) ev.push({ sev: statusClass(i.status) === 'crit' ? 'crit' : 'warn', kind: 'Nowe zgłoszenie', title: `${id}: ${i.title}`, text: `${i.service || ''}${i.current ? `. ${i.current}` : ''}` });
     for (const [id, i] of po) if (na.has(id) && na.get(id).resolved) ev.push({ sev: 'ok', kind: 'Zgłoszenie zamknięte', title: `${id}: ${i.title}`, text: i.service || '' });
+    if ((next.health || []).length && (next.health || []).every((h) => h.ok && !h.lastError)) for (const [id, i] of po) if (!na.has(id)) ev.push({ sev: 'ok', kind: 'Zgłoszenie wycofane', title: `${id}: ${i.title}`, text: 'Microsoft usunął zgłoszenie z Service health bez wpisu o zamknięciu.' });
     const chk = (st) => new Map((st.health || []).filter((h) => h.ok).flatMap((h) => (h.checks || []).map((c) => [`${h.label}|${c.id}`, { ...c, label: h.label }])));
     const ca = chk(prev);
     for (const [k, c] of chk(next)) {
@@ -187,6 +188,22 @@ export function mailEvents(prev, next, state = {}, now = Date.now(), cfg = {}) {
       if (String(i.updateAt || '') > String(p.updateAt || '') || i.status !== p.status) ev.push({ type: 'update', sev: statusClass(i.status) === 'crit' ? 'crit' : 'warn', issue: i, prev: p, prevStatus: p.status !== i.status ? p.status : null });
     }
   }
+  // An open incident that disappears from Service health without being marked resolved: Microsoft withdrew it.
+  // Reported after two consecutive complete readings without it, so a single incomplete answer does not send a message.
+  const pend = state.pending && typeof state.pending === 'object' ? state.pending : {};
+  if ((prev.health || []).some((h) => h.ok) && (next.health || []).some((h) => h.ok)) {
+    const a = issuesById(prev);
+    const b = issuesById(next);
+    const clean = (next.health || []).every((h) => h.ok && !h.lastError);
+    for (const [id, p] of a) if (!b.has(id) && isIncident(p) && !p.resolved && !pend[id]) pend[id] = { n: 0, issue: { id, title: p.title, service: p.service, status: p.status, classification: p.classification, start: p.start, updateAt: p.updateAt || p.modified, tenants: p.tenants } };
+    for (const id of Object.keys(pend)) {
+      if (b.has(id)) { delete pend[id]; continue; }
+      if (!clean) continue;
+      pend[id].n += 1;
+      if (pend[id].n >= 2) { ev.push({ type: 'withdrawn', sev: 'ok', issue: pend[id].issue }); delete pend[id]; }
+    }
+  }
+  if (Object.keys(pend).length) state.pending = pend; else delete state.pending;
   for (const s of next.services || []) {
     const was = isDown(prev, s.id);
     const is = isDown(next, s.id);
@@ -239,6 +256,11 @@ export function whyEvent(e) {
       out.lead = e.reclass ? 'Microsoft zmienił klasyfikację zgłoszenia z porady na incydent.' : e.reopened ? 'Microsoft ponownie otworzył zamknięty incydent.' : isIncident(i) ? 'Microsoft otworzył nowy incydent.' : 'Microsoft opublikował nową poradę.';
       out.items.push(['Stan według Microsoft', hstWord(i.status)]);
       if (e.reclass && p && String(i.updateAt || '') > String(p.updateAt || '')) out.items.push(['Nowy wpis Microsoft', both(i.updateAt)]);
+    } else if (e.type === 'withdrawn') {
+      out.lead = 'Microsoft usunął incydent z Service health tenantów bez wpisu o zamknięciu.';
+      out.items.push(['Ostatni znany stan', hstWord(i.status)]);
+      out.items.push(['Ostatni wpis Microsoft', both(i.updateAt)]);
+      out.items.push(['Co to oznacza', 'Zgłoszenie nie jest już widoczne w żadnym tenancie testowym. Microsoft nie opublikował komunikatu końcowego.']);
     } else if (e.type === 'closed') {
       out.lead = 'Microsoft zamknął incydent.';
       out.items.push(['Stan według Microsoft', hstWord(i.status)]);
@@ -269,11 +291,11 @@ export function whyEvent(e) {
   return out;
 }
 
-const KIND = { new: 'Nowy incydent Microsoft', update: 'Aktualizacja Microsoft', closed: 'Incydent zamknięty przez Microsoft', 'probe-down': 'Awaria wykryta przez sondę portalu', 'probe-up': 'Sonda portalu: odpowiedź przywrócona', signal: 'Sygnał zewnętrzny: duże odchylenie' };
+const KIND = { new: 'Nowy incydent Microsoft', update: 'Aktualizacja Microsoft', closed: 'Incydent zamknięty przez Microsoft', withdrawn: 'Incydent wycofany przez Microsoft', 'probe-down': 'Awaria wykryta przez sondę portalu', 'probe-up': 'Sonda portalu: odpowiedź przywrócona', signal: 'Sygnał zewnętrzny: duże odchylenie' };
 
 function eventSubject(e) {
   if (e.issue) {
-    const what = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada Microsoft przeklasyfikowana na incydent' : e.reopened ? 'Incydent Microsoft otwarty ponownie' : 'Nowy incydent Microsoft') : 'Nowa porada Microsoft') : e.type === 'closed' ? 'Incydent zamknięty' : 'Aktualizacja Microsoft';
+    const what = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada Microsoft przeklasyfikowana na incydent' : e.reopened ? 'Incydent Microsoft otwarty ponownie' : 'Nowy incydent Microsoft') : 'Nowa porada Microsoft') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : 'Aktualizacja Microsoft';
     return `${what} ${e.issue.id}: ${cut(`${e.issue.service ? `${e.issue.service} – ` : ''}${e.issue.title}`, 90)}`;
   }
   if (e.probe) return e.type === 'probe-down' ? `Sonda portalu: ${e.probe.name} nie odpowiada` : `Sonda portalu: ${e.probe.name} odpowiada ponownie`;
@@ -337,7 +359,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
     h += h2(events.length > 1 ? `Zgłoszenia, których dotyczy wiadomość (${events.length})` : 'Zgłoszenie, którego dotyczy wiadomość');
     for (const e of events.slice(0, 8)) {
       if (e.issue) {
-        const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada przeklasyfikowana na incydent' : e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
+        const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada przeklasyfikowana na incydent' : e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
         h += issueCard(e.issue, kind, e.sev, true);
       } else if (e.probe) {
         h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[e.sev]};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:${COL[e.sev]}">${esc(KIND[e.type])}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(`${e.probe.name}: ${e.probe.what}`)}</div>${fact('Wynik', esc(e.type === 'probe-down' ? `dwa kolejne nieudane pomiary, ostatni kod odpowiedzi: ${e.probe.last?.code || 'brak odpowiedzi'}` : `ostatni pomiar poprawny, ${e.probe.last?.ms} ms`))}${fact('Sprawdzany adres', esc(e.probe.url || ''))}${fact('Zastrzeżenie', 'pomiar z jednej lokalizacji (GitHub Actions); brak odpowiedzi nie przesądza o awarii usługi')}${links([[LINK.probes, 'Sondy HTTP w portalu'], [`${SITE}#/sygnaly`, 'Panel sygnalizacyjny'], [LINK.m365, 'Publiczna strona stanu']])}</td></tr></table></td></tr>`;

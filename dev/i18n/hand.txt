@@ -480,3 +480,5 @@ nowy wpis|new post
 incydent|incident
 incydenty|incidents
 incydentów|incidents
+Zgłoszenie wycofane|Report withdrawn
+Microsoft usunął zgłoszenie z Service health bez wpisu o zamknięciu.|Microsoft removed the report from Service health without a closing post.

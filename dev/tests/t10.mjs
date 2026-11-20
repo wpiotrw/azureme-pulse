@@ -23,4 +23,12 @@ let next5 = set(clone(live), (i) => { i.resolved = true; i.status = 'serviceRest
 prev = set(clone(live), (i) => { i.updateAt = '2026-11-20T15:20:00Z'; i.current = 'Older text.'; i.next = '2026-11-20T16:00:00Z'; });
 ev = N.mailEvents(prev, live, { sent: { 'mail:EX1561765': Math.floor(T / 60000) - 10 } }, T); fs.writeFileSync(process.env.MAIL_OUT || '/tmp/mail_preview.html', N.buildMail(live, ev, null, T).html);
 assert.ok(!/[0-9a-f]{8}-[0-9a-f]{4}-/.test(N.buildMail(live, ev, null, T).html), 'brak identyfikatorów');
+// 6. incydent znika z odczytu bez zamknięcia: wiadomość po dwóch pełnych odczytach
+const gone = clone(live); for (const h of gone.health) h.issues = h.issues.filter((i) => i.id !== 'EX1561765');
+st = {}; ev = N.mailEvents(live, gone, st, T); assert.equal(ev.filter((e) => e.type === 'withdrawn').length, 0, 'pierwszy odczyt: jeszcze bez wiadomości'); assert.ok(st.pending.EX1561765);
+const part = clone(gone); part.health[0].lastError = 'HTTP 429'; ev = N.mailEvents(gone, part, st, T + 300000); assert.equal(ev.length, 0, 'niepełny odczyt nie liczy się');
+ev = N.mailEvents(gone, gone, st, T + 600000); assert.deepEqual(ev.map((e) => e.type), ['withdrawn']); assert.equal(st.pending, undefined);
+y = N.whyEvent(ev[0]); console.log(y.lead); const mw = N.buildMail(gone, ev, null, T + 600000); assert.match(mw.subject, /Incydent wycofany z Service health EX1561765/); assert.ok(mw.html.includes('bez wpisu o zamknięciu'));
+st = {}; N.mailEvents(live, gone, st, T); ev = N.mailEvents(gone, live, st, T + 300000); assert.equal(st.pending, undefined, 'powrót zgłoszenia kasuje oczekiwanie'); assert.ok(!ev.some((e) => e.type === 'withdrawn'));
+assert.ok(N.diffEvents(live, gone).some((e) => e.kind === 'Zgłoszenie wycofane'));
 console.log('WHY TESTS PASSED');
