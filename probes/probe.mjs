@@ -7,7 +7,7 @@ import { notify, diffEvents } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
 import { readPublicStatus } from './mscloud.mjs';
 import { readAzureHealth } from './azurehealth.mjs';
-import { updateCases } from './cases.mjs';
+import { updateCases, WITHDRAWN_DAYS } from './cases.mjs';
 import { readSignals, signalEvents } from './signals.mjs';
 
 const [, , prevPath, outPath, prevCasesPath, casesPath] = process.argv;
@@ -149,7 +149,7 @@ if (prevPath && outPath) {
       writeFileSync(casesPath, JSON.stringify(cases));
       console.log(`OK   cases open=${cases.cases.filter((c) => !c.end).length} closed=${cases.cases.filter((c) => c.end).length}`);
       // Incidents that Microsoft removed from Service health without closing them (last 7 days), for the page and the e-mail.
-      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const weekAgo = new Date(Date.now() - WITHDRAWN_DAYS * 86400000).toISOString();
       // A case also ends this way when Microsoft reclassifies the incident as an advisory; such a report is still listed, so it is not withdrawn.
       const listed = new Set((next.health || []).flatMap((h) => (h.issues || []).map((i) => i.id)));
       next.withdrawn = cases.cases.filter((c) => c.endAssumed && c.end && String(c.lastSeen || c.end) > weekAgo && !listed.has(c.id))

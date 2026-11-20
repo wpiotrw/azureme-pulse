@@ -49,4 +49,16 @@ const c7 = updateCases(many, base, T0); assert.equal(c7.cases.filter((c) => c.en
 const g = clone(base); for (const h of g.health) for (const i of h.issues) i.resolved = true; assert.equal(updateCases({}, g, T0).cases.length, 0, 'closed on first sight ignored');
 assert.ok(!c1.cases.some((c) => base.health.some((h) => h.issues.some((i) => i.id === c.id && i.classification !== 'incident'))), 'advisories ignored');
 console.log('size bytes', JSON.stringify(c1).length);
+// 9. wycofane teczki: osobna pula na 7 dni, niezależna od limitu zamkniętych
+{
+  const { WITHDRAWN_DAYS } = await import('../../probes/cases.mjs');
+  const iso = (ms) => new Date(ms).toISOString();
+  const mk = (id, endMs, extra = {}) => ({ id, firstSeen: iso(endMs - 3600000), probes: [], probeNames: [], posts: [], pts: [], events: [], title: id, start: iso(endMs - 3600000), end: iso(endMs), lastSeen: iso(endMs), ...extra });
+  const prevC = { cases: [mk('WD0000001', T0 - 2 * 86400000, { endAssumed: true }), mk('WD0000002', T0 - (WITHDRAWN_DAYS + 1) * 86400000, { endAssumed: true }), ...Array.from({ length: MAX_CLOSED + 2 }, (_, k) => mk('ZZ000000' + k, T0 - (k + 1) * 3600000))] };
+  const empty = clone(base); for (const h of empty.health) h.issues = [];
+  const r = updateCases(prevC, empty, T0); const ids = r.cases.map((c) => c.id);
+  assert.ok(ids.includes('WD0000001'), 'wycofana teczka sprzed 2 dni zostaje mimo nowszych zamkniętych');
+  assert.ok(!ids.includes('WD0000002'), 'wycofana teczka starsza niż 7 dni znika');
+  assert.equal(r.cases.filter((c) => c.end && !c.endAssumed).length, MAX_CLOSED);
+}
 console.log('ALL CASE TESTS PASSED');

@@ -3,6 +3,8 @@
 // Closed cases move to history; the five most recent are kept.
 
 export const MAX_CLOSED = 5;
+export const WITHDRAWN_DAYS = 7;
+export const MAX_WITHDRAWN = 10;
 export const MAX_POINTS = 2016; // 7 days at 5-minute cadence
 export const TAIL_MIN = 60; // keep measuring this long after Microsoft closes the incident
 const MAX_POSTS = 80;
@@ -105,6 +107,11 @@ export function updateCases(prevCases, next, now = Date.now()) {
   }
 
   const open = cases.filter((c) => !c.end).sort((a, b) => String(b.start).localeCompare(String(a.start)));
-  const closed = cases.filter((c) => c.end).sort((a, b) => String(b.end).localeCompare(String(a.end))).slice(0, MAX_CLOSED);
-  return { schema: 1, updated: nowIso, stepMin: next.stepMin || 5, cases: [...open, ...closed] };
+  // Cases closed by Microsoft: the newest MAX_CLOSED. Cases whose issue vanished from Service health (withdrawn) are kept
+  // separately for WITHDRAWN_DAYS since they were last listed, so a run of newer closures cannot push them out.
+  const since = new Date(now - WITHDRAWN_DAYS * 86400000).toISOString();
+  const byEnd = (a, b) => String(b.end).localeCompare(String(a.end));
+  const closed = cases.filter((c) => c.end && !c.endAssumed).sort(byEnd).slice(0, MAX_CLOSED);
+  const withdrawn = cases.filter((c) => c.end && c.endAssumed && String(c.lastSeen || c.end) > since).sort(byEnd).slice(0, MAX_WITHDRAWN);
+  return { schema: 1, updated: nowIso, stepMin: next.stepMin || 5, cases: [...open, ...[...closed, ...withdrawn].sort(byEnd)] };
 }
