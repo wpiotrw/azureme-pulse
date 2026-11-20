@@ -473,3 +473,10 @@ problem:|problem:
 zdarzenie|event
 zdarzenia|events
 zdarzeń|events
+Pozostałe zgłoszenia zaktualizowane w ostatnich 24 godzinach|Other reports updated in the last 24 hours
+Aktualizacje dotyczyły tylko trwających incydentów.|Updates concerned ongoing incidents only.
+Poza trwającymi incydentami Microsoft nie zaktualizował w ostatnich 24 godzinach żadnego zgłoszenia.|Apart from ongoing incidents, Microsoft has not updated any report in the last 24 hours.
+nowy wpis|new post
+incydent|incident
+incydenty|incidents
+incydentów|incidents
