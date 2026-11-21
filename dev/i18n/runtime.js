@@ -33,6 +33,8 @@ var PRE=[
  [/Ruch sieci Microsoft w Cloudflare Radar \(AS(\d+)\)/g,"Microsoft network traffic in Cloudflare Radar (AS$1)"],
  [/wykryto w (\d+) z (\d+) tenantów/g,"detected in $1 of $2 tenants"],
  [/\bw (\d+) z (\d+) tenantów/g,"in $1 of $2 tenants"],
+ [/^Przywrócony przez Microsoft /,"Restored by Microsoft "],
+ [/; wcześniej niewidoczny w odczycie od /g,"; previously not listed since "],
  [/wykryto we wszystkich tenantach/g,"detected in all tenants"],
  [/we wszystkich tenantach/g,"in all tenants"],
  [/odpowiada (\d+) z (\d+) punktów końcowych/g,"$1 of $2 endpoints responding"],

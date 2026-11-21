@@ -38,4 +38,21 @@ assert.ok(N.diffEvents(live, gone).some((e) => e.kind === 'Zgłoszenie wycofane'
 const wdl = JSON.parse(fs.readFileSync(new URL('./data/live19.json', import.meta.url), 'utf8'));
 const md = N.buildMail(wdl, [], '2026-11-21', Date.parse(wdl.generated)); assert.ok(md.html.includes('Incydenty wycofane przez Microsoft w ostatnich 7 dniach (1)')); assert.ok(md.html.includes('EX1561765'));
 if (process.env.MAIL_OUT) fs.writeFileSync(process.env.MAIL_OUT + '.daily.html', md.html);
+// 8. przywrócenie wycofanego incydentu i obniżenie klasyfikacji
+{
+  const goneSt = clone(gone); goneSt.withdrawn = [{ id: 'EX1561765', title: 'x', service: 'Exchange Online', status: 'serviceDegradation', last: '2026-11-20T17:03:28Z', gone: '2026-11-20T17:40:00Z' }];
+  const backSt = clone(live); backSt.restored = N.trackRestored(goneSt, backSt, T + 3600000);
+  assert.deepEqual(backSt.restored.map((r) => [r.id, r.gone]), [['EX1561765', '2026-11-20T17:40:00Z']]);
+  let e2 = N.mailEvents(goneSt, backSt, {}, T + 3600000); assert.deepEqual(e2.map((e) => e.type), ['restored']);
+  const y2 = N.whyEvent(e2[0]); console.log(y2.lead); assert.match(y2.lead, /przywrócił incydent/); assert.ok(y2.items.some((x) => x[0] === 'Niewidoczne w odczycie od'));
+  const m2 = N.buildMail(backSt, e2, null, T + 3600000); assert.match(m2.subject, /Incydent przywrócony w Service health EX1561765/);
+  assert.ok(N.diffEvents(goneSt, backSt).some((e) => e.kind === 'Zgłoszenie przywrócone')); assert.ok(!N.diffEvents(goneSt, backSt).some((e) => e.kind === 'Nowe zgłoszenie' && e.title.startsWith('EX1561765')));
+  const later = clone(backSt); assert.equal(N.mailEvents(backSt, later, {}, T + 3900000).length, 0, 'przywrócenie zgłaszane raz');
+  assert.deepEqual(N.trackRestored(backSt, later, T + 3900000).map((r) => r.id), ['EX1561765']);
+  assert.ok(N.buildMail(later, [], '2026-11-21', T + 3900000).html.includes('Przywrócony przez Microsoft'));
+  const closedSt = clone(later); for (const h of closedSt.health) for (const i of h.issues) if (i.id === 'EX1561765') i.resolved = true; assert.deepEqual(N.trackRestored(later, closedSt, T + 4200000), []);
+  const down = clone(live); for (const h of down.health) for (const i of h.issues) if (i.id === 'EX1561765') i.classification = 'advisory';
+  e2 = N.mailEvents(live, down, {}, T); assert.deepEqual(e2.map((e) => e.type), ['downgraded']); assert.match(N.buildMail(down, e2, null, T).subject, /Incydent przeklasyfikowany na poradę EX1561765/);
+  assert.ok(N.diffEvents(live, down).some((e) => e.kind === 'Zmiana klasyfikacji' && /z incydentu na poradę/.test(e.text)));
+}
 console.log('WHY TESTS PASSED');

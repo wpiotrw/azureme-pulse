@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { readServiceHealth } from './health.mjs';
 import { readAzureStatus } from './azure.mjs';
-import { notify, diffEvents } from './notify.mjs';
+import { notify, diffEvents, trackRestored } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
 import { readPublicStatus } from './mscloud.mjs';
 import { readAzureHealth } from './azurehealth.mjs';
@@ -161,6 +161,7 @@ if (prevPath && outPath) {
     }
   }
   for (const h of next.health || []) for (const i of h.issues || []) delete i.log;
+  next.restored = trackRestored(prev, next);
   next.notify = await notify(prev, next);
   writeFileSync(outPath, JSON.stringify(next));
 }

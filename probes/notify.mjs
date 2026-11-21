@@ -64,7 +64,9 @@ export function diffEvents(prev, next) {
     const po = openIssues(prev);
     const no = openIssues(next);
     const na = allIssues(next);
-    for (const [id, i] of no) if (!pa.has(id)) ev.push({ sev: statusClass(i.status) === 'crit' ? 'crit' : 'warn', kind: 'Nowe zgłoszenie', title: `${id}: ${i.title}`, text: `${i.service || ''}${i.current ? `. ${i.current}` : ''}` });
+    const wasGone = new Set((prev.withdrawn || []).map((w) => w.id));
+    for (const [id, i] of no) { const p = po.get(id); if (p && isIncident(p) !== isIncident(i)) ev.push({ sev: isIncident(i) ? 'crit' : 'ok', kind: 'Zmiana klasyfikacji', title: `${id}: ${i.title}`, text: isIncident(i) ? 'Microsoft zmienił klasyfikację zgłoszenia z porady na incydent.' : 'Microsoft zmienił klasyfikację zgłoszenia z incydentu na poradę.' }); }
+    for (const [id, i] of no) if (!pa.has(id)) ev.push({ sev: statusClass(i.status) === 'crit' ? 'crit' : 'warn', kind: wasGone.has(id) ? 'Zgłoszenie przywrócone' : 'Nowe zgłoszenie', title: `${id}: ${i.title}`, text: `${i.service || ''}${i.current ? `. ${i.current}` : ''}` });
     for (const [id, i] of po) if (na.has(id) && na.get(id).resolved) ev.push({ sev: 'ok', kind: 'Zgłoszenie zamknięte', title: `${id}: ${i.title}`, text: i.service || '' });
     if ((next.health || []).length && (next.health || []).every((h) => h.ok && !h.lastError)) for (const [id, i] of po) if (!na.has(id)) ev.push({ sev: 'ok', kind: 'Zgłoszenie wycofane', title: `${id}: ${i.title}`, text: 'Microsoft usunął zgłoszenie z Service health bez wpisu o zamknięciu.' });
     const chk = (st) => new Map((st.health || []).filter((h) => h.ok).flatMap((h) => (h.checks || []).map((c) => [`${h.label}|${c.id}`, { ...c, label: h.label }])));
@@ -179,8 +181,14 @@ export function mailEvents(prev, next, state = {}, now = Date.now(), cfg = {}) {
     for (const [id, i] of b) {
       const p = a.get(id);
       const inc = isIncident(i);
+      if (!inc && p && isIncident(p) && !p.resolved && !i.resolved) { ev.push({ type: 'downgraded', sev: 'ok', issue: i, prev: p }); continue; }
       if (!inc && !(cfg.advisories === true && !p && !i.resolved)) continue;
-      if (!p) { if (!i.resolved) ev.push({ type: 'new', sev: inc ? 'crit' : 'warn', issue: i }); continue; }
+      if (!p) {
+        if (i.resolved) continue;
+        const r = inc ? (next.restored || []).find((x) => x.id === id && !(prev.restored || []).some((y) => y.id === id)) : null;
+        ev.push(r ? { type: 'restored', sev: 'crit', issue: i, gone: r.gone, last: r.last } : { type: 'new', sev: inc ? 'crit' : 'warn', issue: i });
+        continue;
+      }
       if (inc && !isIncident(p) && !i.resolved) { ev.push({ type: 'new', sev: 'crit', issue: i, prev: p, reclass: true }); continue; }
       if (!p.resolved && i.resolved) { ev.push({ type: 'closed', sev: 'ok', issue: i }); continue; }
       if (i.resolved) continue;
@@ -228,8 +236,19 @@ function warsaw(iso) {
 const both = (iso) => (iso && !Number.isNaN(Date.parse(iso)) ? `${fdt(iso)} (${warsaw(iso)} czasu polskiego)` : 'brak danych');
 const cut = (t, n) => { const x = String(t || '').replace(/\s+/g, ' ').trim(); return x.length > n ? `${x.slice(0, n - 1).trimEnd()}…` : x; };
 
+// Incidents that were withdrawn (prev.withdrawn) and are listed again as open incidents: kept while they stay open, at most `days`.
+export function trackRestored(prev, next, now = Date.now(), days = 7) {
+  const since = new Date(now - days * 86400000).toISOString();
+  const openInc = new Set((next.health || []).flatMap((h) => (h.issues || []).filter((i) => isIncident(i) && !i.resolved).map((i) => i.id)));
+  const kept = (Array.isArray(prev.restored) ? prev.restored : []).filter((r) => openInc.has(r.id) && String(r.back) > since);
+  const fresh = (Array.isArray(prev.withdrawn) ? prev.withdrawn : []).filter((w) => openInc.has(w.id) && !kept.some((r) => r.id === w.id))
+    .map((w) => ({ id: w.id, gone: w.gone || w.last || null, last: w.last || null, back: new Date(now).toISOString() }));
+  return [...kept, ...fresh];
+}
+
 export function summary(st, now = Date.now()) {
-  const all = [...issuesById(st).values()];
+  const back = new Map((Array.isArray(st.restored) ? st.restored : []).map((r) => [r.id, r]));
+  const all = [...issuesById(st).values()].map((i) => (back.has(i.id) ? { ...i, restoredAt: back.get(i.id).back, goneAt: back.get(i.id).gone } : i));
   const open = all.filter((i) => !i.resolved).sort((x, y) => (isIncident(y) - isIncident(x)) || String(y.updateAt || '').localeCompare(String(x.updateAt || '')));
   const m = metrics(st, now);
   const probesAll = m.reduce((n, g) => n + g.probes, 0);
@@ -256,6 +275,16 @@ export function whyEvent(e) {
       out.lead = e.reclass ? 'Microsoft zmienił klasyfikację zgłoszenia z porady na incydent.' : e.reopened ? 'Microsoft ponownie otworzył zamknięty incydent.' : isIncident(i) ? 'Microsoft otworzył nowy incydent.' : 'Microsoft opublikował nową poradę.';
       out.items.push(['Stan według Microsoft', hstWord(i.status)]);
       if (e.reclass && p && String(i.updateAt || '') > String(p.updateAt || '')) out.items.push(['Nowy wpis Microsoft', both(i.updateAt)]);
+    } else if (e.type === 'restored') {
+      out.lead = 'Microsoft przywrócił incydent w Service health. Zgłoszenie było wcześniej wycofane bez wpisu o zamknięciu.';
+      out.items.push(['Stan według Microsoft', hstWord(i.status)]);
+      if (e.gone) out.items.push(['Niewidoczne w odczycie od', both(e.gone)]);
+      out.items.push(['Ostatni wpis Microsoft', both(i.updateAt)]);
+      if (i.current) out.items.push(['Treść ostatniego wpisu', cut(i.current, 600)]);
+    } else if (e.type === 'downgraded') {
+      out.lead = 'Microsoft zmienił klasyfikację zgłoszenia z incydentu na poradę. Zgłoszenie pozostaje otwarte.';
+      out.items.push(['Stan według Microsoft', hstWord(i.status)]);
+      out.items.push(['Znaczenie', 'Według Microsoft problem ma ograniczony zasięg. Portal nie liczy go już jako incydentu.']);
     } else if (e.type === 'withdrawn') {
       out.lead = 'Microsoft usunął incydent z Service health tenantów bez wpisu o zamknięciu.';
       out.items.push(['Ostatni znany stan', hstWord(i.status)]);
@@ -291,11 +320,11 @@ export function whyEvent(e) {
   return out;
 }
 
-const KIND = { new: 'Nowy incydent Microsoft', update: 'Aktualizacja Microsoft', closed: 'Incydent zamknięty przez Microsoft', withdrawn: 'Incydent wycofany przez Microsoft', 'probe-down': 'Awaria wykryta przez sondę portalu', 'probe-up': 'Sonda portalu: odpowiedź przywrócona', signal: 'Sygnał zewnętrzny: duże odchylenie' };
+const KIND = { new: 'Nowy incydent Microsoft', update: 'Aktualizacja Microsoft', closed: 'Incydent zamknięty przez Microsoft', withdrawn: 'Incydent wycofany przez Microsoft', restored: 'Incydent przywrócony przez Microsoft', downgraded: 'Incydent przeklasyfikowany na poradę', 'probe-down': 'Awaria wykryta przez sondę portalu', 'probe-up': 'Sonda portalu: odpowiedź przywrócona', signal: 'Sygnał zewnętrzny: duże odchylenie' };
 
 function eventSubject(e) {
   if (e.issue) {
-    const what = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada Microsoft przeklasyfikowana na incydent' : e.reopened ? 'Incydent Microsoft otwarty ponownie' : 'Nowy incydent Microsoft') : 'Nowa porada Microsoft') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : 'Aktualizacja Microsoft';
+    const what = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada Microsoft przeklasyfikowana na incydent' : e.reopened ? 'Incydent Microsoft otwarty ponownie' : 'Nowy incydent Microsoft') : 'Nowa porada Microsoft') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : e.type === 'restored' ? 'Incydent przywrócony w Service health' : e.type === 'downgraded' ? 'Incydent przeklasyfikowany na poradę' : 'Aktualizacja Microsoft';
     return `${what} ${e.issue.id}: ${cut(`${e.issue.service ? `${e.issue.service} – ` : ''}${e.issue.title}`, 90)}`;
   }
   if (e.probe) return e.type === 'probe-down' ? `Sonda portalu: ${e.probe.name} nie odpowiada` : `Sonda portalu: ${e.probe.name} odpowiada ponownie`;
@@ -331,6 +360,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
     + fact('Ostatnia aktualizacja Microsoft', esc(both(i.updateAt || i.modified)))
     + (!i.resolved && i.next && !Number.isNaN(Date.parse(i.next)) ? fact('Następna aktualizacja', esc(both(i.next))) : '')
     + fact('Widoczne w', esc((i.tenants || []).join(', ')))
+    + (i.restoredAt ? fact('Przywrócony przez Microsoft', esc(`${both(i.restoredAt)}${i.goneAt ? `; wcześniej niewidoczny w odczycie od ${both(i.goneAt)}` : ''}`)) : '')
     + (full && i.impact ? `<div style="font-size:13px;color:#334155;margin-top:9px"><b>Wpływ na użytkowników:</b> ${esc(cut(i.impact, 420))}</div>` : '')
     + (full && i.current ? `<div style="font-size:13px;color:#334155;margin-top:6px"><b>Aktualny stan:</b> ${esc(cut(i.current, 700))}</div>` : '')
     + (full && Array.isArray(i.affected) && i.affected.length ? `<div style="font-size:13px;color:#334155;margin-top:6px"><b>Usługi objęte zgłoszeniem:</b> ${esc(i.affected.map((x) => x.n).filter(Boolean).slice(0, 14).join(', '))}</div>` : '')
@@ -376,7 +406,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
     h += h2(events.length > 1 ? `Zgłoszenia, których dotyczy wiadomość (${events.length})` : 'Zgłoszenie, którego dotyczy wiadomość');
     for (const e of events.slice(0, 8)) {
       if (e.issue) {
-        const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada przeklasyfikowana na incydent' : e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
+        const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada przeklasyfikowana na incydent' : e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : e.type === 'restored' ? 'Incydent przywrócony w Service health' : e.type === 'downgraded' ? 'Incydent przeklasyfikowany na poradę' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
         h += issueCard(e.issue, kind, e.sev, true);
       } else if (e.probe) {
         h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[e.sev]};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;font-weight:700;color:${COL[e.sev]}">${esc(KIND[e.type])}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(`${e.probe.name}: ${e.probe.what}`)}</div>${fact('Wynik', esc(e.type === 'probe-down' ? `dwa kolejne nieudane pomiary, ostatni kod odpowiedzi: ${e.probe.last?.code || 'brak odpowiedzi'}` : `ostatni pomiar poprawny, ${e.probe.last?.ms} ms`))}${fact('Sprawdzany adres', esc(e.probe.url || ''))}${fact('Zastrzeżenie', 'pomiar z jednej lokalizacji (GitHub Actions); brak odpowiedzi nie przesądza o awarii usługi')}${links([[LINK.probes, 'Sondy HTTP w portalu'], [`${SITE}#/sygnaly`, 'Panel sygnalizacyjny'], [LINK.m365, 'Publiczna strona stanu']])}</td></tr></table></td></tr>`;
