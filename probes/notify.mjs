@@ -127,7 +127,7 @@ export function metrics(st, now = Date.now()) {
   });
 }
 
-const COL = { ok: '#15803d', warn: '#b45309', crit: '#b91c1c', info: '#1d4ed8' };
+const COL = { ok: '#15803d', warn: '#b45309', crit: '#b91c1c', info: '#1d4ed8', mute: '#64748b' };
 const BG = { ok: '#ecfdf3', warn: '#fff7e6', crit: '#fef0f0', info: '#eef4ff' };
 const HST = { serviceOperational: 'W dobrej kondycji', investigating: 'Badanie', restoringService: 'Przywracanie usługi', verifyingService: 'Weryfikacja przywrócenia usługi', serviceRestored: 'Usługa została przywrócona', postIncidentReviewPublished: 'Opublikowany raport po zdarzeniu', serviceDegradation: 'Obniżenie wydajności usługi', serviceInterruption: 'Przerwa w świadczeniu usługi', extendedRecovery: 'Przedłużone odzyskiwanie usługi', falsePositive: 'Wynik fałszywie dodatni', investigationSuspended: 'Wstrzymano badanie problemu', resolved: 'Problem rozwiązany', mitigated: 'Skutki problemu ograniczone', resolvedExternal: 'Problem rozwiązany przez dostawcę zewnętrznego', mitigatedExternal: 'Skutki ograniczone przez dostawcę zewnętrznego', confirmed: 'Problem potwierdzony', reported: 'Problem zgłoszony' };
 const LINK = {
@@ -260,7 +260,7 @@ export function whyEvent(e) {
       out.lead = 'Microsoft usunął incydent z Service health tenantów bez wpisu o zamknięciu.';
       out.items.push(['Ostatni znany stan', hstWord(i.status)]);
       out.items.push(['Ostatni wpis Microsoft', both(i.updateAt)]);
-      out.items.push(['Co to oznacza', 'Zgłoszenie nie jest już widoczne w żadnym tenancie testowym. Microsoft nie opublikował komunikatu końcowego.']);
+      out.items.push(['Znaczenie', 'Zgłoszenie nie jest już widoczne w żadnym tenancie testowym. Microsoft nie opublikował komunikatu końcowego.']);
     } else if (e.type === 'closed') {
       out.lead = 'Microsoft zamknął incydent.';
       out.items.push(['Stan według Microsoft', hstWord(i.status)]);
@@ -321,7 +321,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
   const fact = (k, v) => (v ? `<div style="font-size:13px;color:#334155;margin-top:3px;overflow-wrap:anywhere;word-break:break-word"><span style="color:#64748b">${esc(k)}:</span> ${v}</div>` : '');
   const issueLinks = (i) => links([[LINK.issues, 'Zgłoszenie w portalu'], ...(isIncident(i) ? [[LINK.analysis, 'Karta analizy incydentu']] : []), [LINK.admin(i.id), 'Centrum administracyjne Microsoft 365'], [LINK.m365, 'Publiczna strona stanu']]);
   const issueCard = (i, kind, c, full) => `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[c]};border-radius:8px"><tr><td style="padding:13px 16px">`
-    + (kind ? `<div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:${COL[c]}">${esc(kind)}</div>` : '')
+    + (kind ? `<div style="font-size:11px;font-weight:700;color:${COL[c]}">${esc(kind)}</div>` : '')
     + `<div style="margin-top:5px">${chip(isIncident(i) ? 'Incydent' : 'Porada', isIncident(i) ? 'crit' : 'warn')} &nbsp;<a href="${esc(LINK.admin(i.id))}" style="font-family:Consolas,Menlo,monospace;font-size:14px;font-weight:700;color:#0b63ce">${esc(i.id)}</a></div>`
     + `<div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:6px;line-height:1.35">${esc(i.title)}</div>`
     + fact('Usługa', esc(i.service || 'brak danych'))
@@ -349,11 +349,28 @@ export function buildMail(st, events, daily, now = Date.now()) {
       w += `<div style="margin-top:10px"><div style="font-size:15px;font-weight:700;color:#0f1b2d;line-height:1.35">${esc(who)}: ${esc(y.lead)}</div>`
         + y.items.map(([k, v]) => `<div style="font-size:13.5px;color:#334155;margin-top:5px;line-height:1.45;overflow-wrap:anywhere;word-break:break-word"><span style="color:#64748b">${esc(k)}:</span> ${esc(v)}</div>`).join('') + `</div>`;
     }
-    whyBox = `<tr><td style="padding:14px 24px 2px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4ff;border:1px solid #c7d7f5;border-radius:14px"><tr><td style="padding:14px 16px 16px"><div style="font-size:13px;font-weight:700;color:#1d4ed8">Dlaczego ta wiadomość${events.length > 1 ? ` (zmiany: ${events.length})` : ''}</div>${w}</td></tr></table></td></tr>`;
+    whyBox = `<tr><td style="padding:14px 24px 2px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4ff;border:1px solid #c7d7f5;border-radius:14px"><tr><td style="padding:14px 16px 16px"><div style="font-size:13px;font-weight:700;color:#1d4ed8">Powód powiadomienia${events.length > 1 ? ` (liczba zmian: ${events.length})` : ''}</div>${w}</td></tr></table></td></tr>`;
   }
   h += whyBox;
-  h += `<tr><td style="padding:14px 24px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG[worst]};border-radius:8px"><tr><td style="padding:12px 16px;font-size:16px;font-weight:700;color:${COL[worst]}">${dot(worst)}${esc(headline)}</td></tr></table></td></tr>`;
-  h += `<tr><td style="padding:8px 19px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${tile(String(S.incidents.length), 'aktywne incydenty Microsoft', S.incidents.length ? 'crit' : 'ok', LINK.issues)}${tile(String(S.advisories.length), 'aktywne porady Microsoft', S.advisories.length ? 'warn' : 'ok', LINK.issues)}</tr><tr>${tile(`${S.probesAll - S.probesDown} z ${S.probesAll}`, 'sondy HTTP portalu odpowiadają', S.probesDown ? 'crit' : 'ok', LINK.probes)}${tile(S.regionsAll ? `${S.regionsAll - S.regionsDown} z ${S.regionsAll}` : 'brak', 'regiony Azure odpowiadają', S.regionsDown ? 'warn' : 'ok', `${SITE}#/regiony`)}</tr></table></td></tr>`;
+  // State at the moment of sending, one row per source: tenants (Service health), public status pages, Azure subscriptions, own probes.
+  const few = (n, one, some, many) => (n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14) ? some : many);
+  const tenantsRead = (st.health || []).filter((x) => x.ok).length;
+  const reach = (i) => { const n = (i.tenants || []).length; return !tenantsRead || !n ? '' : n >= tenantsRead ? `wykryto we wszystkich tenantach (${tenantsRead})` : `wykryto w ${n} z ${tenantsRead} tenantów`; };
+  const nI = S.incidents.length; const nA = S.advisories.length;
+  const shTxt = !S.healthRead ? 'brak odczytu' : `${nI ? `${nI} ${few(nI, 'incydent', 'incydenty', 'incydentów')}${nI === 1 && reach(S.incidents[0]) ? `, ${reach(S.incidents[0])}` : ''}` : 'brak incydentów'}; ${nA ? `${nA} ${few(nA, 'porada', 'porady', 'porad')}` : 'brak porad'}`;
+  const pubRead = !!(st.public && st.public.ok);
+  const pubN = pubRead ? ((st.public.m365 && st.public.m365.status && st.public.m365.status !== 'Available' ? 1 : 0) + (st.azure && st.azure.ok && Array.isArray(st.azure.items) ? st.azure.items.length : 0)) : 0;
+  const pubTxt = !pubRead ? 'brak odczytu' : pubN ? `${pubN} ${few(pubN, 'zgłoszenie', 'zgłoszenia', 'zgłoszeń')}` : 'brak incydentów';
+  const azh = st.azureHealth || {}; const azN = (azh.items || []).filter((x) => x.active).length; const azSubs = azh.subs || 0;
+  const azTxt = !azh.ok ? 'brak odczytu' : !azSubs ? 'brak subskrypcji w odczycie' : azN ? `${azN} ${few(azN, 'aktywny problem', 'aktywne problemy', 'aktywnych problemów')}` : `brak aktywnych problemów (subskrypcje: ${azSubs})`;
+  const row = (label, note, value, c, last) => `<tr><td style="padding:11px 16px;${last ? '' : 'border-bottom:1px solid #e6ebf2;'}"><div style="font-size:12.5px;color:#64748b;line-height:1.35">${esc(label)}${note ? ` <span style="color:#94a3b8">(${esc(note)})</span>` : ''}</div><div style="font-size:15.5px;font-weight:700;color:${COL[c]};line-height:1.4;margin-top:2px">${dot(c)}${esc(value)}</div></td></tr>`;
+  h += `<tr><td style="padding:16px 24px 2px"><div style="font-size:13px;font-weight:700;color:#0f1b2d;margin-bottom:8px">Stan według źródeł w chwili wysyłki</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-radius:14px">`
+    + row('Service health w tenantach testowych', 'widok administratora tenanta', shTxt, !S.healthRead ? 'mute' : nI ? 'crit' : nA ? 'warn' : 'ok')
+    + row('Publiczne strony stanu Microsoft', 'status.cloud.microsoft i azure.status.microsoft', pubTxt, !pubRead ? 'mute' : pubN ? 'crit' : 'ok')
+    + row('Azure Service Health w subskrypcjach', '', azTxt, !azh.ok || !azSubs ? 'mute' : azN ? 'crit' : 'ok')
+    + row('Sondy HTTP portalu', '', `${S.probesAll - S.probesDown} z ${S.probesAll} odpowiada`, S.probesDown ? 'crit' : 'ok')
+    + row('Regiony Azure', 'pomiar własny', S.regionsAll ? `${S.regionsAll - S.regionsDown} z ${S.regionsAll} odpowiada` : 'brak odczytu', !S.regionsAll ? 'mute' : S.regionsDown ? 'warn' : 'ok', true)
+    + `</table>${pubRead && !pubN && nI ? `<div style="font-size:12.5px;color:#64748b;line-height:1.5;margin-top:8px">Publiczna strona stanu Microsoft 365 pokazuje tylko awarie, które odcinają dostęp do centrum administracyjnego. Dlatego incydent widoczny w Service health tenanta może na niej nie występować.</div>` : ''}</td></tr>`;
 
   if (events.length) {
     h += h2(events.length > 1 ? `Zgłoszenia, których dotyczy wiadomość (${events.length})` : 'Zgłoszenie, którego dotyczy wiadomość');
@@ -362,9 +379,9 @@ export function buildMail(st, events, daily, now = Date.now()) {
         const kind = e.type === 'new' ? (isIncident(e.issue) ? (e.reclass ? 'Porada przeklasyfikowana na incydent' : e.reopened ? 'Incydent otwarty ponownie' : 'Nowy incydent') : 'Nowa porada') : e.type === 'closed' ? 'Incydent zamknięty' : e.type === 'withdrawn' ? 'Incydent wycofany z Service health' : `Aktualizacja Microsoft${e.prevStatus ? `: ${hstWord(e.prevStatus)} → ${hstWord(e.issue.status)}` : ''}`;
         h += issueCard(e.issue, kind, e.sev, true);
       } else if (e.probe) {
-        h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[e.sev]};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:${COL[e.sev]}">${esc(KIND[e.type])}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(`${e.probe.name}: ${e.probe.what}`)}</div>${fact('Wynik', esc(e.type === 'probe-down' ? `dwa kolejne nieudane pomiary, ostatni kod odpowiedzi: ${e.probe.last?.code || 'brak odpowiedzi'}` : `ostatni pomiar poprawny, ${e.probe.last?.ms} ms`))}${fact('Sprawdzany adres', esc(e.probe.url || ''))}${fact('Zastrzeżenie', 'pomiar z jednej lokalizacji (GitHub Actions); brak odpowiedzi nie przesądza o awarii usługi')}${links([[LINK.probes, 'Sondy HTTP w portalu'], [`${SITE}#/sygnaly`, 'Panel sygnalizacyjny'], [LINK.m365, 'Publiczna strona stanu']])}</td></tr></table></td></tr>`;
+        h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[e.sev]};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;font-weight:700;color:${COL[e.sev]}">${esc(KIND[e.type])}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(`${e.probe.name}: ${e.probe.what}`)}</div>${fact('Wynik', esc(e.type === 'probe-down' ? `dwa kolejne nieudane pomiary, ostatni kod odpowiedzi: ${e.probe.last?.code || 'brak odpowiedzi'}` : `ostatni pomiar poprawny, ${e.probe.last?.ms} ms`))}${fact('Sprawdzany adres', esc(e.probe.url || ''))}${fact('Zastrzeżenie', 'pomiar z jednej lokalizacji (GitHub Actions); brak odpowiedzi nie przesądza o awarii usługi')}${links([[LINK.probes, 'Sondy HTTP w portalu'], [`${SITE}#/sygnaly`, 'Panel sygnalizacyjny'], [LINK.m365, 'Publiczna strona stanu']])}</td></tr></table></td></tr>`;
       } else {
-        h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL.crit};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:${COL.crit}">${esc(KIND.signal)}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(e.name)}</div>${fact('Źródło', esc(e.signal.source || ''))}${links([[LINK.analysis, 'Sygnały zewnętrzne w portalu']])}</td></tr></table></td></tr>`;
+        h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL.crit};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:11px;font-weight:700;color:${COL.crit}">${esc(KIND.signal)}</div><div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:5px">${esc(e.name)}</div>${fact('Źródło', esc(e.signal.source || ''))}${links([[LINK.analysis, 'Sygnały zewnętrzne w portalu']])}</td></tr></table></td></tr>`;
       }
     }
     if (events.length > 8) h += `<tr><td style="padding:6px 24px;font-size:13px;color:#475569">Pozostałe zmiany: ${events.length - 8}. Pełna lista: ${a(LINK.portal, 'dziennik zmian w portalu')}.</td></tr>`;
@@ -416,7 +433,7 @@ export function buildMail(st, events, daily, now = Date.now()) {
   const rows = daily ? S.m : bad;
   if (rows.length) {
     const td = 'padding:8px 6px;border-bottom:1px solid #e5e9f0;font-size:13px;color:#1f2937';
-    const th = 'padding:7px 6px;border-bottom:2px solid #d5dbe5;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#64748b;text-align:left';
+    const th = 'padding:7px 6px;border-bottom:2px solid #d5dbe5;font-size:11px;color:#64748b;text-align:left';
     h += `<tr><td style="padding:10px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><th style="${th}">Usługa</th><th style="${th};white-space:nowrap">Sondy</th><th style="${th};text-align:right">Dostępność 24&nbsp;h</th><th style="${th};text-align:right">Mediana</th></tr>`;
     for (const g of rows) {
       const c = g.down === g.probes ? 'crit' : g.down ? 'warn' : 'ok';
