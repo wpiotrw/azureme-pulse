@@ -497,3 +497,28 @@ Zgłoszenie przywrócone|Report restored
 Zmiana klasyfikacji|Classification change
 Microsoft zmienił klasyfikację zgłoszenia z porady na incydent.|Microsoft reclassified the report from advisory to incident.
 Microsoft zmienił klasyfikację zgłoszenia z incydentu na poradę.|Microsoft reclassified the report from incident to advisory.
+Stan według Microsoft|Status according to Microsoft
+Trwa|Ongoing for
+Ostatni wpis Microsoft|Latest Microsoft post
+Koniec wpływu na użytkowników|End of user impact
+termin minął|deadline passed
+w komunikacie|in the post
+Wpływ na użytkowników|User impact
+Bieżący stan|Current status
+Komunikat końcowy Microsoft|Final Microsoft post
+ostatni wpis Microsoft, w skrócie|latest Microsoft post, abridged
+Zakres|Scope
+Zasięg|Reach
+Service health, wykryto w tenantach:|Service health, detected in tenants:
+Zgłoszenie jest na publicznej stronie stanu Microsoft 365.|The report is on the public Microsoft 365 status page.
+ Oznacza to szeroki zasięg.| This indicates wide impact.
+Zgłoszenia nie ma na publicznej stronie stanu Microsoft 365.|The report is not on the public Microsoft 365 status page.
+Przebieg|Timeline
+najnowsze na górze|newest first
+Wpis Microsoft|Microsoft post
+Początek według Microsoft|Start according to Microsoft
+Zgłoszenie zniknęło z odczytu Service health|The report disappeared from the Service health reading
+Zgłoszenie przywrócone przez Microsoft|The report was restored by Microsoft
+Koniec wpływu na użytkowników według Microsoft|End of user impact according to Microsoft
+Karta analizy|Analysis card
+Centrum administracyjne wymaga logowania kontem administratora tenanta, w którym zgłoszenie jest widoczne. Treść komunikatów w brzmieniu Microsoft, w skrócie.|The admin center requires signing in as an administrator of the tenant in which the report is visible. Post text as worded by Microsoft, abridged.

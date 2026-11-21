@@ -1369,6 +1369,42 @@ h3.sh{font-size:21px}
 .globe .vnote{position:static;order:4;max-width:none;padding:0}
 .globe .cap,.globe.is-map .cap{position:static;order:5;margin:0}
 html[data-theme="light"] .globe.is-map{padding:10px}
+/* Szczegóły zgłoszenia: wspólny układ */
+.idt{display:grid;gap:12px;min-width:0}
+.ik{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px}
+.ik>div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);display:grid;gap:3px;align-content:start;min-width:0}
+.ik>div.c{border-color:color-mix(in srgb,var(--c) 45%,var(--line))}
+.ik .l{font-size:12.5px;color:var(--muted);line-height:1.3}
+.ik .v{font:600 15.5px/1.3 var(--f-display);color:var(--ink);overflow-wrap:anywhere}
+.ik>div.c .v{color:var(--c)}
+.ik .s{font-size:12.5px;color:var(--muted);line-height:1.35}
+.ib{border:1px solid var(--line);border-radius:12px;padding:12px 14px 13px;background:var(--bg);min-width:0}
+.ib h4{margin:0 0 8px;font:600 15px/1.3 var(--f-display);color:var(--ink);display:flex;gap:4px 10px;align-items:baseline;flex-wrap:wrap}
+.ib h4 small{font:400 12.5px var(--f-body);color:var(--muted)}
+.ib p{margin:0;font-size:14px;line-height:1.55;color:var(--ink)}
+.ib ul{margin:0;padding-left:18px;display:grid;gap:7px;font-size:14px;line-height:1.5;color:var(--ink)}
+.ib ul li::marker{color:var(--muted)}
+.ib .zl{font-size:13px;color:var(--muted);margin:0 0 7px}
+.ib .zl.zp{margin:10px 0 0}
+.ib .zl b{color:var(--ink);font-weight:600}
+.ib .tn{display:flex;flex-wrap:wrap;gap:6px}
+.ib .tn span{border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:13px;color:var(--ink);background:var(--panel)}
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+.tl li{display:grid;gap:2px;padding-left:12px;border-left:2px solid var(--line);font-size:13.5px;line-height:1.45;color:var(--ink)}
+.tl li.p{border-left-color:var(--muted)}
+.tl time{font-size:12.5px;color:var(--muted)}
+.tlm{margin-top:10px}
+.tlm>summary{font-size:13.5px}
+.tlm .tl{margin-top:10px}
+.ibt{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.ibt a,.ibt button{display:block;text-align:center;border:1px solid color-mix(in srgb,var(--flow) 45%,var(--line));border-radius:10px;padding:10px 12px;font:600 13.5px var(--f-body);color:var(--flow);background:none;text-decoration:none;cursor:pointer}
+.idt .fold,.idt .rel{margin:0}
+.idh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 12px}
+.idh .id{font:700 15px var(--f-body)}
+.idh .sv{font-size:13.5px;color:var(--muted)}
+.idh .tg{font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 10px;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.ic2 .bd2,.ic2[open] .bd2{display:block;padding:14px}
+details.cur .cb{padding-top:14px}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -2412,12 +2448,8 @@ function renderCurrent(d){
   function card(i,ix,n){var m=hst(i.status),isI=isInc(i),v=vis[i.id]||[],rg=regFor(i.id),pb=p&&p.title&&p.title===i.title?p:null;if(pb)pubUsed=true;if(rg)(rg.ids||[]).forEach(function(x){matched[x]=1;});
     var upI=i.updateAt||i.modified,freshI=isI&&String(upI)>new Date(Date.now()-86400000).toISOString();
     var h='<details class="card rc cur ty-'+(isI?"inc":"adv")+' s-'+m[1]+'" data-ck="'+esc(i.id)+'"'+((i.id in CUROPEN?CUROPEN[i.id]:isI)?" open":"")+'><summary><h3>'+esc(i.title)+'</h3><span class="ch" aria-hidden="true">›</span><div class="th2"><span class="tb">'+(isI?"Incydent":"Porada")+' '+ix+' z '+n+'</span><span class="idb">'+esc(i.id)+'</span>'+(i.service?'<span class="sv">'+esc(i.service)+'</span>':"")+'</div><span class="st2" style="--c:var(--'+m[1]+')">'+esc(m[0])+'</span>'+(isI&&quietIss(i)?'<p class="qz">'+esc(quietTxt(i))+'</p>':"")+rsNote(i)+'<span class="cm">'+(freshI?'<span class="nw">nowy wpis <b>'+esc(ago(upI))+'</b></span>':"")+'<span class="tg" title="'+esc("Widoczne w: "+v.join(", "))+'">'+(v.length===nT?"we wszystkich tenantach ("+nT+")":"w "+v.length+" z "+nT+" tenantów")+'</span><span class="up">Aktualizacja: '+esc(fdt(upI))+(freshI?"":' (<b>'+esc(ago(upI))+'</b>)')+'</span></span></summary><div class="cb">';
-    h+='<dl class="facts"><div><dt>Usługa</dt><dd>'+esc(i.service||"brak danych")+'</dd></div><div><dt>Początek</dt><dd>'+esc(i.start?fdt(i.start):"brak danych")+'</dd></div><div><dt>Ostatnia aktualizacja</dt><dd>'+esc(fdt(i.updateAt||i.modified))+(i.posts?" · komunikat nr "+i.posts:"")+'</dd></div><div><dt>Następna aktualizacja</dt><dd>'+nextTxt(i)+'</dd></div></dl>';
-    h+=(i.impact?'<p><b>Wpływ na użytkowników:</b> '+esc(i.impact)+'</p>':"")+(i.current?'<p><b>Bieżący stan:</b> '+esc(i.current)+'</p>':"");
-    if(pb)h+='<p class="pub"><b class="led '+((PST[pb.status]||["","warn"])[1])+'" style="animation:none"></b><span>Zgłoszenie jest opublikowane na <a rel="noopener" href="https://status.cloud.microsoft/">publicznej stronie stanu Microsoft 365</a>, co oznacza szeroki zasięg. Ostatnia aktualizacja wpisu: '+esc(fdt(pb.updated))+'.</span></p>';
-    h+=relBlock(i,isI?"Usługi objęte incydentem":"Usługi objęte zgłoszeniem");
-    if(rg)h+='<details class="fold"><summary>Opracowanie portalu: '+esc(rg.title)+'</summary><dl class="facts" style="margin-top:10px"><div><dt>Początek według źródeł</dt><dd>'+esc(fdt(rg.start))+'</dd></div><div><dt>Czas trwania</dt><dd>'+esc(rg.duration||"brak danych")+'</dd></div><div><dt>Identyfikatory</dt><dd>'+esc((rg.ids||[]).join(", "))+'</dd></div></dl><p>'+esc(rg.summary||"")+'</p><div class="src">'+(rg.sources||[]).filter(function(x){return /^https:\/\//.test(x.url);}).map(function(x){return '<a rel="noopener" href="'+esc(x.url)+'">Źródło: '+esc(x.name)+'</a>';}).join("")+'</div><div class="own">'+esc(rg.own_probes||"")+'</div></details>';
-    h+='<p class="lk2"><a class="adm" rel="noopener" target="_blank" href="'+shUrl(i.id)+'" title="Wymaga logowania administratora">Centrum administracyjne ↗</a></p>';
+    var rgH="";if(rg)rgH='<details class="fold"><summary>Opracowanie portalu: '+esc(rg.title)+'</summary><dl class="facts" style="margin-top:10px"><div><dt>Początek według źródeł</dt><dd>'+esc(fdt(rg.start))+'</dd></div><div><dt>Czas trwania</dt><dd>'+esc(rg.duration||"brak danych")+'</dd></div><div><dt>Identyfikatory</dt><dd>'+esc((rg.ids||[]).join(", "))+'</dd></div></dl><p>'+esc(rg.summary||"")+'</p><div class="src">'+(rg.sources||[]).filter(function(x){return /^https:\/\//.test(x.url);}).map(function(x){return '<a rel="noopener" href="'+esc(x.url)+'">Źródło: '+esc(x.name)+'</a>';}).join("")+'</div><div class="own">'+esc(rg.own_probes||"")+'</div></details>';
+    h+=issDetail(i,{tenants:v,after:relBlock(i,isI?"Usługi objęte incydentem":"Usługi objęte zgłoszeniem")+rgH,links:[(isI?'<a href="#/model">Karta analizy</a>':""),'<a rel="noopener" target="_blank" href="'+shUrl(i.id)+'" title="Wymaga logowania administratora">Centrum administracyjne ↗</a>'].filter(Boolean)});
     return h+'</div></details>';}
   function group(list,title,cls,emptyTxt){return '<div class="grp-h '+cls+'"><h3>'+title+'</h3><span class="cnt">'+list.length+'</span></div>'+(list.length?list.map(function(i,k){return card(i,k+1,list.length);}).join(""):'<div class="card live-empty">'+emptyTxt+'</div>');}
   $("cur-f").innerHTML=[["all","Wszystkie",open.length],["inc","Incydenty",inc.length],["adv","Porady",adv.length]].map(function(f){return '<button type="button" data-curf="'+f[0]+'" aria-pressed="'+(CURF===f[0])+'">'+f[1]+' <span>'+f[2]+'</span></button>';}).join("");
@@ -2503,8 +2535,37 @@ function renderMc(list){
   $("mc-box").innerHTML='<thead><tr><th>Identyfikator</th><th>Tytuł</th><th>Rodzaj</th><th>Zmieniono (UTC)</th><th>Termin działania</th><th>Tenanty</th></tr></thead><tbody>'+all.map(function(m){return '<tr><td class="id" data-l="Identyfikator"><a rel="noopener" target="_blank" href="'+mcUrl(m.id)+'">'+esc(m.id)+'</a></td><td class="main">'+esc(m.title)+'<small>'+esc((m.services||[]).join(", "))+'</small></td><td data-l="Rodzaj"><span class="st-c s-'+(m.major?"warn":"ok")+'" style="--sc:'+(m.major?"var(--warn)":"#9fb2cc")+'">'+esc(m.major?"Istotna zmiana":(MCC[m.category]||m.category||"Wiadomość"))+'</span></td><td class="mono" data-l="Zmieniono">'+esc(sdt(m.modified))+'</td><td class="mono" data-l="Termin działania">'+esc(m.actionBy?sdt(m.actionBy):"brak")+'</td><td data-l="Tenanty">'+m._t.map(function(t){return '<span class="tg" title="'+esc(t)+'">'+esc(String(t).replace(/^Tenant\s+/,"T"))+'</span>';}).join("")+'</td></tr>';}).join("")+'</tbody>';
 }
 var SHF="open",SHALL=false,SHI={};
+// Wspólny układ szczegółów zgłoszenia: kafelki najważniejszych danych, ramki z treścią Microsoft, zasięg, przebieg, przyciski.
+function sents(t){var m=String(t||"").replace(/\s+/g," ").trim().match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)||[],out=[];m.forEach(function(x){x=x.trim();if(!x)return;if(out.length&&(/\b(e\.g|i\.e|etc|vs|approx|incl)\.$/i.test(out[out.length-1])||x.length<12))out[out.length-1]+=" "+x;else out.push(x);});return out;}
+function itext(t){var a=sents(t);return a.length>1?'<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul>':'<p>'+esc(a[0]||"")+'</p>';}
+function ibox(title,sub,inner,cls){return '<section class="ib'+(cls?" "+cls:"")+'"><h4>'+title+(sub?'<small>'+sub+'</small>':"")+'</h4>'+inner+'</section>';}
+function itile(l,v,sub,c){return '<div'+(c?' style="--c:var(--'+c+')" class="c"':"")+'><span class="l">'+l+'</span><span class="v">'+v+'</span>'+(sub?'<span class="s">'+sub+'</span>':"")+'</div>';}
+function issDetail(i,o){o=o||{};var m=hst(i.status),closed=!!i.resolved||o.mode==="closed",upT=i.updateAt||i.modified,t0=Date.parse(i.start),t1=closed?Date.parse(i.end||upT):Date.now(),h='<div class="idt">';
+  h+='<div class="ik">'+itile("Stan według Microsoft",esc(closed&&i.resolved?"Zamknięte":m[0]),closed&&i.resolved?esc(m[0]):"",closed?"ok":m[1])
+    +itile(closed?"Czas trwania":"Trwa",!isNaN(t0)&&t1>t0?esc(cdur((t1-t0)/60000)):"brak danych",i.start?"od "+esc(fdt(i.start)):"")
+    +itile(closed?"Zamknięty przez Microsoft":"Ostatni wpis Microsoft",esc(ago(upT)),esc(fdt(upT))+(i.posts?" · wpis nr "+esc(i.posts):""))
+    +(closed?itile("Koniec wpływu na użytkowników",i.end?esc(fdt(i.end)):"nie podano",""):itile("Następna aktualizacja",nxFix(i).next&&!isNaN(Date.parse(i.next))?esc(Date.parse(i.next)<Date.now()?"termin minął":ago(i.next).replace(/ temu$/,"")):esc(i.nextRaw?"w komunikacie":"nie podano"),i.next&&!isNaN(Date.parse(i.next))?esc(fdt(i.next)):"",i.next&&Date.parse(i.next)<Date.now()?"warn":""))+'</div>';
+  if(o.before)h+=o.before;
+  if(i.impact)h+=ibox("Wpływ na użytkowników","",itext(i.impact));
+  if(i.current)h+=ibox(closed?"Komunikat końcowy Microsoft":"Bieżący stan","ostatni wpis Microsoft, w skrócie",itext(i.current));
+  if(i.scope)h+=ibox("Zakres","",itext(i.scope));
+  var tn=o.tenants||i._t||(SHI&&SHI[i.id]&&SHI[i.id]._t)||[],pub=LASTD&&LASTD.public&&LASTD.public.ok!==false&&LASTD.public.m365?LASTD.public.m365:null,onPub=!!(pub&&pub.title&&pub.title===i.title);
+  if(tn.length||pub)h+=ibox("Zasięg","",(tn.length?'<p class="zl">Service health, wykryto w tenantach:</p><div class="tn">'+tn.map(function(x){return '<span>'+esc(tlab(x))+'</span>';}).join("")+'</div>':"")+(pub&&!closed?'<p class="zl zp">'+(onPub?'<b>Zgłoszenie jest na publicznej stronie stanu Microsoft 365.</b> Oznacza to szeroki zasięg.':'Zgłoszenia nie ma na publicznej stronie stanu Microsoft 365.')+'</p>':""));
+  var ev=[],cs=(CASES||[]).filter(function(c){return c.id===i.id;})[0],rs=((LASTD&&LASTD.restored)||[]).filter(function(r){return r.id===i.id;})[0];
+  if(cs&&cs.posts&&cs.posts.length)cs.posts.forEach(function(x){ev.push({t:x.t,x:cutT(x.s,260),k:"Wpis Microsoft"});});
+  else if(upT)ev.push({t:upT,x:"Ostatni wpis Microsoft"+(i.posts?" (nr "+i.posts+")":""),k:""});
+  if(i.start)ev.push({t:i.start,x:"Początek według Microsoft",k:""});
+  if(rs){if(rs.gone)ev.push({t:rs.gone,x:"Zgłoszenie zniknęło z odczytu Service health",k:"Portal"});ev.push({t:rs.back,x:"Zgłoszenie przywrócone przez Microsoft",k:"Portal"});}
+  if(closed&&i.end)ev.push({t:i.end,x:"Koniec wpływu na użytkowników według Microsoft",k:""});
+  ev=ev.filter(function(x){return !isNaN(Date.parse(x.t));}).sort(function(a,b){return String(b.t).localeCompare(String(a.t));});
+  if(ev.length>1){var li=function(x){return '<li'+(x.k==="Portal"?' class="p"':"")+'><time>'+esc(fdt(x.t))+(x.k?' · '+x.k:"")+'</time><span>'+esc(x.x)+'</span></li>';};
+    h+=ibox("Przebieg","najnowsze na górze",'<ol class="tl">'+ev.slice(0,4).map(li).join("")+'</ol>'+(ev.length>4?'<details class="fold tlm"><summary>Starsze wpisy ('+(ev.length-4)+')</summary><ol class="tl">'+ev.slice(4).map(li).join("")+'</ol></details>':""));}
+  if(o.after)h+=o.after;
+  if(o.links&&o.links.length)h+='<div class="ibt">'+o.links.join("")+'</div>';
+  if(o.note)h+='<p class="note">'+o.note+'</p>';
+  return h+'</div>';}
 function issueDlg(id){var i=SHI[id];if(!i)return;var m=hst(i.status);
-  openDlg(i.id+": "+i.title,'<span class="st-c s-'+(i.resolved?"ok":m[1])+'">'+esc(i.resolved?"Zamknięte":m[0])+'</span><dl class="facts"><div><dt>Usługa</dt><dd>'+esc(i.service||"brak danych")+'</dd></div><div><dt>Początek</dt><dd>'+esc(i.start?fdt(i.start):"brak danych")+'</dd></div><div><dt>'+(i.resolved?"Zakończenie":"Ostatnia aktualizacja")+'</dt><dd>'+esc(fdt(i.resolved&&i.end?i.end:(i.updateAt||i.modified)))+'</dd></div><div><dt>Następna aktualizacja</dt><dd>'+(i.resolved?"nie dotyczy":nextTxt(i))+'</dd></div><div><dt>Liczba komunikatów</dt><dd>'+esc(i.posts||"brak danych")+'</dd></div><div><dt>Widoczne w tenantach</dt><dd>'+esc((i._t||[]).join(", "))+'</dd></div></dl>'+(i.impact?'<p><b>Wpływ na użytkowników:</b> '+esc(i.impact)+'</p>':"")+(i.current?'<p><b>'+(i.resolved?"Ostatni komunikat":"Bieżący stan")+':</b> '+esc(i.current)+'</p>':"")+(i.scope?'<p><b>Zakres:</b> '+esc(i.scope)+'</p>':"")+relBlock(i,isInc(i)?"Usługi objęte incydentem":"Usługi objęte zgłoszeniem")+'<a class="ext" rel="noopener" target="_blank" href="'+shUrl(i.id)+'">Otwórz zgłoszenie w centrum administracyjnym Microsoft 365 ↗</a><p class="note">Odnośnik wymaga logowania kontem administratora tenanta, w którym zgłoszenie jest widoczne. Treść komunikatu w brzmieniu Microsoft, w skrócie.</p>');}
+  openDlg(i.id+": "+i.title,'<div class="idh"><span class="tg" style="--c:var(--'+(isInc(i)?"crit":"warn")+')">'+(isInc(i)?"Incydent":"Porada")+'</span><span class="id">'+esc(i.id)+'</span>'+(i.service?'<span class="sv">'+esc(i.service)+'</span>':"")+'</div>'+issDetail(i,{after:relBlock(i,isInc(i)?"Usługi objęte incydentem":"Usługi objęte zgłoszeniem"),links:[(isInc(i)?'<a href="#/model" data-dlgx>Karta analizy</a>':""),'<a rel="noopener" target="_blank" href="'+shUrl(i.id)+'">Centrum administracyjne ↗</a>'].filter(Boolean),note:"Centrum administracyjne wymaga logowania kontem administratora tenanta, w którym zgłoszenie jest widoczne. Treść komunikatów w brzmieniu Microsoft, w skrócie."}));}
 function renderHealth(list){
   var H=list.filter(function(h){return h.ok;}),bad=list.filter(function(h){return !h.ok;});
   $("sh-note").textContent=(H.length?"Odczyt: "+H.map(function(h){return h.label+" "+fdt(h.fetched);}).join(" · ")+".":"")+(bad.length?" Błąd odczytu: "+bad.map(function(h){return h.label+" ("+(h.error||"brak danych")+")";}).join(", ")+".":"");
@@ -2692,7 +2753,7 @@ function initTabs(){Array.prototype.forEach.call(document.querySelectorAll("sect
   function sel(t){Array.prototype.forEach.call(panes,function(p){p.hidden=p.dataset.tab!==t;});Array.prototype.forEach.call(bar.children,function(b){b.setAttribute("aria-selected",b.dataset.t===t);});}
   Array.prototype.forEach.call(panes,function(p){var b=document.createElement("button");b.type="button";b.setAttribute("role","tab");b.dataset.t=p.dataset.tab;b.dataset.s=sec.id;b.innerHTML=esc(p.dataset.label)+'<span class="c" hidden></span>';b.addEventListener("click",function(){sel(p.dataset.tab);});bar.appendChild(b);});
   sec.insertBefore(bar,panes[0]);sel(panes[0].dataset.tab);});}
-document.addEventListener("click",function(e){var t=e.target.closest("[data-iss]");if(t){issueDlg(t.dataset.iss);return;}t=e.target.closest("[data-shf]");if(t){SHF=t.dataset.shf;if(LASTD)renderHealth(LASTD.health||[]);return;}});
+document.addEventListener("click",function(e){var t=e.target.closest("[data-dlgx]");if(t){var dg=$("dlg");if(dg.close&&dg.open)dg.close();else dg.removeAttribute("open");}t=e.target.closest("[data-iss]");if(t){issueDlg(t.dataset.iss);return;}t=e.target.closest("[data-shf]");if(t){SHF=t.dataset.shf;if(LASTD)renderHealth(LASTD.health||[]);return;}});
 $("sh-all").addEventListener("click",function(){SHALL=!SHALL;if(LASTD)renderHealth(LASTD.health||[]);});
 $("dlg-x").addEventListener("click",function(){$("dlg").close();});
 $("dlg").addEventListener("click",function(e){if(e.target===$("dlg"))$("dlg").close();});
@@ -2703,7 +2764,7 @@ function cutT(t,n){t=String(t||"");return t.length>n?t.slice(0,n-1).replace(/\s+
 function issueSum(d){
   var H=(d.health||[]).filter(function(h){return h.ok;});if(!H.length)return null;
   var map={},all=[];
-  H.forEach(function(h){(h.issues||[]).forEach(function(i){var e=map[i.id];if(!e){e=map[i.id]={i:i,open:false};all.push(e);}if(!i.resolved){e.open=true;e.i=i;e.seen=(e.seen||0)+1;}});});all.forEach(function(e){if(e.open){var c={},k;for(k in e.i)c[k]=e.i[k];c._seen=e.seen;c._nT=H.length;e.i=c;}});
+  H.forEach(function(h){(h.issues||[]).forEach(function(i){var e=map[i.id];if(!e){e=map[i.id]={i:i,open:false};all.push(e);}(e.t=e.t||[]).push(h.label);if(!i.resolved){e.open=true;e.i=i;e.seen=(e.seen||0)+1;}});});all.forEach(function(e){var c={},k;for(k in e.i)c[k]=e.i[k];c._t=e.t;if(e.open){c._seen=e.seen;c._nT=H.length;}e.i=c;});
   var up=function(i){return String(i.updateAt||i.modified||"");},byUp=function(a,b){return up(b).localeCompare(up(a));};
   var open=all.filter(function(e){return e.open;}).map(function(e){return e.i;}).sort(byUp),dayAgo=new Date(Date.now()-86400000).toISOString();
   return {up:up,open:open,inc:open.filter(isInc),adv:open.filter(function(i){return !isInc(i);}),closed:all.filter(function(e){return !e.open&&isInc(e.i);}).map(function(e){return e.i;}).sort(byUp),upd:open.filter(function(i){return up(i)>dayAgo;})};
@@ -2722,12 +2783,7 @@ function renderBrief(d){
   function card(i,mode){
     var st=hst(i.status),incd=isInc(i),qz=mode!=="closed"&&incd&&quietIss(i),c=mode==="closed"?"ok":incd&&!qz?"crit":"warn",t0=Date.parse(i.start),t1=Date.parse(i.end||up(i)),key=mode+":"+i.id;
     var fresh=mode!=="closed"&&up(i)>new Date(Date.now()-86400000).toISOString();
-    var h='<details class="ic2 k-'+c+'" data-k="'+esc(key)+'" style="--sc:var(--'+c+')"'+isOpen(key)+'><summary><p class="tt">'+esc(cutT(i.title,110))+'</p><span class="ch" aria-hidden="true">›</span><div class="hd2"><span class="tg" style="--c:var(--'+c+')">'+(mode==="closed"?"Zamknięty incydent":incd?"Incydent":"Porada")+'</span><span class="id">'+esc(i.id)+'</span>'+(i.service?'<span class="sv">'+esc(i.service)+'</span>':"")+'</div><span class="st" style="--c:var(--'+st[1]+')">'+esc(st[0])+'</span>'+(qz?'<p class="qz">'+esc(quietTxt(i))+'</p>':"")+rsNote(i)+'<span class="kd">'+(mode==="inc"&&fresh?'<span class="nw">nowy wpis <b>'+esc(ago(up(i)))+'</b></span>':"")+(mode!=="closed"&&reachTxt(i)?'<span class="rt">'+esc(reachTxt(i))+'</span>':"")+'<span class="up">'+(mode==="closed"?"Zamknięty: ":"Aktualizacja: ")+esc(fdt(up(i)))+(mode==="inc"&&fresh?"":' (<b>'+esc(ago(up(i)))+'</b>)')+'</span></span></summary><div class="bd2"><dl>';
-    if(mode==="closed"){h+=f("Zamknięty przez Microsoft",esc(fdt(up(i))),esc(ago(up(i))),1)+(i.end?f("Koniec wpływu na użytkowników",esc(fdt(i.end)),""):"")+f("Początek",esc(fdt(i.start)),"")+(!isNaN(t0)&&!isNaN(t1)&&t1>t0?f("Czas trwania",esc(cdur((t1-t0)/60000)),""):"");}
-    else{h+=f("Ostatnia aktualizacja",esc(fdt(up(i))),esc(ago(up(i))),mode==="upd")+f("Następna aktualizacja",nxFix(i).next&&!isNaN(Date.parse(i.next))?nextTxt(i):esc(i.nextRaw?cutT(i.nextRaw,60):"nie podano"),"")+f("Początek",esc(fdt(i.start)),"")+f("Usługa",esc(i.service||"brak danych"),"");}
-    h+='</dl>';
-    if(i.current)h+='<p class="ms"><b>'+(mode==="closed"?"Komunikat końcowy Microsoft":"Ostatni komunikat Microsoft")+':</b> '+esc(cutT(i.current,mode==="closed"?170:220))+'</p>';
-    h+='<div class="lk"><button type="button" data-iss="'+esc(i.id)+'">Szczegóły zgłoszenia</button>'+(incd?'<a href="#/model">Karta analizy →</a>':"")+'<a rel="noopener" target="_blank" href="'+shUrl(i.id)+'">Centrum administracyjne ↗</a></div></div></details>';
+    var h='<details class="ic2 k-'+c+'" data-k="'+esc(key)+'" style="--sc:var(--'+c+')"'+isOpen(key)+'><summary><p class="tt">'+esc(cutT(i.title,110))+'</p><span class="ch" aria-hidden="true">›</span><div class="hd2"><span class="tg" style="--c:var(--'+c+')">'+(mode==="closed"?"Zamknięty incydent":incd?"Incydent":"Porada")+'</span><span class="id">'+esc(i.id)+'</span>'+(i.service?'<span class="sv">'+esc(i.service)+'</span>':"")+'</div><span class="st" style="--c:var(--'+st[1]+')">'+esc(st[0])+'</span>'+(qz?'<p class="qz">'+esc(quietTxt(i))+'</p>':"")+rsNote(i)+'<span class="kd">'+(mode==="inc"&&fresh?'<span class="nw">nowy wpis <b>'+esc(ago(up(i)))+'</b></span>':"")+(mode!=="closed"&&reachTxt(i)?'<span class="rt">'+esc(reachTxt(i))+'</span>':"")+'<span class="up">'+(mode==="closed"?"Zamknięty: ":"Aktualizacja: ")+esc(fdt(up(i)))+(mode==="inc"&&fresh?"":' (<b>'+esc(ago(up(i)))+'</b>)')+'</span></span></summary><div class="bd2">'+issDetail(i,{mode:mode==="closed"?"closed":"open",links:[(incd?'<a href="#/model">Karta analizy</a>':""),'<a rel="noopener" target="_blank" href="'+shUrl(i.id)+'">Centrum administracyjne ↗</a>'].filter(Boolean)})+'</div></details>';
     return h;
   }
   function panel(k,q,title,n,pv,body,foot){return '<details class="bp s-'+q+(n?"":" zero")+'" data-k="'+k+'"'+isOpen(k)+'><summary><span class="n">'+n+'</span><h3>'+title+'</h3><span class="ch" aria-hidden="true">›</span><span class="pv">'+pv+'</span></summary><div class="bb">'+body+'</div>'+(foot?'<div class="bpf">'+foot+'</div>':"")+'</details>';}
