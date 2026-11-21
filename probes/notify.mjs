@@ -262,7 +262,7 @@ export function summary(st, now = Date.now()) {
   };
 }
 
-const span = (min) => (min < 60 ? `${min} min` : min < 1440 ? `${Math.floor(min / 60)} godz. ${min % 60} min` : `${Math.floor(min / 1440)} dni`);
+const span = (min) => (min < 60 ? `${min} min` : min < 1440 ? `${Math.floor(min / 60)} godz.${min % 60 ? ` ${min % 60} min` : ''}` : Math.floor(min / 1440) === 1 ? `1 dzień${Math.floor((min % 1440) / 60) ? ` ${Math.floor((min % 1440) / 60)} godz.` : ''}` : `${Math.floor(min / 1440)} dni`);
 const sameText = (a, b) => String(a || '').replace(/\s+/g, ' ').trim() === String(b || '').replace(/\s+/g, ' ').trim();
 
 // Why a message is sent: one lead sentence and the list of things that differ from the previous reading.
@@ -349,22 +349,32 @@ export function buildMail(st, events, daily, now = Date.now()) {
   const links = (list) => `<div style="margin-top:10px;font-size:13px;line-height:1.9">${list.map(([href, text]) => a(href, text)).join(' &nbsp;·&nbsp; ')}</div>`;
   const fact = (k, v) => (v ? `<div style="font-size:13px;color:#334155;margin-top:3px;overflow-wrap:anywhere;word-break:break-word"><span style="color:#64748b">${esc(k)}:</span> ${v}</div>` : '');
   const issueLinks = (i) => links([[LINK.issues, 'Zgłoszenie w portalu'], ...(isIncident(i) ? [[LINK.analysis, 'Karta analizy incydentu']] : []), [LINK.admin(i.id), 'Centrum administracyjne Microsoft 365'], [LINK.m365, 'Publiczna strona stanu']]);
-  const issueCard = (i, kind, c, full) => `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:4px solid ${COL[c]};border-radius:8px"><tr><td style="padding:13px 16px">`
-    + (kind ? `<div style="font-size:11px;font-weight:700;color:${COL[c]}">${esc(kind)}</div>` : '')
-    + `<div style="margin-top:5px">${chip(isIncident(i) ? 'Incydent' : 'Porada', isIncident(i) ? 'crit' : 'warn')} &nbsp;<a href="${esc(LINK.admin(i.id))}" style="font-family:Consolas,Menlo,monospace;font-size:14px;font-weight:700;color:#0b63ce">${esc(i.id)}</a></div>`
-    + `<div style="font-size:15px;font-weight:600;color:#0f1b2d;margin-top:6px;line-height:1.35">${esc(i.title)}</div>`
-    + fact('Usługa', esc(i.service || 'brak danych'))
-    + fact('Stan według Microsoft', `<b>${esc(hstWord(i.status))}</b>`)
-    + fact('Początek', esc(both(i.start)))
-    + (i.resolved ? fact('Koniec', esc(both(i.end || i.modified))) : '')
-    + fact('Ostatnia aktualizacja Microsoft', esc(both(i.updateAt || i.modified)))
-    + (!i.resolved && i.next && !Number.isNaN(Date.parse(i.next)) ? fact('Następna aktualizacja', esc(both(i.next))) : '')
-    + fact('Widoczne w', esc((i.tenants || []).join(', ')))
-    + (i.restoredAt ? fact('Przywrócony przez Microsoft', esc(`${both(i.restoredAt)}${i.goneAt ? `; wcześniej niewidoczny w odczycie od ${both(i.goneAt)}` : ''}`)) : '')
-    + (full && i.impact ? `<div style="font-size:13px;color:#334155;margin-top:9px"><b>Wpływ na użytkowników:</b> ${esc(cut(i.impact, 420))}</div>` : '')
-    + (full && i.current ? `<div style="font-size:13px;color:#334155;margin-top:6px"><b>Aktualny stan:</b> ${esc(cut(i.current, 700))}</div>` : '')
-    + (full && Array.isArray(i.affected) && i.affected.length ? `<div style="font-size:13px;color:#334155;margin-top:6px"><b>Usługi objęte zgłoszeniem:</b> ${esc(i.affected.map((x) => x.n).filter(Boolean).slice(0, 14).join(', '))}</div>` : '')
-    + issueLinks(i) + `</td></tr></table></td></tr>`;
+  // Report card: the same layout as the portal details (tiles, framed Microsoft text split into points, reach, buttons).
+  const sents = (t) => { const m = String(t || '').replace(/\s+/g, ' ').trim().match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g) || []; const out = []; for (let x of m) { x = x.trim(); if (!x) continue; if (out.length && (/\b(e\.g|i\.e|etc|vs|approx|incl)\.$/i.test(out[out.length - 1]) || x.length < 12)) out[out.length - 1] += ` ${x}`; else out.push(x); } return out; };
+  const points = (t) => { const l = sents(t); return l.length > 1 ? `<ul style="margin:0;padding:0 0 0 18px">${l.map((x) => `<li style="font-size:13.5px;line-height:1.5;color:#1f2937;margin:0 0 5px">${esc(x)}</li>`).join('')}</ul>` : `<div style="font-size:13.5px;line-height:1.5;color:#1f2937">${esc(l[0] || '')}</div>`; };
+  const box = (title, sub, inner) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;border:1px solid #dfe5ee;border-radius:10px;background:#f8fafc"><tr><td style="padding:11px 14px 12px"><div style="font-size:13.5px;font-weight:700;color:#0f1b2d;margin-bottom:6px">${esc(title)}${sub ? ` <span style="font-weight:400;font-size:12px;color:#64748b">${esc(sub)}</span>` : ''}</div>${inner}</td></tr></table>`;
+  const cell = (label, value, sub, c) => `<td width="50%" valign="top" style="padding:4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid ${c ? COL[c] : '#dfe5ee'};border-radius:10px"><tr><td style="padding:9px 12px"><div style="font-size:12px;color:#64748b;line-height:1.3">${esc(label)}</div><div style="font-size:15px;font-weight:700;color:${c ? COL[c] : '#0f1b2d'};line-height:1.3;margin-top:2px">${esc(value)}</div>${sub ? `<div style="font-size:12px;color:#64748b;line-height:1.35;margin-top:2px">${esc(sub)}</div>` : ''}</td></tr></table></td>`;
+  const sinceTxt = (iso) => { const t = Date.parse(iso); return Number.isNaN(t) ? 'brak danych' : `${span(Math.max(0, Math.round((now - t) / 60000)))} temu`; };
+  const buttons = (list) => { let r = ''; for (let k = 0; k < list.length; k += 2) r += `<tr>${list.slice(k, k + 2).map(([href, text]) => `<td width="50%" valign="top" style="padding:4px"><a href="${esc(href)}" style="display:block;border:1px solid #b9cdf3;border-radius:9px;padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#0b63ce;text-decoration:none;line-height:1.3">${esc(text)}</a></td>`).join('')}${list.length - k === 1 ? '<td width="50%"></td>' : ''}</tr>`; return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:6px">${r}</table>`; };
+  const issueCard = (i, kind, c, full) => {
+    const upT = i.updateAt || i.modified; const t0 = Date.parse(i.start); const t1 = i.resolved ? Date.parse(i.end || upT) : now;
+    const dur = !Number.isNaN(t0) && t1 > t0 ? span(Math.round((t1 - t0) / 60000)) : 'brak danych';
+    const nx = !i.resolved && i.next && !Number.isNaN(Date.parse(i.next)) ? Date.parse(i.next) : NaN; const late = !Number.isNaN(nx) && nx < now;
+    const stC = i.resolved ? 'ok' : statusClass(i.status) === 'crit' ? 'crit' : 'warn';
+    return `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #dfe5ee;border-left:5px solid ${COL[c]};border-radius:14px"><tr><td style="padding:14px 12px 12px 14px">`
+      + (kind ? `<div style="font-size:12.5px;font-weight:700;color:${COL[c]};padding:0 4px 4px">${esc(kind)}</div>` : '')
+      + `<div style="font-size:16px;font-weight:700;color:#0f1b2d;line-height:1.35;padding:0 4px">${esc(i.title)}</div>`
+      + `<div style="padding:7px 4px 6px">${chip(isIncident(i) ? 'Incydent' : 'Porada', isIncident(i) ? 'crit' : 'warn')} &nbsp;<a href="${esc(LINK.admin(i.id))}" style="font-size:14px;font-weight:700;color:#0b63ce">${esc(i.id)}</a>${i.service ? ` &nbsp;<span style="font-size:13px;color:#64748b">${esc(i.service)}</span>` : ''}</div>`
+      + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${cell('Stan według Microsoft', i.resolved ? 'Zamknięte' : hstWord(i.status), i.resolved ? hstWord(i.status) : '', stC)}${cell(i.resolved ? 'Czas trwania' : 'Trwa', dur, i.start ? `od ${both(i.start)}` : '', '')}</tr><tr>${cell(i.resolved ? 'Zamknięty przez Microsoft' : 'Ostatni wpis Microsoft', sinceTxt(upT), both(upT), '')}${i.resolved ? cell('Koniec wpływu na użytkowników', i.end ? both(i.end) : 'nie podano', '', '') : cell('Następna aktualizacja', Number.isNaN(nx) ? 'nie podano' : late ? 'termin minął' : `za ${span(Math.round((nx - now) / 60000))}`, Number.isNaN(nx) ? '' : both(i.next), late ? 'warn' : '')}</tr></table>`
+      + `<div style="padding:0 4px">`
+      + (full && i.impact ? box('Wpływ na użytkowników', '', points(cut(i.impact, 600))) : '')
+      + (full && i.current ? box(i.resolved ? 'Komunikat końcowy Microsoft' : 'Bieżący stan', 'ostatni wpis Microsoft, w skrócie', points(cut(i.current, 900))) : '')
+      + (full && i.scope ? box('Zakres', '', points(cut(i.scope, 500))) : '')
+      + ((i.tenants || []).length || i.restoredAt ? box('Zasięg', '', ((i.tenants || []).length ? `<div style="font-size:12.5px;color:#64748b;margin-bottom:6px">Service health, wykryto w tenantach:</div><div>${(i.tenants || []).map((x) => `<span style="display:inline-block;border:1px solid #cbd5e1;border-radius:999px;padding:2px 10px;margin:0 5px 5px 0;font-size:12.5px;color:#0f1b2d;background:#ffffff;white-space:nowrap">${esc(x)}</span>`).join('')}</div>` : '') + (i.restoredAt ? `<div style="font-size:13px;color:#334155;line-height:1.5;margin-top:4px">Przywrócony przez Microsoft ${esc(both(i.restoredAt))}${i.goneAt ? `; wcześniej niewidoczny w odczycie od ${esc(both(i.goneAt))}` : ''}.</div>` : '')) : '')
+      + (full && Array.isArray(i.affected) && i.affected.length ? box('Usługi objęte zgłoszeniem', `(${i.affected.length})`, `<div style="font-size:13px;color:#334155;line-height:1.5">${esc(i.affected.map((x) => x.n).filter(Boolean).slice(0, 14).join(', '))}</div>`) : '')
+      + `</div>` + buttons([[LINK.issues, 'Zgłoszenie w portalu'], ...(isIncident(i) ? [[LINK.analysis, 'Karta analizy']] : []), [LINK.admin(i.id), 'Centrum administracyjne'], [LINK.m365, 'Publiczna strona stanu']])
+      + `</td></tr></table></td></tr>`;
+  };
 
   let h = `<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${esc(subject)}</title></head><body style="margin:0;padding:0;background:#f1f4f9;${F};color:#1f2937">`;
   h += `<div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(`${headline}. Porady: ${S.advisories.length}. Sondy portalu: ${S.probesAll - S.probesDown} z ${S.probesAll} odpowiada.`)}</div>`;

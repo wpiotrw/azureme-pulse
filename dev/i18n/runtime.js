@@ -31,6 +31,7 @@ var PRE=[
  [/Trasy BGP sieci Microsoft \(AS(\d+)\)/g,"BGP routes of the Microsoft network (AS$1)"],
  [/Ruch sieci Microsoft widziany przez Cloudflare \(AS(\d+)\)/g,"Microsoft network traffic seen by Cloudflare (AS$1)"],
  [/Ruch sieci Microsoft w Cloudflare Radar \(AS(\d+)\)/g,"Microsoft network traffic in Cloudflare Radar (AS$1)"],
+ [/^(Incydent|Porada|Zamknięty incydent|Wycofany incydent) (\d+) z (\d+)$/,function(m,k,a,b){return ({"Incydent":"Incident","Porada":"Advisory","Zamknięty incydent":"Closed incident","Wycofany incydent":"Withdrawn incident"})[k]+" "+a+" of "+b;}],
  [/wykryto w (\d+) z (\d+) tenantów/g,"detected in $1 of $2 tenants"],
  [/\bw (\d+) z (\d+) tenantów/g,"in $1 of $2 tenants"],
  [/^Przywrócony przez Microsoft /,"Restored by Microsoft "],
