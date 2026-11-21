@@ -62,4 +62,6 @@ if (process.env.MAIL_OUT) fs.writeFileSync(process.env.MAIL_OUT + '.daily.html',
   assert.ok(!/Sondy HTTP: odpowiada|Regiony Azure: odpowiada/.test(x));
   const part = x.slice(x.indexOf('Stan według źródeł'), x.indexOf('Zgłoszeni'));
   assert.equal((part.match(/border-radius:12px;background:#f8fafc/g) || []).length, 5); }
+// Zamknięte incydenty jako karty, nie tekst ciągły.
+{ const x = N.buildMail(live, ev, null, T).html; assert.ok(!x.includes('Ostatnio zamknięt')); if ((N.summary(live, T).closed || []).length) assert.ok(x.includes('Incydenty zamknięte przez Microsoft w ostatnich 7 dniach')); }
 console.log('WHY TESTS PASSED');

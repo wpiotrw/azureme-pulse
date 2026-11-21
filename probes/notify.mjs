@@ -262,7 +262,7 @@ export function summary(st, now = Date.now()) {
   };
 }
 
-const span = (min) => (min < 60 ? `${min} min` : min < 1440 ? `${Math.floor(min / 60)} godz.${min % 60 ? ` ${min % 60} min` : ''}` : Math.floor(min / 1440) === 1 ? `1 dzień${Math.floor((min % 1440) / 60) ? ` ${Math.floor((min % 1440) / 60)} godz.` : ''}` : `${Math.floor(min / 1440)} dni`);
+const span = (min) => (min < 60 ? `${min} min` : min < 1440 ? `${Math.floor(min / 60)} godz.${min % 60 ? ` ${min % 60} min` : ''}` : Math.floor(min / 1440) === 1 ? `1 dzień${Math.floor((min % 1440) / 60) ? ` ${Math.floor((min % 1440) / 60)} godz.` : ''}` : `${Math.floor(min / 1440)} dni${Math.floor(min / 1440) < 7 && Math.floor((min % 1440) / 60) ? ` ${Math.floor((min % 1440) / 60)} godz.` : ''}`);
 const sameText = (a, b) => String(a || '').replace(/\s+/g, ' ').trim() === String(b || '').replace(/\s+/g, ' ').trim();
 
 // Why a message is sent: one lead sentence and the list of things that differ from the previous reading.
@@ -444,18 +444,11 @@ export function buildMail(st, events, daily, now = Date.now()) {
     for (const w of wd.slice(0, 6)) h += `<tr><td style="padding:6px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #b4bfce;border-left:4px solid #64748b;border-radius:12px"><tr><td style="padding:13px 16px"><div style="font-size:15px;font-weight:600;color:#0f1b2d;line-height:1.35">${esc(w.title)}</div><div style="margin-top:6px"><span style="display:inline-block;padding:2px 9px;border-radius:999px;background:#eef2f7;color:#475569;font-size:12px;font-weight:700;white-space:nowrap">Wycofany incydent</span> &nbsp;<span style="font-size:14px;font-weight:700;color:#0f1b2d">${esc(w.id)}</span></div>${fact('Usługa', esc(w.service || 'brak danych'))}${fact('Ostatni znany stan', esc(hstWord(w.status)))}${fact('Początek', esc(both(w.start)))}${fact('Ostatnia zmiana po stronie Microsoft', esc(both(w.last)))}${w.gone ? fact('Ostatnio widoczny w odczycie', esc(both(w.gone))) : ''}${links([[LINK.analysis, 'Karta analizy incydentu']])}</td></tr></table></td></tr>`;
   }
 
-  const closedList = S.closed.filter((i) => !shown.has(i.id)).slice(0, 3);
-  if (closedList.length) {
-    h += `<tr><td style="padding:18px 24px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG.ok};border:1px solid #bfe5cd;border-left:4px solid ${COL.ok};border-radius:8px"><tr><td style="padding:13px 16px"><div style="font-size:15px;font-weight:700;color:${COL.ok}">${esc(closedList.length === 1 ? 'Ostatnio zamknięty incydent Microsoft' : `Ostatnio zamknięte incydenty Microsoft (${S.closed.filter((i) => !shown.has(i.id)).length} z ostatnich 7 dni)`)}</div>`;
-    for (const i of closedList) {
-      const cl = i.updateAt || i.modified;
-      const st = Date.parse(i.start);
-      const en = Date.parse(i.end || cl);
-      const mins = !Number.isNaN(st) && !Number.isNaN(en) && en > st ? Math.round((en - st) / 60000) : null;
-      const dur = mins === null ? '' : mins >= 1440 ? `${Math.floor(mins / 1440)} d ${Math.floor((mins % 1440) / 60)} h` : `${Math.floor(mins / 60)} h ${String(mins % 60).padStart(2, '0')} min`;
-      h += `<div style="margin-top:9px;font-size:13px;line-height:1.5;color:#1f2937;overflow-wrap:anywhere"><a href="${esc(LINK.admin(i.id))}" style="font-family:Consolas,Menlo,monospace;font-weight:700;color:#0b63ce">${esc(i.id)}</a> ${esc(cut(i.title, 130))}<br><span style="color:#475569">Zamknięty przez Microsoft: ${esc(both(cl))}.${i.end ? ` Koniec wpływu na użytkowników według Microsoft: ${esc(fdt(i.end))}.` : ''}${dur ? ` Czas trwania: ${dur}.` : ''} Stan: ${esc(hstWord(i.status))}.</span></div>`;
-    }
-    h += links([[LINK.analysis, 'Karty analizy zamkniętych incydentów'], [LINK.issues, 'Rejestr incydentów']]) + `</td></tr></table></td></tr>`;
+  const closedAll = S.closed.filter((i) => !shown.has(i.id));
+  if (closedAll.length) {
+    h += h2(`Incydenty zamknięte przez Microsoft w ostatnich 7 dniach (${closedAll.length})`);
+    closedAll.slice(0, 3).forEach((i, k) => { h += issueCard(i, '', 'ok', false, k + 1); });
+    h += `<tr><td style="padding:6px 24px;font-size:13px;color:#475569;line-height:1.5">${closedAll.length > 3 ? `Pozostałe zamknięte incydenty: ${closedAll.length - 3}. ` : ''}${a(LINK.analysis, 'Karty analizy zamkniętych incydentów')} &nbsp;·&nbsp; ${a(LINK.issues, 'Rejestr incydentów')}</td></tr>`;
   }
 
   const bad = S.m.filter((g) => g.down || (g.avail !== null && g.avail < 100));
