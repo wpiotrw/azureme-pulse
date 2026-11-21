@@ -522,3 +522,4 @@ Zgłoszenie przywrócone przez Microsoft|The report was restored by Microsoft
 Koniec wpływu na użytkowników według Microsoft|End of user impact according to Microsoft
 Karta analizy|Analysis card
 Centrum administracyjne wymaga logowania kontem administratora tenanta, w którym zgłoszenie jest widoczne. Treść komunikatów w brzmieniu Microsoft, w skrócie.|The admin center requires signing in as an administrator of the tenant in which the report is visible. Post text as worded by Microsoft, abridged.
+Starsze wpisy|Older posts

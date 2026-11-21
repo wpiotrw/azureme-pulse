@@ -1413,6 +1413,9 @@ details.cur .cb{padding-top:14px}
 .ic2 .tt,details.cur>summary h3{grid-column:2;align-self:center}
 .ic2>summary .ch,details.cur>summary .ch{grid-column:3}
 .ic2 .hd2,.ic2>summary .st,.ic2>summary .qz,.ic2>summary .kd,details.cur>summary .th2,details.cur>summary .st2,details.cur>summary .qz,details.cur>summary .cm{grid-column:1/-1}
+/* Licznik w kafelku przy rozwijanych listach */
+.cn{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 7px;border-radius:9px;background:color-mix(in srgb,var(--muted) 22%,transparent);color:var(--ink);font:700 14px/1 var(--f-display);margin-right:10px;vertical-align:middle}
+.cnw{display:inline-flex;align-items:center;min-width:0}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -1461,7 +1464,7 @@ details.cur .cb{padding-top:14px}
           <h2 class="sh" id="ovs-h1">Stan usług Microsoft 365</h2>
           <div class="bsum"><a class="bs bad" id="bs-bad" href="#/uslugi"><b id="bd-bad-n">0</b><span>z problemami</span></a><a class="bs ok" href="#/uslugi"><b id="bd-ok-n">0</b><span>działa bez problemów</span></a></div>
           <div class="bl"><span class="bt s-warn" id="bd-bad-t">Usługi z problemami</span><div class="chips" id="bd-bad"></div></div>
-          <details class="bl bok"><summary><span id="bd-ok-t">Pokaż usługi bez problemów</span><span class="ch" aria-hidden="true">›</span></summary><div class="chips" id="bd-ok"></div></details>
+          <details class="bl bok"><summary><span class="cnw"><span class="cn" id="bd-ok-c">0</span><span id="bd-ok-t">Pokaż usługi bez problemów</span></span><span class="ch" aria-hidden="true">›</span></summary><div class="chips" id="bd-ok"></div></details>
         </section>
         <h2 class="sh" id="ovs-h2">Zgłoszenia Microsoft</h2>
         <div class="brief" id="brief" hidden></div>
@@ -2390,7 +2393,7 @@ function renderRealTable(d){
   $("bd-bad-n").textContent=bad.length;$("bd-ok-n").textContent=good.length;$("bs-bad").className="bs bad"+(bad.some(function(r){return r.q==="crit";})?" q-crit":bad.length?" q-warn":" q-none");
   $("bd-bad-t").textContent=bad.length?"Usługi z problemami":"Żadna usługa nie ma otwartego incydentu ani błędu sondy.";setCls($("bd-bad-t"),bad.some(function(r){return r.q==="crit";})?"crit":bad.length?"warn":"ok");
   $("bd-bad").innerHTML=bad.map(function(r){return '<a class="bchip s-'+r.q+'" href="#uslugi" data-f="bad"><span class="bn">'+esc(r.e.name)+(function(){var ids=Object.keys(r.e.issues);return ids.length?'<small>'+esc(ids[0]+": "+cutT(r.e.issues[ids[0]],90))+'</small>':"";})()+'</span><b>'+esc(LAB[r.q])+'</b></a>';}).join("");
-  $("bd-ok-t").textContent="Pokaż usługi bez problemów ("+good.length+")";
+  $("bd-ok-t").textContent="Pokaż usługi bez problemów";$("bd-ok-c").textContent=good.length;
   $("bd-ok").innerHTML=good.map(function(r){return '<span class="bchip s-ok">'+esc(r.e.name)+'</span>';}).join("");
   Array.prototype.forEach.call($("bd-bad").children,function(a){a.addEventListener("click",function(){if(FUS)FUS.set("bad");});});
   return {counts:counts};
@@ -2530,7 +2533,7 @@ function isInc(i){return String(i.classification||"").toLowerCase()==="incident"
 function clsChip(i){return '<span class="cls'+(isInc(i)?" inc":"")+'">'+(isInc(i)?"Incydent":"Porada")+'</span>';}
 function relIds(i){var set={},out=[];(i.refs||[]).forEach(function(x){set[x]=1;});(INC||[]).forEach(function(e){var all=(e.ids||[]).concat(e.related||[]);if(all.indexOf(i.id)>=0)all.forEach(function(x){set[x]=1;});});delete set[i.id];for(var k in set)out.push(k);return out.sort();}
 function relBlock(i,label){var h="",a=i.affected||[],r=i.id?relIds(i):(i.refs||[]);
-  if(a.length)h+='<details class="fold"><summary>'+esc(label||"Usługi objęte zgłoszeniem")+' ('+a.length+')</summary><p class="note" style="margin:8px 0 0">Lista opisuje zakres jednego zgłoszenia. Pozycje nie są osobnymi zgłoszeniami.</p><ul class="afl">'+a.map(function(x){return '<li><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></li>';}).join("")+'</ul></details>';
+  if(a.length)h+='<details class="fold"><summary><span class="cn">'+a.length+'</span>'+esc(label||"Usługi objęte zgłoszeniem")+'</summary><p class="note" style="margin:8px 0 0">Lista opisuje zakres jednego zgłoszenia. Pozycje nie są osobnymi zgłoszeniami.</p><ul class="afl">'+a.map(function(x){return '<li><b>'+esc(x.n)+'</b><span>'+esc(x.t)+'</span></li>';}).join("")+'</ul></details>';
   if(r.length)h+='<p class="rel"><b>Zgłoszenia powiązane:</b> '+r.map(function(id){return SHI[id]?'<button type="button" class="lnk" data-iss="'+esc(id)+'">'+esc(id)+'</button>':'<a rel="noopener" target="_blank" href="'+shUrl(id)+'">'+esc(id)+' ↗</a>';}).join(" ")+'<small>Powiązanie wynika z treści komunikatów Microsoft albo z rejestru portalu.</small></p>';
   return h;}
 function openSplit(H){var seen={},inc=[],adv=[];(H||[]).forEach(function(h){if(!h.ok)return;(h.issues||[]).forEach(function(i){if(i.resolved||seen[i.id])return;seen[i.id]=1;(isInc(i)?inc:adv).push(i);});});return {inc:inc,adv:adv};}
@@ -2567,7 +2570,7 @@ function issDetail(i,o){o=o||{};var m=hst(i.status),closed=!!i.resolved||o.mode=
   if(closed&&i.end)ev.push({t:i.end,x:"Koniec wpływu na użytkowników według Microsoft",k:""});
   ev=ev.filter(function(x){return !isNaN(Date.parse(x.t));}).sort(function(a,b){return String(b.t).localeCompare(String(a.t));});
   if(ev.length>1){var li=function(x){return '<li'+(x.k==="Portal"?' class="p"':"")+'><time>'+esc(fdt(x.t))+(x.k?' · '+x.k:"")+'</time><span>'+esc(x.x)+'</span></li>';};
-    h+=ibox("Przebieg","najnowsze na górze",'<ol class="tl">'+ev.slice(0,4).map(li).join("")+'</ol>'+(ev.length>4?'<details class="fold tlm"><summary>Starsze wpisy ('+(ev.length-4)+')</summary><ol class="tl">'+ev.slice(4).map(li).join("")+'</ol></details>':""));}
+    h+=ibox("Przebieg","najnowsze na górze",'<ol class="tl">'+ev.slice(0,4).map(li).join("")+'</ol>'+(ev.length>4?'<details class="fold tlm"><summary><span class="cn">'+(ev.length-4)+'</span>Starsze wpisy</summary><ol class="tl">'+ev.slice(4).map(li).join("")+'</ol></details>':""));}
   if(o.after)h+=o.after;
   if(o.links&&o.links.length)h+='<div class="ibt">'+o.links.join("")+'</div>';
   if(o.note)h+='<p class="note">'+o.note+'</p>';
@@ -2859,7 +2862,7 @@ function cdur(m){m=Math.max(0,Math.round(m));var d=Math.floor(m/1440),h=Math.flo
 function cbit(mask,k){return Math.floor(mask/Math.pow(2,k))%2===1;}
 function chas(p,k){return p[4]===undefined||cbit(p[4],k);}
 function regOf(c){var r=null;(INC||[]).forEach(function(e){if((e.ids||[]).concat(e.related||[]).indexOf(c.id)>=0&&!r)r=e;});return r;}
-function loadCases(){fetch(CASES_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(function(d){CASES=(d&&Array.isArray(d.cases))?d.cases:[];renderCases();}).catch(function(){if(CASES===null){CASES=[];renderCases();}});}
+function loadCases(){fetch(CASES_URL,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(function(d){var first=CASES===null;CASES=(d&&Array.isArray(d.cases))?d.cases:[];renderCases();if(first&&LASTD){try{renderBrief(LASTD);}catch(e){}}}).catch(function(){if(CASES===null){CASES=[];renderCases();}});}
 function renderCases(){
   if(CASES===null)return;var pick=$("cs-pick"),body=$("cs-body"),open=CASES.filter(function(c){return !c.end;}),closed=CASES.filter(function(c){return c.end;});
   setBadge("model",open.length?String(open.length):"",open.length?"crit":"");
