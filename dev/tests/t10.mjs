@@ -55,4 +55,11 @@ if (process.env.MAIL_OUT) fs.writeFileSync(process.env.MAIL_OUT + '.daily.html',
   e2 = N.mailEvents(live, down, {}, T); assert.deepEqual(e2.map((e) => e.type), ['downgraded']); assert.match(N.buildMail(down, e2, null, T).subject, /Incydent przeklasyfikowany na poradę EX1561765/);
   assert.ok(N.diffEvents(live, down).some((e) => e.kind === 'Zmiana klasyfikacji' && /z incydentu na poradę/.test(e.text)));
 }
+// Układ: tytuły sekcji w jednym stylu, każde źródło w osobnej ramce, pomiary w tabeli zamiast tekstu ciągłego.
+{ const x = N.buildMail(live, ev, null, T).html;
+  assert.equal((x.match(/border-left:5px solid #0b63ce/g) || []).length >= 3, true);
+  assert.ok(x.includes('Pomiary własne i sygnały zewnętrzne') && x.includes('>Pomiar</th>'));
+  assert.ok(!/Sondy HTTP: odpowiada|Regiony Azure: odpowiada/.test(x));
+  const part = x.slice(x.indexOf('Stan według źródeł'), x.indexOf('Zgłoszeni'));
+  assert.equal((part.match(/border-radius:12px;background:#f8fafc/g) || []).length, 5); }
 console.log('WHY TESTS PASSED');
