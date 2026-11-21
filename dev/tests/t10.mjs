@@ -36,7 +36,7 @@ st = {}; N.mailEvents(live, gone, st, T); ev = N.mailEvents(gone, live, st, T + 
 assert.ok(N.diffEvents(live, gone).some((e) => e.kind === 'Zgłoszenie wycofane'));
 // 7. sekcja wycofanych incydentów w wiadomości
 const wdl = JSON.parse(fs.readFileSync(new URL('./data/live19.json', import.meta.url), 'utf8'));
-const md = N.buildMail(wdl, [], '2026-11-21', Date.parse(wdl.generated)); assert.ok(md.html.includes('Incydenty wycofane przez Microsoft w ostatnich 7 dniach (1)')); assert.ok(md.html.includes('EX1561765'));
+const md = N.buildMail(wdl, [], '2026-11-21', Date.parse(wdl.generated)); assert.ok(md.html.includes('Incydenty wycofane przez Microsoft w ostatnich 7 dniach</td>')); assert.ok(!/\(\d+\)<\/td>/.test(md.html), 'liczniki sekcji w kafelkach, nie w nawiasach'); assert.ok(md.html.includes('EX1561765'));
 if (process.env.MAIL_OUT) fs.writeFileSync(process.env.MAIL_OUT + '.daily.html', md.html);
 // 8. przywrócenie wycofanego incydentu i obniżenie klasyfikacji
 {
