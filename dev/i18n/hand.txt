@@ -525,3 +525,5 @@ Centrum administracyjne wymaga logowania kontem administratora tenanta, w który
 Starsze wpisy|Older posts
 Łuki i linie przerywane to schemat ruchu, nie pomiar; kolor wynika z aktywnych incydentów Microsoft. Romby to regiony Azure z pomiarem rzeczywistym.|Arcs and dashed lines are a traffic schematic, not a measurement; colour follows active Microsoft incidents. Diamonds are Azure regions with real measurements.
 połączenia między kontynentami|links between continents
+Niezależny projekt. Nie jest powiązany z Microsoft. Nazwy usług należą do ich właścicieli.|Independent project. Not affiliated with Microsoft. Service names belong to their owners.
+Profil autora w LinkedIn|Author's LinkedIn profile
