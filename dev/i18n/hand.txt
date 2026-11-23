@@ -523,3 +523,5 @@ Koniec wpływu na użytkowników według Microsoft|End of user impact according 
 Karta analizy|Analysis card
 Centrum administracyjne wymaga logowania kontem administratora tenanta, w którym zgłoszenie jest widoczne. Treść komunikatów w brzmieniu Microsoft, w skrócie.|The admin center requires signing in as an administrator of the tenant in which the report is visible. Post text as worded by Microsoft, abridged.
 Starsze wpisy|Older posts
+Łuki i linie przerywane to schemat ruchu, nie pomiar; kolor wynika z aktywnych incydentów Microsoft. Romby to regiony Azure z pomiarem rzeczywistym.|Arcs and dashed lines are a traffic schematic, not a measurement; colour follows active Microsoft incidents. Diamonds are Azure regions with real measurements.
+połączenia między kontynentami|links between continents

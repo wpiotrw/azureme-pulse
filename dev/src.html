@@ -1428,6 +1428,9 @@ details.cur .cb{padding-top:14px}
 @media (min-width:861px){.hside{min-width:0;align-self:stretch;display:flex;flex-direction:column;align-items:center}}
 @media (min-width:861px) and (min-height:840px){.hside>.globe{position:sticky;top:176px}}
 @media (max-width:860px){.hside{display:contents}}
+/* Globus i mapa: linie przerywane w legendzie, objaśnienie widoczne w obu widokach */
+.key.dash i{background:none;box-shadow:none;height:0;border-top:2px dashed var(--muted);border-radius:0}
+.globe .vnote,.globe:not(.is-map) .vnote,.globe.is-map .vnote{display:block;text-align:center;font-size:12.5px}
 </style>
 <script>try{if(localStorage.getItem("pulse-lang")==="en"){document.documentElement.lang="en";document.documentElement.classList.add("i18n-wait");}}catch(e){}</script>
 </head>
@@ -1500,7 +1503,7 @@ details.cur .cb{padding-top:14px}
       <div class="vctl"><div class="seg" role="group" aria-label="Rodzaj widoku"><button type="button" id="v-globe" aria-pressed="true">Globus 3D</button><button type="button" id="v-map" aria-pressed="false">Mapa 2D</button></div><div class="seg" role="group" aria-label="Powiększenie"><button type="button" id="z-out" aria-label="Pomniejsz">−</button><button type="button" id="z-in" aria-label="Powiększ">+</button><button type="button" id="z-0" aria-label="Widok początkowy">1:1</button></div></div>
       <p class="vnote" id="map-note"></p>
       <div class="gstate" id="globe-state" hidden></div>
-      <div class="cap"><span class="key" style="--c:var(--flow)"><i></i>ruch obsługiwany</span><span class="key" style="--c:var(--warn)"><i></i>obsługa częściowa</span><span class="key" style="--c:var(--crit)"><i></i>brak odpowiedzi</span><span class="key" id="k-reg" hidden><i style="border-radius:1px;transform:rotate(45deg);width:7px;height:7px"></i>region Azure (pomiar rzeczywisty)</span></div>
+      <div class="cap"><span class="key" style="--c:var(--flow)"><i></i>ruch obsługiwany</span><span class="key" style="--c:var(--warn)"><i></i>obsługa częściowa</span><span class="key" style="--c:var(--crit)"><i></i>brak odpowiedzi</span><span class="key dash"><i></i>połączenia między kontynentami</span><span class="key" id="k-reg" hidden><i style="border-radius:1px;transform:rotate(45deg);width:7px;height:7px"></i>region Azure (pomiar rzeczywisty)</span></div>
     </div>
     </div>
     <section class="ovs pbs" id="pb-home" hidden aria-labelledby="ovs-h3">
@@ -1914,6 +1917,12 @@ SITES.forEach(function(s,si){
     for(var k=0;k<=K;k++){var u=k/K,wa=Math.sin((1-u)*om)/so,wb=Math.sin(u*om)/so,r=1+lift*Math.sin(Math.PI*u);pts[k*3]=(a[0]*wa+b[0]*wb)*r;pts[k*3+1]=(a[1]*wa+b[1]*wb)*r;pts[k*3+2]=(a[2]*wa+b[2]*wb)*r;}
     ARCS.push({s:si,h:nr[1],pts:pts,ph:R(),sp:.16+R()*.1,scr:new Float32Array((K+1)*3)});});
 });
+// Połączenia między kontynentami: schemat sieci szkieletowej między centrami danych (nie pomiar i nie przebieg kabli).
+var LINKS=[["Dulles","Dublin"],["Boydton","Madryt"],["Quebec","Londyn"],["San Francisco","Tokio"],["Quincy","Tokio"],["San Francisco","Sydney"],["Tokio","Sydney"],["Chennai","Tokio"],["Pune","Dubaj"],["Dubaj","Marsylia"],["Johannesburg","Marsylia"],["Johannesburg","Dubaj"],["Campinas","Dulles"],["Santiago","Querétaro"],["Rio de Janeiro","Madryt"]],KB=48,BB=[];
+LINKS.forEach(function(l){var ia=-1,ib=-1;SITES.forEach(function(s,i){if(s.name===l[0])ia=i;if(s.name===l[1])ib=i;});if(ia<0||ib<0)return;var a=SITES[ia].p,b=SITES[ib].p,om=ang(a,b),so=Math.sin(om),pts=new Float32Array((KB+1)*3),lift=.05+.3*om/Math.PI;
+  for(var k=0;k<=KB;k++){var u=k/KB,wa=Math.sin((1-u)*om)/so,wb=Math.sin(u*om)/so,r=1+lift*Math.sin(Math.PI*u);pts[k*3]=(a[0]*wa+b[0]*wb)*r;pts[k*3+1]=(a[1]*wa+b[1]*wb)*r;pts[k*3+2]=(a[2]*wa+b[2]*wb)*r;}
+  BB.push({a:ia,b:ib,pts:pts,scr:new Float32Array((KB+1)*3)});});
+function bbStyle(x,I,now){var bad=I<.7;x.setLineDash([3,5]);x.lineDashOffset=reduce?0:-now*7;x.lineWidth=bad?1.5:1.1;x.strokeStyle=bad?rgba(siteCol(I),LIGHTM?.8:.7):(LIGHTM?"rgba(40,72,116,.55)":"rgba(170,208,250,.58)");}
 var VIEW="globe",GZ=1,MZ=1,MCX=.5,MCY=.5,GL=[],REG=null;
 function drawLabels(x,list,W,H,font){
   x.font=font+getComputedStyle(document.body).fontFamily;x.textBaseline="middle";x.textAlign="left";
@@ -1948,6 +1957,11 @@ function drawGlobe(now,dt){
   for(var i=0;i<dotV.length;i+=3){proj(dotV[i],dotV[i+1],dotV[i+2],tmp,0);if(tmp[2]<0)continue;var z=tmp[2]-2;x.globalAlpha=.16+z*.62;x.fillRect(tmp[0]-ds/2,tmp[1]-ds/2,ds,ds);}
   x.globalAlpha=1;
   var inten=SITES.map(function(s){return siteI(s,pos);});
+  // połączenia między kontynentami (schemat)
+  x.lineCap="butt";
+  BB.forEach(function(l){var sc=l.scr,I=Math.min(inten[l.a],inten[l.b]),k,pen=false;for(k=0;k<=KB;k++)proj(l.pts[k*3],l.pts[k*3+1],l.pts[k*3+2],sc,k*3);
+    bbStyle(x,I,now);x.beginPath();for(k=0;k<=KB;k++){if(sc[k*3+2]<0){pen=false;continue;}if(pen)x.lineTo(sc[k*3],sc[k*3+1]);else{x.moveTo(sc[k*3],sc[k*3+1]);pen=true;}}x.stroke();});
+  x.setLineDash([]);
   // arcs
   x.lineCap="round";
   ARCS.forEach(function(a){var I=inten[a.s],c=siteCol(I),sc=a.scr;
@@ -1985,7 +1999,7 @@ var MLON0=-135,MLON1=160,MLAT0=-56,MLAT1=78;
 function mill(lat){return 1.25*Math.log(Math.tan(Math.PI/4+.4*lat*D2R));}
 var MY0=mill(MLAT1),MY1=mill(MLAT0),MAPR=(MY0-MY1)/((MLON1-MLON0)*D2R);
 function mxy(lon,lat,W,H){var bw=Math.min(W,H/MAPR),bh=bw*MAPR;return [((lon-MLON0)/(MLON1-MLON0)-MCX)*bw*MZ+W/2,((MY0-mill(lat))/(MY0-MY1)-MCY)*bh*MZ+H/2];}
-var mapBg=null,mapArcs=[],MK=26;
+var mapBg=null,mapArcs=[],mapBB=[],MK=26;
 function buildMap(){
   var W=size.map.w,H=size.map.h;mapBg=document.createElement("canvas");mapBg.width=Math.round(W*dpr);mapBg.height=Math.round(H*dpr);
   var x=mapBg.getContext("2d");x.scale(dpr,dpr);x.fillStyle=LIGHTM?"#5a82b4":"#6f9fd6";x.globalAlpha=LIGHTM?.7:.55;var ds=Math.max(1.1,W/420)*Math.sqrt(MZ);
@@ -1993,12 +2007,19 @@ function buildMap(){
   mapArcs=ARCS.map(function(a){var s=SITES[a.s],h=HUBS[a.h],p0=mxy(h[0],h[1],W,H),p1=mxy(s.lon,s.lat,W,H),dx=p1[0]-p0[0],dy=p1[1]-p0[1],d=Math.sqrt(dx*dx+dy*dy),cx=(p0[0]+p1[0])/2,cy=(p0[1]+p1[1])/2-Math.max(8,d*.28),pts=new Float32Array((MK+1)*2);
     for(var k=0;k<=MK;k++){var u=k/MK,v=1-u;pts[k*2]=v*v*p0[0]+2*v*u*cx+u*u*p1[0];pts[k*2+1]=v*v*p0[1]+2*v*u*cy+u*u*p1[1];}
     return {s:a.s,pts:pts,ph:a.ph,sp:a.sp};});
+  mapBB=[];BB.forEach(function(l){var A=SITES[l.a],B=SITES[l.b],d=B.lon-A.lon,segs=Math.abs(d)<=180?[[A.lon,A.lat,B.lon,B.lat]]:[[A.lon,A.lat,B.lon-(d>0?360:-360),B.lat],[A.lon+(d>0?360:-360),A.lat,B.lon,B.lat]];
+    segs.forEach(function(g){var p0=mxy(g[0],g[1],W,H),p1=mxy(g[2],g[3],W,H),dx=p1[0]-p0[0],dy=p1[1]-p0[1],dd=Math.sqrt(dx*dx+dy*dy),cx=(p0[0]+p1[0])/2,cy=(p0[1]+p1[1])/2-Math.max(6,dd*.16),pts=new Float32Array((MK+1)*2);
+      for(var k=0;k<=MK;k++){var u=k/MK,v=1-u;pts[k*2]=v*v*p0[0]+2*v*u*cx+u*u*p1[0];pts[k*2+1]=v*v*p0[1]+2*v*u*cy+u*u*p1[1];}
+      mapBB.push({a:l.a,b:l.b,pts:pts});});});
 }
 var MAPLAB={"San Antonio":1,"Chicago":1,"Wiedeń":1,"Gävle":1,"Tokio":1,"Sydney":1,"Pune":1,"Campinas":1,"Johannesburg":1,"Dubaj":1,"Santiago":1};
 function drawMap(now){
   var x=ctxOf("map"),W=size.map.w,H=size.map.h,narrow=W<560,k,ML=[];
   if(mapBg)x.drawImage(mapBg,0,0,W,H);
   var inten=SITES.map(function(s){return siteI(s,pos);});
+  x.lineCap="butt";
+  mapBB.forEach(function(l){bbStyle(x,Math.min(inten[l.a],inten[l.b]),reduce?0:now);x.beginPath();for(k=0;k<=MK;k++)x.lineTo(l.pts[k*2],l.pts[k*2+1]);x.stroke();});
+  x.setLineDash([]);
   x.lineCap="round";
   mapArcs.forEach(function(a){var I=inten[a.s],c=siteCol(I),p=a.pts;a.c=c;a.I=I;x.strokeStyle=rgba(c,LIGHTM?.45:I>=.25?.2:.24);x.lineWidth=1;x.beginPath();for(k=0;k<=MK;k++)x.lineTo(p[k*2],p[k*2+1]);x.stroke();});
   x.globalCompositeOperation=LIGHTM?"source-over":"lighter";
@@ -2225,7 +2246,7 @@ function updateDom(){
   $("us-p").textContent=realMode?"Stan usług według Microsoft Service health z tenantów testowych, zestawiony z własnymi sondami. O stanie usługi decyduje gorszy z dwóch sygnałów. Tytuły zgłoszeń są cytowane w brzmieniu Microsoft.":"Stan każdej usługi wyznaczają sondy syntetyczne (synthetic monitoring). Kolumna „Stan według Microsoft” pokazuje, czy Microsoft potwierdził incydent w Service health.";
   if(realMode){var rc=REAL.table.counts;$("sum").innerHTML='<div class="s-ok"><b>'+rc.ok+'</b>dostępnych</div><div class="s-warn"><b>'+rc.warn+'</b>z obniżoną wydajnością</div><div class="s-crit"><b>'+rc.crit+'</b>niedostępnych</div>';}
   $("board").hidden=!realMode;if(!realMode)$("globe-state").hidden=true;$("inc-s").hidden=!(realMode&&tenantsOk());
-  $("map-note").textContent=realMode?"Łuki: model przepływu, kolor według aktywnych incydentów Microsoft. Romby: regiony Azure, pomiar rzeczywisty.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
+  $("map-note").textContent=realMode?"Łuki i linie przerywane to schemat ruchu, nie pomiar; kolor wynika z aktywnych incydentów Microsoft. Romby to regiony Azure z pomiarem rzeczywistym.":"Symulacja: stan lokalizacji w wybranej chwili odtwarzanego incydentu.";
   if(FUS)FUS.apply();
   if(live&&REAL)applyReal();
 }
