@@ -85,7 +85,7 @@ Z problemami|With issues
 odchylenie:|deviation:
 odpowiada:|responding:
 pierwsze zdarzenie|first event
-publicznej stronie stanu Microsoft 365|public Microsoft 365 status page
+publicznej stronie stanu usług Microsoft 365|public Microsoft 365 status page
 ‹ Poprzednie|‹ Previous
 poprawny|successful
 poprawnych|successful
@@ -278,12 +278,12 @@ bez nowych informacji od|no new information since
 w tym bez nowych informacji od ponad dwóch dni:|of which with no new information for more than two days:
 brak zgłoszeń|no reports
 zgłoszenia:|reports:
-publiczne strony stanu Microsoft|Microsoft public status pages
+publiczne strony stanu usług Microsoft|Microsoft public status pages
 Ostatnia aktualizacja|Latest update
 Ostatnio zamknięty|Last closed
 Brak incydentów|No incidents
 Incydenty:|Incidents:
-na publicznych stronach stanu Microsoft|on Microsoft public status pages
+na publicznych stronach stanu usług Microsoft|on Microsoft public status pages
 Dostępna, aktywna porada Microsoft|Available, active Microsoft advisory
 incydenty:|incidents:
 porady:|advisories:
@@ -381,9 +381,9 @@ Czas odpowiedzi sondy|Probe response time
 Mediana|Median
 Poprawne pomiary|Successful measurements
 Ruch do sieci Microsoft (Cloudflare Radar)|Traffic to the Microsoft network (Cloudflare Radar)
-% kotwic|% of anchors
-Osiągalność www.office.com z kotwic RIPE Atlas|Reachability of www.office.com from RIPE Atlas anchors
-odsetek kotwic z odpowiedzią|share of anchors with a response
+% stacji pomiarowych|% of anchors
+Osiągalność www.office.com ze stacji pomiarowych RIPE Atlas|Reachability of www.office.com from RIPE Atlas anchors
+odsetek stacji pomiarowych z odpowiedzią|share of anchors with a response
 Ostatni odczyt|Latest reading
 Kotwice|Anchors
 Kraje|Countries
@@ -435,7 +435,7 @@ sondy nie odpowiadają|probes not responding
 Przykładowe zgłoszenie Microsoft: początek|Sample Microsoft issue: start
 Przykładowe zgłoszenie Microsoft: zakończenie|Sample Microsoft issue: end
 Brak incydentów Microsoft|No Microsoft incidents
-w Service health i na publicznych stronach stanu|in Service health and on the public status pages
+w Service health i na publicznych stronach stanu usług|in Service health and on the public status pages
 w Service health|in Service health
 usługa z przerwą w działaniu|service with an interruption
 usługi z przerwą w działaniu|services with an interruption
@@ -461,7 +461,7 @@ Regiony|Regions
 Początek|Start
 Azure Service Health w portalu Azure ↗|Azure Service Health in the Azure portal ↗
 Portal nie ma dostępu do żadnej subskrypcji Azure. Aby odczytywać problemy widoczne w Azure Service Health, aplikacja portalu potrzebuje roli Czytelnik (Reader) w subskrypcji.|The portal has no access to any Azure subscription. To read problems visible in Azure Service Health, the portal application needs the Reader role on the subscription.
-To zdarzenia z Azure Service Health (Service issues) odczytane w subskrypcjach tenantów testowych. Dotyczą usług używanych w tych subskrypcjach, dlatego mogą nie występować na publicznej stronie stanu Azure ani u innych klientów.|These are Azure Service Health events (Service issues) read in the subscriptions of the test tenants. They concern services used in those subscriptions, so they may not appear on the public Azure status page or for other customers.
+To zdarzenia z Azure Service Health (Service issues) odczytane w subskrypcjach tenantów testowych. Dotyczą usług używanych w tych subskrypcjach, dlatego mogą nie występować na publicznej stronie stanu usług Azure ani u innych klientów.|These are Azure Service Health events (Service issues) read in the subscriptions of the test tenants. They concern services used in those subscriptions, so they may not appear on the public Azure status page or for other customers.
 problem w Azure Service Health|problem in Azure Service Health
 problemy w Azure Service Health|problems in Azure Service Health
 problemów w Azure Service Health|problems in Azure Service Health
@@ -510,9 +510,9 @@ ostatni wpis Microsoft, w skrócie|latest Microsoft post, abridged
 Zakres|Scope
 Zasięg|Reach
 Service health, wykryto w tenantach:|Service health, detected in tenants:
-Zgłoszenie jest na publicznej stronie stanu Microsoft 365.|The report is on the public Microsoft 365 status page.
+Zgłoszenie jest na publicznej stronie stanu usług Microsoft 365.|The report is on the public Microsoft 365 status page.
  Oznacza to szeroki zasięg.| This indicates wide impact.
-Zgłoszenia nie ma na publicznej stronie stanu Microsoft 365.|The report is not on the public Microsoft 365 status page.
+Zgłoszenia nie ma na publicznej stronie stanu usług Microsoft 365.|The report is not on the public Microsoft 365 status page.
 Przebieg|Timeline
 najnowsze na górze|newest first
 Wpis Microsoft|Microsoft post
