@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated": "2026-11-18T23:20:00Z",
+  "updated": "2026-11-24T02:15:00Z",
   "incidents": [
     {
       "ids": [
@@ -69,6 +69,30 @@
           "text_en": "The preliminary report states that on 13-11-2026 at 07:20 UTC an update reverting the defective change was applied, and at 16:10 UTC no active impact was confirmed."
         }
       ]
+    },
+    {
+      "ids": [
+        "EX1561765"
+      ],
+      "title": "Exchange Online: problemy z otwieraniem i wysyłaniem załączników w nowym Outlooku",
+      "title_en": "Exchange Online: problems opening and uploading attachments in the new Outlook client",
+      "start": "2026-11-19T20:49:00Z",
+      "end": "2026-11-21T08:25:00Z",
+      "duration": "około 36 h (od 19-11-2026 20:49 UTC do 21-11-2026 08:25 UTC wg Service health)",
+      "duration_en": "about 36 h (from 19-11-2026 20:49 UTC to 21-11-2026 08:25 UTC per Service health)",
+      "services": [
+        "Exchange Online"
+      ],
+      "summary": "Część użytkowników nowego klienta Outlook mogła nie otworzyć ani nie wysłać załączników oraz nie wyświetlić obrazów w treści wiadomości. Zgłoszenie EX1561765 ma typ incydent (incident) i stan „Usługa została przywrócona”. Według Microsoft poprawka uzupełniająca objęła pozostałe środowiska, a Microsoft potwierdził usunięcie skutków. Użytkownicy aktywnego klienta mogą musieć go zamknąć i uruchomić ponownie. Zgłoszenie było widoczne w obu tenantach testowych; ostatnia zmiana nastąpiła 21-11-2026 o 08:55 UTC. Liczba dotkniętych użytkowników nie podano w źródłach.",
+      "summary_en": "Some users of the new Outlook client may have been unable to open or upload attachments or view inline images in messages. Issue EX1561765 is of type incident and in the state “Service restored”. According to Microsoft, a supplemental fix reached the remaining environments, and Microsoft confirmed that the impact was remediated. Users of an active client may need to close and reopen it. The issue was visible in both test tenants; the last change took place on 21-11-2026 at 08:55 UTC. The number of affected users is not given in the sources.",
+      "sources": [
+        {
+          "name": "Microsoft Service Health (odczyt portalu)",
+          "url": "https://pulse.azureme.pl/#pomiary"
+        }
+      ],
+      "own_probes": "Własne pomiary nie wykazały odchyleń (sondy nie obejmują załączników w nowym Outlooku).",
+      "own_probes_en": "Own measurements showed no deviations (the probes do not cover attachments in the new Outlook client)."
     }
   ]
 }
