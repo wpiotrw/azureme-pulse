@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated": "2026-11-24T02:15:00Z",
+  "updated": "2026-11-25T19:10:00Z",
   "incidents": [
     {
       "ids": [
@@ -83,8 +83,8 @@
       "services": [
         "Exchange Online"
       ],
-      "summary": "Część użytkowników nowego klienta Outlook mogła nie otworzyć ani nie wysłać załączników oraz nie wyświetlić obrazów w treści wiadomości. Zgłoszenie EX1561765 ma typ incydent (incident) i stan „Usługa została przywrócona”. Według Microsoft poprawka uzupełniająca objęła pozostałe środowiska, a Microsoft potwierdził usunięcie skutków. Użytkownicy aktywnego klienta mogą musieć go zamknąć i uruchomić ponownie. Zgłoszenie było widoczne w obu tenantach testowych; ostatnia zmiana nastąpiła 21-11-2026 o 08:55 UTC. Liczba dotkniętych użytkowników nie podano w źródłach.",
-      "summary_en": "Some users of the new Outlook client may have been unable to open or upload attachments or view inline images in messages. Issue EX1561765 is of type incident and in the state “Service restored”. According to Microsoft, a supplemental fix reached the remaining environments, and Microsoft confirmed that the impact was remediated. Users of an active client may need to close and reopen it. The issue was visible in both test tenants; the last change took place on 21-11-2026 at 08:55 UTC. The number of affected users is not given in the sources.",
+      "summary": "Część użytkowników nowego klienta Outlook mogła nie otworzyć ani nie wysłać załączników oraz nie wyświetlić obrazów w treści wiadomości. Zgłoszenie EX1561765 ma typ incydent (incident) i stan „Opublikowano raport po zdarzeniu”. Według Microsoft poprawka uzupełniająca objęła pozostałe środowiska, a Microsoft potwierdził usunięcie skutków. Użytkownicy aktywnego klienta mogą musieć go zamknąć i uruchomić ponownie. Zgłoszenie było widoczne w obu tenantach testowych; odczyt z 25-11-2026 19:07 UTC; ostatnia zmiana nastąpiła 25-11-2026 o 07:21 UTC. Treść raportu po zdarzeniu nie była dostępna w odczycie. Liczba dotkniętych użytkowników nie podano w źródłach.",
+      "summary_en": "Some users of the new Outlook client may have been unable to open or upload attachments or view inline images in messages. Issue EX1561765 is of type incident and in the state “Post-incident report published”. According to Microsoft, a supplemental fix reached the remaining environments, and Microsoft confirmed that the impact was remediated. Users of an active client may need to close and reopen it. The issue was visible in both test tenants; read of 25-11-2026 19:07 UTC; the last change took place on 25-11-2026 at 07:21 UTC. The content of the post-incident report was not available in the read. The number of affected users is not given in the sources.",
       "sources": [
         {
           "name": "Microsoft Service Health (odczyt portalu)",
