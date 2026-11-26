@@ -18,8 +18,8 @@ let next3 = set(clone(live), (i) => { i.status = 'restoringService'; }); ev = N.
 prev = set(clone(live), (i) => { i.classification = 'advisory'; }); ev = N.mailEvents(prev, live, {}, T); assert.equal(ev[0].type, 'new'); assert.equal(ev[0].reclass, true); y = N.whyEvent(ev[0]); console.log(y.lead);
 const m = N.buildMail(live, ev, null, T); assert.match(m.subject, /przeklasyfikowana na incydent/); assert.ok(m.html.indexOf('Powód powiadomienia') > 0 && m.html.indexOf('Powód powiadomienia') < m.html.indexOf('Stan według źródeł w chwili wysyłki'));
 assert.ok(!m.html.includes('Dlaczego ta wiadomość')); assert.equal(m.html.split('Aktywne incydenty Microsoft: 1').length - 1, 1, 'liczba incydentów tylko w ukrytym nagłówku podglądu');
-assert.ok(m.html.includes('1 incydent, wykryto we wszystkich tenantach (2); 3 porady')); assert.ok(m.html.includes('Publiczne strony stanu usług Microsoft')); assert.ok(m.html.includes('brak aktywnych problemów (subskrypcje: 1)'));
-{ const one = clone(live); one.health[1].issues = one.health[1].issues.filter((i) => i.id !== 'EX1561765'); assert.ok(N.buildMail(one, [], '2026-11-21', T).html.includes('1 incydent, wykryto w 1 z 2 tenantów')); const np = clone(live); np.public = { ok: false }; assert.ok(N.buildMail(np, [], '2026-11-21', T).html.includes('brak odczytu')); const pb = clone(live); pb.public.m365.status = 'Degraded'; assert.ok(N.buildMail(pb, [], '2026-11-21', T).html.includes('1 zgłoszenie')); }
+assert.ok(m.html.includes('Incydenty: 1, wykryto we wszystkich tenantach (2)') && m.html.includes('Porady: 3')); assert.ok(m.html.includes('Publiczne strony stanu usług Microsoft')); assert.ok(m.html.includes('brak aktywnych problemów (subskrypcje: 1)'));
+{ const one = clone(live); one.health[1].issues = one.health[1].issues.filter((i) => i.id !== 'EX1561765'); assert.ok(N.buildMail(one, [], '2026-11-21', T).html.includes('Incydenty: 1, wykryto w 1 z 2 tenantów')); const np = clone(live); np.public = { ok: false }; assert.ok(N.buildMail(np, [], '2026-11-21', T).html.includes('brak odczytu')); const pb = clone(live); pb.public.m365.status = 'Degraded'; assert.ok(N.buildMail(pb, [], '2026-11-21', T).html.includes('1 zgłoszenie')); }
 // 5. zamknięcie, sonda
 let next5 = set(clone(live), (i) => { i.resolved = true; i.status = 'serviceRestored'; i.end = '2026-11-20T17:00:00Z'; }); ev = N.mailEvents(live, next5, {}, T); y = N.whyEvent(ev[0]); console.log(ev[0].type, y.lead, y.items.map((x) => x.join(': ')).join(' | '));
 // zapis wiadomości do podglądu
@@ -57,7 +57,8 @@ if (process.env.MAIL_OUT) fs.writeFileSync(process.env.MAIL_OUT + '.daily.html',
 }
 // Układ: tytuły sekcji w jednym stylu, każde źródło w osobnej ramce, pomiary w tabeli zamiast tekstu ciągłego.
 { const x = N.buildMail(live, ev, null, T).html;
-  assert.equal((x.match(/border-left:5px solid #0b63ce/g) || []).length >= 3, true);
+  assert.equal((x.match(/border:1px solid #7fa8ea;border-radius:12px;background:#e6f0ff/g) || []).length >= 3, true);
+  assert.ok(/Incydenty: /.test(x) && /Porady: /.test(x) && !/otwarte zgłoszenia Microsoft/.test(x));
   assert.ok(x.includes('Pomiary własne i sygnały zewnętrzne') && x.includes('>Pomiar</th>'));
   assert.ok(!/Sondy HTTP: odpowiada|Regiony Azure: odpowiada/.test(x));
   const part = x.slice(x.indexOf('Stan według źródeł'), x.indexOf('Zgłoszeni'));
