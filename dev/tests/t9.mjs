@@ -36,4 +36,12 @@ f = mk({ firstApi400: true }); r = await readTenantAzure(T, 'a', f); assert.equa
 const a = await readTenantAzure({ ...T, label: 'Tenant 1' }, 'a', mk()), b = await readTenantAzure({ ...T, label: 'Tenant 2' }, 'a', mk({ subs: [SUB1], events: { [SUB1]: [ev('7PRY-G18', 'Active')] } }));
 const m = mergeAzure([a, b], Date.parse('2026-11-18T12:00:00Z'));
 assert.equal(m.ok, true); assert.equal(m.subs, 3); assert.equal(m.items[0].id, '7PRY-G18'); assert.equal(m.items[0].active, true); assert.equal(m.items[0].tenants.length, 2); assert.equal(m.items.find((i) => i.id === 'OLD-1').active, false);
+// Podsumowanie konfiguracji: liczby i etykiety publiczne, bez identyfikatorów i adresów.
+{ const H = await import('../../probes/health.mjs');
+  const env = { PULSE_TENANTS: JSON.stringify([{ label: 'Tenant 1', tenantId: 'aaaa1111-0000-0000-0000-000000000000', clientId: 'cccc', mailboxUser: 'skrzynka@example.com' }, { label: 'Tenant 2', tenantId: 'bbbb2222-0000-0000-0000-000000000000', clientId: 'dddd' }]), PULSE_NOTIFY: JSON.stringify({ to: ['a@example.com', 'b@example.com', 'zly'], from: 'n@example.com', tenant: 'Tenant 2', advisories: true }), PULSE_CF_TOKEN: ' x ' };
+  const c = H.configSummary(env), l = H.configLine(c);
+  assert.deepEqual([c.tenants, c.mailboxChecks, c.recipients, c.sender, c.senderTenantOk, c.advisories, c.cloudflare], [2, 1, 2, true, true, true, true]);
+  assert.ok(!/example\.com|0000-0000|cccc|dddd/.test(l) && /tenanty=2/.test(l) && /adresaci-powiadomien=2/.test(l));
+  const bad = H.configSummary({ PULSE_TENANTS: '{', PULSE_NOTIFY: JSON.stringify({ to: [], from: '', tenant: 'X' }) });
+  assert.ok(bad.errors.length === 1 && bad.tenants === 0 && !bad.senderTenantOk && /BRAK NA LIŚCIE/.test(H.configLine(bad))); }
 console.log('AZURE HEALTH TESTS PASSED');

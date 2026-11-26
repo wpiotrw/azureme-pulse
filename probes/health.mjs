@@ -97,6 +97,21 @@ async function graphGet(url, token) {
 
 // Label shown on the public page: the configured name plus the first four characters of the tenant id,
 // enough for the owner to tell tenants apart without publishing the identifier.
+// Podsumowanie konfiguracji z sekretów do dziennika zadania: same liczby i etykiety publiczne, bez identyfikatorów i adresów.
+export function configSummary(env = process.env) {
+  const out = { tenants: 0, labels: [], mailboxChecks: 0, recipients: 0, sender: false, senderTenantOk: false, advisories: false, cloudflare: !!String(env.PULSE_CF_TOKEN || '').trim(), errors: [] };
+  let t = [];
+  try { t = JSON.parse(env.PULSE_TENANTS || '[]'); if (!Array.isArray(t)) throw new Error('nie jest listą'); } catch { t = []; out.errors.push('PULSE_TENANTS nie jest poprawnym JSON'); }
+  t = t.filter((x) => x && typeof x === 'object');
+  out.tenants = t.length; out.labels = t.map((x) => publicLabel(x)); out.mailboxChecks = t.filter((x) => x && x.mailboxUser).length;
+  let n = null;
+  try { n = JSON.parse(env.PULSE_NOTIFY || 'null'); } catch { out.errors.push('PULSE_NOTIFY nie jest poprawnym JSON'); }
+  if (n) { out.recipients = [].concat(n.to || []).filter((a) => /^[^@\s]+@[^@\s]+$/.test(a)).length; out.sender = !!n.from; out.senderTenantOk = t.some((x) => x && x.label === n.tenant); out.advisories = n.advisories === true; }
+  return out;
+}
+export function configLine(c) {
+  return `konfiguracja: tenanty=${c.tenants}${c.labels.length ? ` [${c.labels.join(', ')}]` : ''} sprawdzenie-skrzynki=${c.mailboxChecks} adresaci-powiadomien=${c.recipients} nadawca=${c.sender ? 'ustawiony' : 'brak'} tenant-nadawcy=${c.senderTenantOk ? 'zgodny' : 'BRAK NA LIŚCIE'} porady-w-powiadomieniach=${c.advisories ? 'tak' : 'nie'} token-cloudflare=${c.cloudflare ? 'ustawiony' : 'brak'}${c.errors.length ? ` BŁĘDY: ${c.errors.join('; ')}` : ''}`;
+}
 export function publicLabel(tenant) {
   return `${tenant.label} (${String(tenant.tenantId || '').slice(0, 4)}…)`;
 }

@@ -1,7 +1,7 @@
 // AzureMe Pulse: unauthenticated HTTP reachability probes for public Microsoft endpoints.
 // Usage: node probes/probe.mjs <previous status.json> <output status.json>
 import { readFileSync, writeFileSync } from 'node:fs';
-import { readServiceHealth } from './health.mjs';
+import { readServiceHealth, configSummary, configLine } from './health.mjs';
 import { readAzureStatus } from './azure.mjs';
 import { notify, diffEvents, trackRestored } from './notify.mjs';
 import { probeRegions } from './regions.mjs';
@@ -107,6 +107,7 @@ if (prevPath && outPath) {
     const v = results[t.id];
     console.log(`${v.ok ? 'OK  ' : 'FAIL'} ${t.id.padEnd(14)} code=${v.code} ${v.ms} ms ${v.err}`);
   }
+  { const cs = configSummary(); console.log(`${cs.errors.length || !cs.tenants ? 'BŁĄD' : 'OK  '} ${configLine(cs)}`); }
   const health = await readServiceHealth();
   for (const h of health) console.log(`${h.ok ? 'OK  ' : 'FAIL'} health:${h.label} services=${h.services.length} issues=${h.issues.length} ${h.query || ''} ${h.error || ''}`);
   // Keep the previous reading for a tenant whose read failed, so one failed login does not blank the page.

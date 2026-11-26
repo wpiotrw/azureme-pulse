@@ -90,6 +90,7 @@ export function radarWeekly(timestamps, values) {
 }
 
 export async function readRadar(prev, now = Date.now(), get = getJson, token = process.env.PULSE_CF_TOKEN) {
+  token = String(token || '').trim();
   if (!token) return { configured: false };
   if (fresh(prev, now) && prev.configured && (prev.week || prev.weekError)) return prev;
   const out = { configured: true, ok: false, source: 'Cloudflare Radar', asn: ASN, fetched: new Date(now).toISOString() };
