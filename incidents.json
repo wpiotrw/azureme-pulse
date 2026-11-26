@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated": "2026-11-26T21:11:00Z",
+  "updated": "2026-11-26T23:11:00Z",
   "incidents": [
     {
       "ids": [
@@ -106,8 +106,8 @@
       "services": [
         "Exchange Online"
       ],
-      "summary": "Użytkownicy mogą nie móc wysyłać zaproszeń kalendarza w Exchange Online. Microsoft ustalił, że aktualizacja usługi usunęła podtyp ruchu „MeetingMessage”, przez co obowiązuje limit 25 odbiorców zamiast standardowych 5000. Zgłoszenie EX1569272 zmieniło klasyfikację z porady (advisory) na incydent (incident) 26-11-2026 o 18:39 UTC. Stan w Service health: „Obniżenie wydajności usługi”. Według odczytu z 26-11-2026 20:36 UTC Microsoft wycofuje aktualizację dla ograniczonej części infrastruktury i sprawdza skutek z użytkownikami przed szerszym wycofaniem. Termin szerszego wycofania nie podano w źródłach. Następna aktualizacja zapowiedziana na 26-11-2026 23:00 UTC.",
-      "summary_en": "Users may be unable to send calendar invitations in Exchange Online. Microsoft determined that a service update removed the “MeetingMessage” traffic subtype, so a limit of 25 recipients applies instead of the standard 5000. The issue changed classification from advisory to incident on 26-11-2026 at 18:39 UTC. Service health state: “Service degradation”. According to the read of 26-11-2026 20:36 UTC, Microsoft is rolling back the update for a limited part of the infrastructure and checking the effect with users before a wider rollback. The date of the wider rollback is not given in the sources. The next update is announced for 26-11-2026 at 23:00 UTC.",
+      "summary": "Użytkownicy mogą nie móc wysyłać zaproszeń kalendarza w Exchange Online. Microsoft ustalił, że aktualizacja usługi usunęła podtyp ruchu „MeetingMessage”, przez co obowiązuje limit 25 odbiorców zamiast standardowych 5000. Zgłoszenie EX1569272 zmieniło klasyfikację z porady (advisory) na incydent (incident) 26-11-2026 o 18:39 UTC. Stan w Service health: „Obniżenie wydajności usługi”. Według odczytu z 26-11-2026 23:06 UTC Microsoft zakończył wycofanie aktualizacji dla ograniczonej części infrastruktury i potwierdził z użytkownikami, że skutek został usunięty. Microsoft przygotowuje szersze wycofanie dla wszystkich dotkniętych użytkowników, które według komunikatu rozpocznie się do następnej aktualizacji. Następna aktualizacja zapowiedziana na 27-11-2026 03:30 UTC.",
+      "summary_en": "Users may be unable to send calendar invitations in Exchange Online. Microsoft determined that a service update removed the “MeetingMessage” traffic subtype, so a limit of 25 recipients applies instead of the standard 5000. The issue changed classification from advisory to incident on 26-11-2026 at 18:39 UTC. Service health state: “Service degradation”. According to the read of 26-11-2026 23:06 UTC, Microsoft completed the update rollback for a limited part of the infrastructure and confirmed with users that the impact was removed. Microsoft is preparing a wider rollback for all affected users, which according to the message will begin by the next update. The next update is announced for 27-11-2026 at 03:30 UTC.",
       "sources": [
         {
           "name": "Microsoft Service Health (odczyt portalu)",
