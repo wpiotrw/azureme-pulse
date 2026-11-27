@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updated": "2026-11-26T23:11:00Z",
+  "updated": "2026-11-27T00:15:00Z",
   "incidents": [
     {
       "ids": [
@@ -98,16 +98,16 @@
       "ids": [
         "EX1569272"
       ],
-      "title": "Exchange Online: ograniczenie liczby odbiorców zaproszeń kalendarza do 25",
-      "title_en": "Exchange Online: calendar invitation recipient limit reduced to 25",
+      "title": "Exchange Online: ograniczenie liczby odbiorców zaproszeń kalendarza do 25, usługa została przywrócona",
+      "title_en": "Exchange Online: calendar invitation recipient limit reduced to 25, service restored",
       "start": "2026-11-10T00:00:00Z",
-      "duration": "trwa; początek 10-11-2026 00:00 UTC według pola początku w Service health, zgłoszenie opublikowane 26-11-2026 o 18:34 UTC",
-      "duration_en": "ongoing; start 10-11-2026 00:00 UTC per the start field in Service health, issue published on 26-11-2026 at 18:34 UTC",
+      "duration": "około 16 dni (od 10-11-2026 00:00 UTC do 26-11-2026 23:39 UTC według pola końca w Service health)",
+      "duration_en": "about 16 days (from 10-11-2026 00:00 UTC to 26-11-2026 23:39 UTC per the end field in Service health)",
       "services": [
         "Exchange Online"
       ],
-      "summary": "Użytkownicy mogą nie móc wysyłać zaproszeń kalendarza w Exchange Online. Microsoft ustalił, że aktualizacja usługi usunęła podtyp ruchu „MeetingMessage”, przez co obowiązuje limit 25 odbiorców zamiast standardowych 5000. Zgłoszenie EX1569272 zmieniło klasyfikację z porady (advisory) na incydent (incident) 26-11-2026 o 18:39 UTC. Stan w Service health: „Obniżenie wydajności usługi”. Według odczytu z 26-11-2026 23:06 UTC Microsoft zakończył wycofanie aktualizacji dla ograniczonej części infrastruktury i potwierdził z użytkownikami, że skutek został usunięty. Microsoft przygotowuje szersze wycofanie dla wszystkich dotkniętych użytkowników, które według komunikatu rozpocznie się do następnej aktualizacji. Następna aktualizacja zapowiedziana na 27-11-2026 03:30 UTC.",
-      "summary_en": "Users may be unable to send calendar invitations in Exchange Online. Microsoft determined that a service update removed the “MeetingMessage” traffic subtype, so a limit of 25 recipients applies instead of the standard 5000. The issue changed classification from advisory to incident on 26-11-2026 at 18:39 UTC. Service health state: “Service degradation”. According to the read of 26-11-2026 23:06 UTC, Microsoft completed the update rollback for a limited part of the infrastructure and confirmed with users that the impact was removed. Microsoft is preparing a wider rollback for all affected users, which according to the message will begin by the next update. The next update is announced for 27-11-2026 at 03:30 UTC.",
+      "summary": "Użytkownicy mogli nie móc wysyłać zaproszeń kalendarza w Exchange Online. Microsoft ustalił, że aktualizacja usługi usunęła podtyp ruchu „MeetingMessage”, przez co obowiązywał limit 25 odbiorców zamiast standardowych 5000. Zgłoszenie EX1569272 zmieniło klasyfikację z porady (advisory) na incydent (incident) 26-11-2026 o 18:39 UTC. Według odczytu z 27-11-2026 00:06 UTC Service health pokazuje stan „Usługa została przywrócona”, koniec wpływu 26-11-2026 23:39 UTC. Microsoft podał, że po wdrożeniu poprawki w całym dotkniętym środowisku potwierdził z częścią użytkowników i telemetrią monitorowania całkowite usunięcie skutku.",
+      "summary_en": "Users may have been unable to send calendar invitations in Exchange Online. Microsoft determined that a service update removed the “MeetingMessage” traffic subtype, so a limit of 25 recipients applied instead of the standard 5000. The issue changed classification from advisory to incident on 26-11-2026 at 18:39 UTC. According to the read of 27-11-2026 00:06 UTC, Service health shows the state “Service restored”, with the end of impact at 26-11-2026 23:39 UTC. Microsoft stated that after deploying the fix across the affected environment it confirmed with a subset of users and monitoring telemetry that the impact was fully removed.",
       "sources": [
         {
           "name": "Microsoft Service Health (odczyt portalu)",
@@ -115,7 +115,8 @@
         }
       ],
       "own_probes": "Własne pomiary nie wykazały odchyleń; sondy nie obejmują wysyłania zaproszeń kalendarza.",
-      "own_probes_en": "Own measurements showed no deviations; the probes do not cover sending calendar invitations."
+      "own_probes_en": "Own measurements showed no deviations; the probes do not cover sending calendar invitations.",
+      "end": "2026-11-26T23:39:00Z"
     }
   ]
 }
